@@ -1,10 +1,310 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>PyPie's main page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyPie - Tensor programming, fluid & safe</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap");
+
+        body {
+            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+            margin: 0;
+            background-color: var(--page-bg);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        :root {
+            --code-left: 18vw;
+            --code-left-secondary: var(--code-left);
+            --hero-pad-x: 2rem;
+            --hero-pad-top: clamp(3.5rem, 8vh, 6rem);
+            --hero-pad-bottom: clamp(1.5rem, 4vh, 2.5rem);
+            --page-bg: #f8f9fa;
+            --text-color: #212529;
+            --hero-bg: #343a40;
+            --hero-text: #ffffff;
+            --top-bar-bg: #212529;
+            --btn-text: #f8f9fa;
+            --btn-border: #f8f9fa;
+            --theme-toggle-bg: #fdf6e3;
+            --code-base: rgba(255, 255, 255, 0.18);
+            --code-kw: rgba(255, 219, 92, 0.3);
+            --code-fn: rgba(138, 235, 255, 0.3);
+            --code-type: rgba(255, 167, 227, 0.3);
+            --code-num: rgba(190, 255, 151, 0.3);
+            --code-op: rgba(255, 255, 255, 0.3);
+            --tooltip-bg: rgba(12, 12, 12, 0.9);
+            --tooltip-text: #f8f9fa;
+            --tooltip-border: rgba(255, 255, 255, 0.2);
+        }
+        body.theme-solaris {
+            --page-bg: #fdf6e3;
+            --text-color: #586e75;
+            --hero-bg: #eee8d5;
+            --hero-text: #073642;
+            --top-bar-bg: #e7ddc7;
+            --btn-text: #586e75;
+            --btn-border: #93a1a1;
+            --theme-toggle-bg: #343a40;
+            --code-base: rgba(88, 110, 117, 0.45);
+            --code-kw: rgba(181, 137, 0, 0.6);
+            --code-fn: rgba(42, 161, 152, 0.6);
+            --code-type: rgba(108, 113, 196, 0.6);
+            --code-num: rgba(133, 153, 0, 0.6);
+            --code-op: rgba(88, 110, 117, 0.6);
+            --tooltip-bg: rgba(253, 246, 227, 0.95);
+            --tooltip-text: #586e75;
+            --tooltip-border: rgba(147, 161, 161, 0.5);
+        }
+        .top-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: clamp(0.5rem, 2vh, 1rem) 2rem;
+            background-color: var(--top-bar-bg);
+            position: relative;
+        }
+        .top-actions .btn {
+            color: var(--btn-text);
+            text-decoration: none;
+            border: 1px solid var(--btn-border);
+            padding: 0.5rem 1.25rem;
+            border-radius: 4px;
+            font-weight: 600;
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+        }
+        .theme-toggle {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            padding: 0;
+            border-radius: 999px;
+            border: 1px solid var(--btn-border);
+            background: var(--theme-toggle-bg);
+            cursor: pointer;
+        }
+        .theme-toggle:focus-visible {
+            outline: 2px solid var(--btn-text);
+            outline-offset: 2px;
+        }
+        .hero {
+            background-color: var(--hero-bg);
+            color: var(--hero-text);
+            padding: var(--hero-pad-top) var(--hero-pad-x) var(--hero-pad-bottom);
+            flex: 1 1 auto;
+            min-height: 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-code {
+            position: absolute;
+            inset: 0;
+            margin: 0;
+            padding: 2rem 2rem 2rem calc(var(--code-left) + var(--hero-pad-x));
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 1.35rem;
+            line-height: 1.6;
+            color: var(--code-base);
+            white-space: pre;
+            text-align: left;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-code-secondary {
+            margin: 0;
+            padding: 0 2rem 2rem var(--code-left-secondary);
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 1.35rem;
+            line-height: 1.6;
+            color: var(--code-base);
+            white-space: pre;
+            text-align: left;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-code-example {
+            margin: 0;
+            padding: 0 2rem 2rem var(--code-left-secondary);
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 1.35rem;
+            line-height: 1.6;
+            color: var(--code-base);
+            white-space: pre;
+            text-align: left;
+            pointer-events: none;
+            z-index: 0;
+            margin-top: 0.75rem;
+        }
+        .code-type-tooltip {
+            position: fixed;
+            left: 0;
+            top: 0;
+            transform: translate(-50%, -130%);
+            background: var(--tooltip-bg);
+            color: var(--tooltip-text);
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--tooltip-border);
+            border-radius: 4px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;
+            transition: opacity 120ms ease;
+        }
+        .hero-code .kw,
+        .hero-code-secondary .kw,
+        .hero-code-example .kw {
+            color: var(--code-kw);
+        }
+        .hero-code .fn,
+        .hero-code-secondary .fn,
+        .hero-code-example .fn {
+            color: var(--code-fn);
+        }
+        .hero-code .type,
+        .hero-code-secondary .type,
+        .hero-code-example .type {
+            color: var(--code-type);
+        }
+        .hero-code .num,
+        .hero-code-secondary .num,
+        .hero-code-example .num {
+            color: var(--code-num);
+        }
+        .hero-code .op,
+        .hero-code-secondary .op,
+        .hero-code-example .op {
+            color: var(--code-op);
+        }
+        .code-var {
+            display: inline-block;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 36rem;
+            margin-inline: auto;
+            padding-inline: 1rem;
+        }
+        .hero h1 {
+            font-family: sans-serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-family: sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .content {
+            padding: clamp(0.5rem, 2vh, 1rem) 2rem 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 0 0 auto;
+        }
+        .about {
+            margin-top: 0;
+            max-width: 36rem;
+            margin-inline: auto;
+            padding-inline: 1rem;
+            text-align: left;
+        }
+        .about p {
+            max-width: 65ch;
+            line-height: 1.65;
+        }
+        @media (max-width: 768px) {
+            :root {
+                --hero-pad-x: 1rem;
+                --hero-pad-top: 2.25rem;
+                --hero-pad-bottom: 1rem;
+                --code-left: 0.5rem;
+                --code-left-secondary: 0.75rem;
+            }
+            body {
+                height: auto;
+                min-height: 100dvh;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+            .top-actions {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 0.5rem;
+                padding: 0.5rem 1rem;
+            }
+            .theme-toggle {
+                position: static;
+                transform: none;
+                margin-left: auto;
+            }
+            .hero {
+                text-align: left;
+            }
+            .hero h1 {
+                font-size: clamp(2rem, 10vw, 2.5rem);
+                margin-bottom: 0.5rem;
+            }
+            .hero p {
+                font-size: clamp(1rem, 4.8vw, 1.25rem);
+                line-height: 1.4;
+                margin-bottom: 1rem;
+            }
+            .hero-code {
+                padding: 1rem;
+                font-size: 0.9rem;
+                line-height: 1.45;
+                opacity: 0.35;
+            }
+            .hero-code-secondary,
+            .hero-code-example {
+                display: none;
+            }
+            .content {
+                max-width: 100%;
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
-<body>
-    <h1>Hello, World!</h1>
-    <p>This website is hosted for free on GitHub Pages.</p>
+<body class="theme-dark">
+    <div data-top-actions></div>
+    <div class="hero">
+        <pre class="hero-code" aria-hidden="true"></pre>
+        <div class="hero-content">
+            <h1>PyPie</h1>
+            <p>Tensor programming, fluid & safe</p>
+        </div>
+        <pre class="hero-code-secondary" aria-hidden="true"></pre>
+        <pre class="hero-code-example" aria-hidden="true"></pre>
+    </div>
+    <div class="content">
+        <div class="about">
+            <h2>About PyPie</h2>
+            <p>
+                PyPie modernizes tensor programming with clarity and simplicity.
+                It validates types at compile time, so your model does not
+                crash due to a shape mismatch after running for hours.
+                It automates fusion and parallelization, so your code stays
+                concise and high-level.
+            </p>
+        </div>
+
+    </div>
+    <div class="code-type-tooltip" aria-hidden="true"></div>
+    <script src="top-actions.js"></script>
+    <script src="code-types.js"></script>
 </body>
 </html>

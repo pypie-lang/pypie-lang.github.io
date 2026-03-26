@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyPie - ML Programming 101</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap");
+
+        body {
+            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+            margin: 0;
+            background-color: var(--hero-bg);
+            color: var(--hero-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        :root {
+            --hero-bg: #343a40;
+            --hero-text: #ffffff;
+            --top-bar-bg: #212529;
+            --btn-text: #f8f9fa;
+            --btn-border: #f8f9fa;
+            --theme-toggle-bg: #fdf6e3;
+            --panel-bg: rgba(255, 255, 255, 0.06);
+            --panel-border: rgba(255, 255, 255, 0.14);
+            --muted-text: rgba(248, 249, 250, 0.72);
+            --link-color: #9ddcff;
+            --chat-left-bg: rgba(255, 255, 255, 0.05);
+            --chat-left-border: rgba(255, 255, 255, 0.22);
+            --chat-right-bg: rgba(157, 220, 255, 0.15);
+            --chat-right-border: rgba(157, 220, 255, 0.48);
+            --chat-speaker: rgba(248, 249, 250, 0.68);
+            --inline-code-bg: rgba(0, 0, 0, 0.32);
+            --inline-code-border: rgba(255, 255, 255, 0.18);
+            --code-bg: rgba(0, 0, 0, 0.35);
+            --code-border: rgba(255, 255, 255, 0.2);
+            --code-base: rgba(255, 255, 255, 0.88);
+            --code-kw: rgba(255, 219, 92, 0.9);
+            --code-fn: rgba(138, 235, 255, 0.9);
+            --code-type: rgba(255, 167, 227, 0.9);
+            --code-num: rgba(190, 255, 151, 0.9);
+            --code-op: rgba(255, 255, 255, 0.85);
+            --tooltip-bg: rgba(12, 12, 12, 0.9);
+            --tooltip-text: #f8f9fa;
+            --tooltip-border: rgba(255, 255, 255, 0.2);
+        }
+        body.theme-solaris {
+            --hero-bg: #eee8d5;
+            --hero-text: #073642;
+            --top-bar-bg: #e7ddc7;
+            --btn-text: #586e75;
+            --btn-border: #93a1a1;
+            --theme-toggle-bg: #343a40;
+            --panel-bg: rgba(253, 246, 227, 0.75);
+            --panel-border: rgba(147, 161, 161, 0.5);
+            --muted-text: rgba(88, 110, 117, 0.78);
+            --link-color: #268bd2;
+            --chat-left-bg: rgba(253, 246, 227, 0.88);
+            --chat-left-border: rgba(147, 161, 161, 0.5);
+            --chat-right-bg: rgba(38, 139, 210, 0.14);
+            --chat-right-border: rgba(38, 139, 210, 0.44);
+            --chat-speaker: rgba(88, 110, 117, 0.72);
+            --inline-code-bg: rgba(7, 54, 66, 0.08);
+            --inline-code-border: rgba(147, 161, 161, 0.45);
+            --code-bg: rgba(253, 246, 227, 0.9);
+            --code-border: rgba(147, 161, 161, 0.5);
+            --code-base: rgba(88, 110, 117, 0.95);
+            --code-kw: rgba(181, 137, 0, 0.95);
+            --code-fn: rgba(42, 161, 152, 0.95);
+            --code-type: rgba(108, 113, 196, 0.95);
+            --code-num: rgba(133, 153, 0, 0.95);
+            --code-op: rgba(88, 110, 117, 0.9);
+            --tooltip-bg: rgba(253, 246, 227, 0.95);
+            --tooltip-text: #586e75;
+            --tooltip-border: rgba(147, 161, 161, 0.5);
+        }
+        .top-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: clamp(0.5rem, 2vh, 1rem) 2rem;
+            background-color: var(--top-bar-bg);
+            position: relative;
+        }
+        .top-actions .btn {
+            color: var(--btn-text);
+            text-decoration: none;
+            border: 1px solid var(--btn-border);
+            padding: 0.5rem 1.25rem;
+            border-radius: 4px;
+            font-weight: 600;
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+        }
+        .theme-toggle {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            padding: 0;
+            border-radius: 999px;
+            border: 1px solid var(--btn-border);
+            background: var(--theme-toggle-bg);
+            cursor: pointer;
+        }
+        .theme-toggle:focus-visible {
+            outline: 2px solid var(--btn-text);
+            outline-offset: 2px;
+        }
+        .doc-shell {
+            display: grid;
+            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+            gap: clamp(1.5rem, 4vw, 3rem);
+            padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 6vw, 4.5rem) 3.5rem;
+        }
+        .doc-nav {
+            position: sticky;
+            top: 1.5rem;
+            align-self: start;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-left: -0.75rem;
+        }
+        .doc-nav__title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted-text);
+            margin-bottom: 1rem;
+        }
+        .doc-nav a {
+            display: block;
+            color: var(--hero-text);
+            text-decoration: none;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+        .doc-nav a:hover {
+            color: var(--link-color);
+        }
+        .doc-nav a[aria-current="page"] {
+            color: var(--link-color);
+        }
+        .doc-content {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: clamp(1.75rem, 4vw, 3rem);
+            line-height: 1.65;
+        }
+        .doc-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+            gap: clamp(1rem, 3vw, 1.75rem);
+            align-items: start;
+        }
+        .doc-header p {
+            color: var(--muted-text);
+            margin-top: 0;
+        }
+        .doc-header h1 {
+            font-size: clamp(2.5rem, 5vw, 3.6rem);
+            margin: 0.4rem 0 1rem;
+        }
+        .doc-lead {
+            font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+        }
+        section {
+            margin-top: clamp(2rem, 5vw, 3rem);
+            scroll-margin-top: 1.5rem;
+        }
+        section h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-bottom: 0.75rem;
+        }
+        .lesson-chat__intro {
+            margin: 0 0 1.2rem;
+            color: var(--muted-text);
+        }
+        .keyword-panel {
+            background: var(--chat-left-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 0.9rem 1rem;
+        }
+        .doc-keywords {
+            align-self: start;
+            position: sticky;
+            top: 1.5rem;
+        }
+        .keyword-panel__title {
+            margin: 0 0 0.55rem;
+            font-size: 0.74rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted-text);
+        }
+        .keyword-panel__list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.38rem;
+        }
+        .keyword-panel__item {
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 0.88rem;
+        }
+        .keyword-panel__item--empty {
+            color: var(--muted-text);
+            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+            font-size: 0.88rem;
+        }
+        .keyword-panel__link {
+            color: inherit;
+            text-decoration: none;
+        }
+        .keyword-panel__link:hover {
+            text-decoration: underline;
+        }
+        .keyword-panel__link:focus-visible {
+            outline: 1px solid var(--btn-border);
+            outline-offset: 2px;
+            border-radius: 3px;
+        }
+        .keyword-panel__item code {
+            font: inherit;
+            color: inherit;
+            background: transparent;
+            border: 0;
+            padding: 0;
+        }
+        .chat-thread {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+            width: 100%;
+            max-width: min(72ch, 100%);
+            margin-inline: auto;
+        }
+        .chat-row {
+            display: flex;
+            width: 100%;
+        }
+        .chat-row--left {
+            padding-right: clamp(0.8rem, 3.2vw, 2rem);
+        }
+        .chat-row--right {
+            padding-left: clamp(0.8rem, 3.2vw, 2rem);
+        }
+        .chat-bubble {
+            width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            border: 1px solid;
+            border-radius: 10px;
+            padding: clamp(0.9rem, 2.4vw, 1.15rem) clamp(1rem, 2.6vw, 1.3rem);
+            min-height: 6.4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .chat-bubble__index {
+            position: absolute;
+            top: 0.42rem;
+            right: 0.62rem;
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--chat-speaker);
+            pointer-events: none;
+        }
+        .chat-bubble--left {
+            background: var(--chat-left-bg);
+            border-color: var(--chat-left-border);
+        }
+        .chat-bubble--right {
+            background: var(--chat-right-bg);
+            border-color: var(--chat-right-border);
+        }
+        .chat-bubble--left::before,
+        .chat-bubble--left::after,
+        .chat-bubble--right::before,
+        .chat-bubble--right::after {
+            content: "";
+            position: absolute;
+            top: 1rem;
+            width: 0;
+            height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+        }
+        .chat-bubble--left::before {
+            left: -15px;
+            border-right: 8px solid var(--chat-left-border);
+        }
+        .chat-bubble--left::after {
+            left: -13px;
+            border-right: 8px solid var(--chat-left-bg);
+        }
+        .chat-bubble--right::before {
+            right: -15px;
+            border-left: 8px solid var(--chat-right-border);
+        }
+        .chat-bubble--right::after {
+            right: -13px;
+            border-left: 8px solid var(--chat-right-bg);
+        }
+        .chat-bubble__speaker {
+            margin: 0 0 0.35rem;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--chat-speaker);
+        }
+        .chat-bubble__text {
+            margin: 0;
+        }
+        .chat-bubble__text + .chat-bubble__text {
+            margin-top: 0.55rem;
+        }
+        .chat-bubble__link {
+            color: var(--link-color);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .chat-bubble__link:focus-visible {
+            outline: 1px solid var(--btn-border);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+        .chat-bubble__text code {
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 0.9em;
+            white-space: nowrap;
+            word-break: normal;
+            overflow-wrap: normal;
+            background: var(--inline-code-bg);
+            border: 1px solid var(--inline-code-border);
+            border-radius: 4px;
+            padding: 0.1rem 0.35rem;
+        }
+        .chat-bubble .doc-code {
+            margin: 0.7rem 0 0;
+            border-radius: 8px;
+        }
+        .chat-bubble__fenced-code {
+            margin: 0.7rem 0 0;
+            border-radius: 8px;
+        }
+        .chat-bubble__fenced-code code {
+            font: inherit;
+            color: inherit;
+        }
+        .chat-bubble__fenced-code + .chat-bubble__text {
+            margin-top: 0.7rem;
+        }
+        .doc-code {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            overflow-x: auto;
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--code-base);
+            white-space: pre;
+        }
+        .doc-code .kw {
+            color: var(--code-kw);
+        }
+        .doc-code .fn {
+            color: var(--code-fn);
+        }
+        .doc-code .type {
+            color: var(--code-type);
+        }
+        .doc-code .num {
+            color: var(--code-num);
+        }
+        .doc-code .op {
+            color: var(--code-op);
+        }
+        .code-type-tooltip {
+            position: fixed;
+            left: 0;
+            top: 0;
+            transform: translate(-50%, -130%);
+            background: var(--tooltip-bg);
+            color: var(--tooltip-text);
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--tooltip-border);
+            border-radius: 4px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;
+            transition: opacity 120ms ease;
+        }
+        @media (max-width: 900px) {
+            .doc-shell {
+                grid-template-columns: 1fr;
+            }
+            .doc-nav {
+                position: static;
+                margin-left: 0;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.75rem 1rem;
+            }
+            .doc-nav a {
+                margin-bottom: 0;
+            }
+            .doc-main {
+                grid-template-columns: 1fr;
+            }
+            .doc-keywords {
+                position: static;
+            }
+        }
+        @media (max-width: 640px) {
+            .chat-row--left,
+            .chat-row--right {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .chat-bubble {
+                width: 100%;
+                min-height: 5.4rem;
+            }
+        }
+    </style>
+</head>
+<body class="theme-dark" data-learn-page="corr">
+    <div data-top-actions></div>
+    <div class="doc-shell">
+        <aside class="doc-nav" data-learn-nav></aside>
+        <div class="doc-main">
+            <article class="doc-content" data-code-surface>
+                <header class="doc-header">
+                    <p class="doc-eyebrow" data-learn-eyebrow></p>
+                    <h1 data-learn-title></h1>
+                    <p class="doc-lead" data-learn-lead></p>
+                </header>
+
+                <section class="lesson-chat" data-learn-section>
+                    <h2 data-learn-section-title></h2>
+                    <p class="lesson-chat__intro" data-learn-section-body></p>
+                    <div class="chat-thread" data-learn-dialog></div>
+                </section>
+            </article>
+            <aside class="keyword-panel doc-keywords" aria-label="Chapter keywords">
+                <h3 class="keyword-panel__title">Keywords</h3>
+                <ul class="keyword-panel__list" data-learn-keywords></ul>
+            </aside>
+        </div>
+    </div>
+    <div class="code-type-tooltip" aria-hidden="true"></div>
+    <script src="../../top-actions.js"></script>
+    <script src="../../code-types.js"></script>
+    <script src="../learn-shared.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

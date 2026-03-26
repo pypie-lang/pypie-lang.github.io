@@ -1,0 +1,26 @@
+{
+  "name": "website",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Build tooling for the PyPie website",
+  "main": "code-types.js",
+  "scripts": {
+    "deps": "make deps",
+    "build:ts": "make compile-ts",
+    "build": "make build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WeixiMa/pypie-website.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WeixiMa/pypie-website/issues"
+  },
+  "homepage": "https://github.com/WeixiMa/pypie-website#readme",
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,39 @@
+{
+    "rowHeaderLabel": "Workload",
+    "columnGroups": [
+        {
+            "label": "PyPie",
+            "columns": [
+                { "key": "pypie_warmup", "label": "Warmup" },
+                { "key": "pypie_gpu", "label": "GPU" }
+            ]
+        },
+        {
+            "label": "PyTorch",
+            "columns": [
+                { "key": "pytorch_warmup", "label": "Warmup" },
+                { "key": "pytorch_gpu", "label": "GPU" }
+            ]
+        }
+    ],
+    "rows": [
+        {
+            "label": "Lenet, 60,000 Fashion-MNIST, 10 epochs.",
+            "values": {
+                "pypie_warmup": "36.5s",
+                "pypie_gpu": "4.7s",
+                "pytorch_warmup": "2 s",
+                "pytorch_gpu": "1.3 s"
+            }
+        },
+        {
+            "label": "Transformer\nseq_len: 32, dim: 32\nvocab: 65, num_heads: 8\nhead_size: 4",
+            "values": {
+                "pypie_warmup": "310.5 s",
+                "pypie_gpu": "72.8 s",
+                "pytorch_warmup": "2.9 s",
+                "pytorch_gpu": "6.8 s"
+            }
+        }
+    ]
+}

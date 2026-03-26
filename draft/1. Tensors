@@ -1,0 +1,7 @@
+- how to create tensors
+- shape of tensors
+- rank of tensors
+- adding two tensors
+- adding two tensors with rank-polymorphism
+- numpy interop
+- language reference
