@@ -15,7 +15,7 @@
                     id: "installation",
                     slug: "../installation/index.html",
                     title: "Install PyPie",
-                    navTitle: "0. Install PyPie",
+                    navTitle: "Install PyPie",
                 },
             ],
         },
