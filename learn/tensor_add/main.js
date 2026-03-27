@@ -32,7 +32,7 @@
                 "Second: `Tensor([3, 2, 1]) + Tensor([5, 7, 9])`.\n" +
                 "Then we combine the results as `Tensor([[6, 9, 12], [8, 9, 10]])`?"),
             message("D", "What is the result type?"),
-            message("W", "The result is `Tensor[int][[2, 3]]`, same as the larger input shape.\n" +
+            message("W", "The result is `Tensor[int][[2, 3]]`, the same as the larger input shape.\n" +
                 "It's a nice trick to split the larger `Tensor`!"),
             message("D", "The trick is called rank polymorphism."),
             message("W", "An intimidating name!"),
@@ -65,7 +65,7 @@
             message("W", "Let's see it!"),
             message("D", "Two `List[int]`s are !!compatible!!, if we line them up from the right and find a " +
                 "!!suffix!! in the longer one that matches the shorter.* " +
-                "The remaining in the longer list is called the !!prefix!!.\n" +
+                "The remaining part in the longer list is called the !!prefix!!.\n" +
                 "Find the suffix and prefix for `x` and `y`."),
             message("W", "For `x`, compare `[2, 3]` with `[]`: suffix `[]`, prefix `[2, 3]`.\n" +
                 "For `y`, compare `[3]` with `[]`: suffix `[]`, prefix `[3]`.\n" +
@@ -101,6 +101,6 @@
                 "Time for a break!"),
             message("W", "Okay, ciao!"),
         ],
-        notes: "* We match the `int`s in two `List[int]`s in matching positions, from the right end. We consider two `int`s match, if they are identical, or if either of them is `1`.",
+        notes: "* We match the `int`s in two `List[int]`s in matching positions, from the right end. Two `int`s  match, if they are identical, or if either of them is `1`.",
     });
 })();

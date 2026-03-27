@@ -3943,7 +3943,7 @@
                 buildCodeBlock: (_ast) => corr2dWithParamsDefinitionBlock,
                 textAfterCode: "Here's the new `corr2d_multi_in_out`."
             },
-            message("D", "Next we create a class for LeNet parameters. How many corr2d layers and linears layers are there?"),
+            message("D", "Next we create a class for LeNet parameters. How many corr2d layers and linear layers are there?"),
             message("W", "Our LeNet has two layers of corr2d and three layers of linear."),
             {
                 ...message("D", "So, here are the parameters for LeNet."),

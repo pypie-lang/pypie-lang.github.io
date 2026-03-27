@@ -164,7 +164,7 @@
                         code: "smaller: [T](x: T, y: T) -> T",
                     },
                     {
-                        prose: "The larger or smaller one between the two."
+                        prose: "The larger or smaller of the two."
                     },
                     {
                         code: "exp: [T](x: T) -> T"
@@ -182,7 +182,7 @@
                         prose: "A reducer takes a tensor and arbitrarily many dimensions to reduce. The dimensions must be integer literals. " +
                             "PyPie recognizes both `xs.sum(0, 1)` and `sum(xs, 0, 1)`--they are identical.\n" +
                             "In the result, the given dimensions are removed. E.g. if `xs` is a `Tensor[int][[a, b, c]]`, then `xs.sum(0, 2)` is a `Tensor[int][[b]]`. " +
-                            "The given dimensions may not exceed the rank of the tensor. Duplicated dimensions are accepted, as if only one is give.\n" +
+                            "The given dimensions may not exceed the rank of the tensor. Duplicated dimensions are accepted, as if only one is given.\n" +
                             "A reducer expects the maximum rank on all its arguments. So rank polymorphism has no effect on reducers. " +
                             "PyPie provides five reducers."
                     },
@@ -202,7 +202,7 @@
                         code: "min: SpecialHandling",
                     },
                     {
-                        prose: "Their types are `SpecialHandling` because they are beyond the expressivenss of PyPie's types.\n" +
+                        prose: "Their types are `SpecialHandling` because they are beyond the expressiveness of PyPie's types.\n" +
                         "If we made up some syntax for a fully fledged dependent type, then their signatures would be something like " +
                         "`[T, s1: List[int]] (xs: Tensor[T][s1], s2: List[int]) -> Σ(s3: List[int], Tensor[int][s3] ∧ ...)`\n" +
                         "where `...` ensures that `s3` contains the unreduced dimensions and preserves their orders in `s1`, and nothing else.\n" +
@@ -225,7 +225,7 @@
                     {
                         prose: "`permute` takes a tensor and arbitrarily many dimensions. It reorders the elements in the tensor. " +
                             "E.g. if `xs` is a `Tensor[int][[a, b, c]]`, then `permute(xs, 0, 2, 1)` transposes the last two dimensions: `Tensor[int][[a, c, b]]`.\n" +
-                            "The dimensions must be integer literals and each dimension in the tensor must occur once. E.g. `permute(xs, 0, 1)` would be a type eror for missing dimension `2`.\n" +
+                            "The dimensions must be integer literals and each dimension in the tensor must occur once. E.g. `permute(xs, 0, 1)` would be a type error for missing dimension `2`.\n" +
                             "`permute` expects the maximum rank on all its arguments.\n" +
                             "`xs.permute(0, 2, 1)` is identical to `permute(xs, 0, 2, 1)`."
                     },
@@ -283,7 +283,7 @@
                         code: "slice_get: [T, n: int](xs: Tensor[T][[n]], start: int, end: int) -> Tensor[T][[end - start + 1]]",
                     },
                     {
-                        prose: "`slice_get(xs, start, end)` is the desugared form of `xs[start:end]`. Its inputs have maximum expected ranks\n" +
+                        prose: "`slice_get(xs, start, end)` is the desugared form of `xs[start:end]`. Its inputs have maximum expected ranks.\n" +
                             "PyPie does not check if `end` is not smaller than `start` or if `n` is not smaller than `end - start + 1`."
                     }
                 ]

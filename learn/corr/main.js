@@ -5449,7 +5449,7 @@
                 buildCodeBlock: (_ast) => corr2dDefinitionBlock,
             },
             message("W", "Great! Is it ready to detect patterns in images?"),
-            message("D", "It needes two more pieces:\ninput channels and output channels."),
+            message("D", "It needs two more pieces:\ninput channels and output channels."),
             message("W", "What are the channels for?"),
             message("D", "Sometimes our inputs have a rank higher than 2. " +
                 "For example, RGB images are `Tensor[float][[3, h, w]]`, where each `Tensor[float][[h, w]]` stores the intensity of red, green, or blue.\n" +

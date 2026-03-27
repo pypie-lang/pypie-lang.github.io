@@ -67,10 +67,10 @@
         },
         sections: [
             {
-                title: "Dependecies",
+                title: "Dependencies",
                 prose: "- Python >=3.10\n" +
                 "- C Compiler, such as `gcc` or `clang`.\n" +
-                "- [Optional] for the CUDA runtime, PyPie requries these headers: `libcuda`, `libcudart`, `libnvrtc`, and `lcublas`."
+                "- [Optional] for the CUDA runtime, PyPie requires these headers: `libcuda`, `libcudart`, `libnvrtc`, and `lcublas`."
             },
             {
                 title: "Install PyPie",
@@ -82,7 +82,7 @@
                 ],
             },
             {
-                title: "IDE supports",
+                title: "IDE Support",
                 prose: "PyPie's [vscode extension](vscode:extension/PyPie.pypie) is available.",
             },
         ],

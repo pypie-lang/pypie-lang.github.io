@@ -5576,7 +5576,7 @@
             ),
             message(
                 "D",
-                "It needes two more pieces:\ninput channels and output channels."
+                "It needs two more pieces:\ninput channels and output channels."
             ),
             message(
                 "W",

@@ -1255,7 +1255,7 @@ const lineDefinitionBlock = {
                 "D",
                 "Yes, since `n` describes a dimension of the input tensors.\n" +
                 "When validating `loss`, PyPie knows that `ys_pred` and `ys` share the same shape. So that `ys_pred - ys` is valid.\n" +
-                "When applying `loss` on actual inputs, PyPie also checks for the equal shapes, modulo rank polymorphism."
+                "When applying `loss` on actual inputs, PyPie also checks for the shapes equality, modulo rank polymorphism."
             ),
             message(
                 "W",
@@ -1264,7 +1264,7 @@ const lineDefinitionBlock = {
             message(
                 "D",
                 "Almost always, we use a scalar as the loss.\n" +
-                "We first square each difference, so negatives and positives cannot cancel out during the folllowing `sum`.\n" +
+                "We first square each difference, so negatives and positives cannot cancel out during the following `sum`.\n" +
                 "This gives us a `Tensor[float][[n]]`.\n" +
                 "We then collapse the first dimension of this tensor to one scalar, using `sum(0)`.\n" +
                 "Let's run `loss`."

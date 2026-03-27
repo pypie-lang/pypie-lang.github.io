@@ -5739,9 +5739,9 @@
                 codeLabel: "complete `attention`",
                 buildCodeBlock: (_ast) => selfAttentionCompleteBlock,
             },
-            message("D", "Now we revisit the analogy of channels.\nThere are many kinds of attentions, just like many kinds of patterns in pictures. " +
-                "Some tracks the grammatical structure, some focuses on subject-verb agreement, and some pays attention to nearby conext.\n" +
-                "A model is more effective is we track different kinds seperately, just like LeNet's output channels learn different patterns."),
+            message("D", "Now we revisit the analogy of channels.\nThere are different attentions, just like different patterns in pictures. " +
+                "Some tracks the grammatical structure, some focuses on subject-verb agreement, and some pays attention to nearby conexts.\n" +
+                "A model is more effective if we seperate these attentions in different tensors, just like LeNet's output channels learn different patterns."),
             message("W", "I see! Can we simply add an extra dimension for `q`, `k`, and `v`?"),
             {
                 ...message("D", "Exactly. This extra dimension is `h`, for multi-heads attention.\n" +
@@ -5754,7 +5754,7 @@
                 ...message("D", "The decision-maker is called `feed_forward`. It consists of two linear layers."),
                 codeLabel: "`FeedForwardParams` and `feed_forward` definitions",
                 buildCodeBlock: (_ast) => feedForwardDefinitionBlock,
-                textAfterCode: "The first layer expands the parameters, give more space to untangle complex data. " +
+                textAfterCode: "The first layer expands the parameters, gives more space to untangle complex data. " +
                     "Then the second layer compresses the learned information to the original size."
             },
             message("W", "Why expanding by `4`? Is it another alchemy number?"),
@@ -5769,7 +5769,7 @@
                 ...message("D", "We also want `x` to stay well scaled, since practical models often stack many blocks in sequence.\n"),
                 codeLabel: "`LayerNormParams` and `layer_norm` definitions",
                 buildCodeBlock: (_ast) => layerNormDefinitionBlock,
-                textAfterCode: "`layer_norm` stablizes `x`. Let's insert it before collecting clues or making decisions."
+                textAfterCode: "`layer_norm` stabilizes `x`. Let's insert it before collecting clues or making decisions."
             },
             {
                 ...message("W", "Here is the complete version with layer norms filled in."),
@@ -5809,7 +5809,7 @@
             },
             message("W", "We have `predict` and `loss`. How about `update`?"),
             {
-                ...message("D", "We use our old RMS `update` to stablize gradients. Now the LittleTransformer is complete!**"),
+                ...message("D", "We use our old RMS `update` to stabilize gradients. Now the LittleTransformer is complete!**"),
                 codeLabel: "full `LittleTransformer`",
                 buildCodeBlock: (_ast) => littleTransformerFullClassBlock,
             }

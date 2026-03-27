@@ -91,7 +91,7 @@
                 "D",
                 "Not quite, but close.\n" +
                 "`Tensor([[1, 2, 3], [4, 5, 6]])` is the prettier way to write `Tensor([Tensor([1, 2, 3]), Tensor([4, 5, 6])])`.\n" +
-                "Its contains two elements; both are `Tensor[int][[3]]`s.\n" +
+                "It contains two elements; both are `Tensor[int][[3]]`s.\n" +
                 "Each element also contains three elements; all are `Tensor[int][[]]`s."
             ),
             message(
@@ -102,7 +102,7 @@
             ),
             message(
                 "D",
-                "Convetionally, we have a name for values of `int` or `float`: !!scalar!!s."
+                "Conventionally, we have a name for values of `int` or `float`: !!scalar!!s."
             ),
             message("W", "Can we make `[[1, 2, 3], [4, 5]]` a `Tensor`?"),
             message("D", "Good question. What's its shape?"),
@@ -122,7 +122,7 @@
             message(
                 "D",
                 "Running programs in parallel, efficiently.\n" +
-                "Since all elements in a tensor share the same shape, it is easier to dispatch commands on all of them all together.",
+                "Since all elements in a tensor share the same shape, it is easier to dispatch commands on all of them together.",
             ),
             message("W", "Sounds like a cool thing! Let's see an example!"),
             message(

@@ -4042,7 +4042,7 @@
             },
             message(
                 "D",
-                "Next we create a class for LeNet parameters. How many corr2d layers and linears layers are there?"
+                "Next we create a class for LeNet parameters. How many corr2d layers and linear layers are there?"
             ),
             message(
                 "W",

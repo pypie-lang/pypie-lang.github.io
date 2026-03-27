@@ -287,14 +287,14 @@
                 prose: "We have completed stage 1: the DSL and the type checker. With the DSL, you may describe tensor transformations with simplicity and clarity. " +
                     "With the type checker, you may catch shape mismatches before running the program.\n\n" +
                     "PyPie elaborates its DSL to [Futhark](https://futhark-lang.org/) programs for fusion, parallelization, and automatic differentiation. " +
-                    "The generated CUDA programs are runnable but and significantly worse in highly optimized Pytorch counterparts, " +
+                    "The generated CUDA programs are runnable but significantly worse than their highly optimized PyTorch counterparts, " +
                     "especially when matmul is involved, as shown in the benchmarks below. " +
                     "So, we are in stage 2: making the generated code run faster, to compete with hand-optimized kernels."
             },
             {
                 id: "benchmarks",
                 title: "Benchmarks",
-                prose: ""
+                prose: "Tested on RTX 5090, with the models in our tutorial: LeNet ([PyPie](https://github.com/pypie-lang/pypie-examples/blob/master/models/lenet.py) vs [PyTorch](https://github.com/pypie-lang/pypie-examples/blob/master/models/pytorch_benchmark/lenet.py)) and the LittleTransformer ([PyPie](https://github.com/pypie-lang/pypie-examples/blob/master/models/transformer.py) vs [PyTorch](https://github.com/pypie-lang/pypie-examples/blob/master/models/pytorch_benchmark/transformer.py))."
             }
         ],
     });

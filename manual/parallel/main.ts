@@ -109,7 +109,7 @@
                 content: [
                     {
                         prose:
-                            "When executing an `op`, PyPie parallizes `[f(x) for x in tensor_x]`,\nor, in the case of multiple tensors, `[f(x, y, ...) for (x, y) in zip(tensor_x, tensor_y, ...)]`.\n" +
+                            "When executing an `op`, PyPie parallelizes `[f(x) for x in tensor_x]`,\nor, in the case of multiple tensors, `[f(x, y, ...) for (x, y) in zip(tensor_x, tensor_y, ...)]`.\n" +
                             "Tensor comprehension is the most common form of !!mapper!!s: they map the operator `f` in parallel to each element in the tensors.\n\n" +
                             "Below, the `map_get` definition shows the zipped form: each `(item, idx)` pair selects one element from the aligned row in `emb`. " +
                             "During runtime, `item[idx]` is mapped in parallel to the outermost dimension of `emb` and `indices`."

@@ -5831,9 +5831,9 @@
             },
             message(
                 "D",
-                "Now we revisit the analogy of channels.\nThere are many kinds of attentions, just like many kinds of patterns in pictures. " +
-                "Some tracks the grammatical structure, some focuses on subject-verb agreement, and some pays attention to nearby conext.\n" +
-                "A model is more effective is we track different kinds seperately, just like LeNet's output channels learn different patterns."
+                "Now we revisit the analogy of channels.\nThere are different attentions, just like different patterns in pictures. " +
+                "Some tracks the grammatical structure, some focuses on subject-verb agreement, and some pays attention to nearby conexts.\n" +
+                "A model is more effective if we seperate these attentions in different tensors, just like LeNet's output channels learn different patterns."
             ),
             message(
                 "W",
@@ -5859,7 +5859,7 @@
                 ),
                 codeLabel: "`FeedForwardParams` and `feed_forward` definitions",
                 buildCodeBlock: (_ast: AstApi) => feedForwardDefinitionBlock,
-                textAfterCode: "The first layer expands the parameters, give more space to untangle complex data. " +
+                textAfterCode: "The first layer expands the parameters, gives more space to untangle complex data. " +
                 "Then the second layer compresses the learned information to the original size."
             },
             message(
@@ -5886,7 +5886,7 @@
                 ),
                 codeLabel: "`LayerNormParams` and `layer_norm` definitions",
                 buildCodeBlock: (_ast: AstApi) => layerNormDefinitionBlock,
-                textAfterCode: "`layer_norm` stablizes `x`. Let's insert it before collecting clues or making decisions."
+                textAfterCode: "`layer_norm` stabilizes `x`. Let's insert it before collecting clues or making decisions."
             },
             {
                 ...message(
@@ -5956,7 +5956,7 @@
             {
                 ...message(
                     "D",
-                    "We use our old RMS `update` to stablize gradients. Now the LittleTransformer is complete!**"
+                    "We use our old RMS `update` to stabilize gradients. Now the LittleTransformer is complete!**"
                 ),
                 codeLabel: "full `LittleTransformer`",
                 buildCodeBlock: (_ast: AstApi) => littleTransformerFullClassBlock,

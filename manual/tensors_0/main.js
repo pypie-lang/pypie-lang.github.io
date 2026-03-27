@@ -21,7 +21,7 @@
         sections: [
             {
                 title: "Tensor as a type",
-                body: "`Tensor[t][s]` is a type, when `t` is a type and `s` is a `List[int]`. `s` can be any value--" +
+                body: "`Tensor[t][s]` is a type when `t` is a type and `s` is a `List[int]`. `s` can be any value--" +
                     "literals, variables, and function calls--as long as PyPie can infer its type as `List[int]`.\n" +
                     "PyPie normalizes types during type checking, e.g. `Tensor[int][[a, b + c]]` and `Tensor[Tensor[int][[c + b]]][[a]]` are identical. " +
                     "PyPie rewrites the shapes to identify some equalities, like `b + c` vs `c + b`. PyPie does not evaluate function calls in shapes, e.g. " +
