@@ -445,15 +445,6 @@ const printTypeParam = (builder, node) => {
         printType(builder, node.annotation, { multiline: false, noWrap: true });
         return;
     }
-    if (typeof node.type === "string" && node.type.trim().length > 0) {
-        builder.token(":");
-        builder.space();
-        printType(builder, {
-            kind: "Identifier",
-            name: node.type.trim(),
-            role: "type",
-        }, { multiline: false, noWrap: true });
-    }
 };
 const printTypeParams = (builder, params = []) => {
     if (!Array.isArray(params) || params.length === 0) {
