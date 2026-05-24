@@ -2,6 +2,7 @@
     const THEME_STORAGE_KEY = "pypie.theme";
     const THEME_QUERY_PARAM = "theme";
     const THEME_CHANGE_EVENT = "pypie:theme-change";
+    const DEFAULT_THEME = "theme-solaris";
     const isThemeName = (value) => value === "theme-dark" || value === "theme-solaris";
     const readThemeFromQuery = () => {
         try {
@@ -95,7 +96,7 @@
             detail: { theme },
         }));
     };
-    const initialTheme = readThemeFromQuery() || readStoredTheme() || "theme-dark";
+    const initialTheme = readThemeFromQuery() || readStoredTheme() || DEFAULT_THEME;
     const themeToggle = renderTopActions(initialTheme);
     const root = document.body;
     if (!root) {

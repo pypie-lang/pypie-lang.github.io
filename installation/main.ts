@@ -69,6 +69,7 @@
             {
                 title: "Dependencies",
                 prose: "- Python >=3.12\n" +
+                "- Linux or Apple Silicon\n" +
                 "- [Optional] Python >=3.14, to avoid writing `from __future__ import annotations` in every file"
             },
             {
@@ -79,8 +80,13 @@
                         codeLabel: "Install PyPie from pip",
                     },
                     {
-                        prose: "To run on CUDA:",
+                        prose: "To run on CUDA 13:",
                         code: "pip install -U \"pypie-lang[cuda13]\"",
+                        codeLabel: "Install PyPie with CUDA support",
+                    },
+                    {
+                        prose: "To run on CUDA 12:",
+                        code: "pip install -U \"pypie-lang[cuda12]\"",
                         codeLabel: "Install PyPie with CUDA support",
                     },
                 ],

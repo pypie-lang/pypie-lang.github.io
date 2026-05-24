@@ -60,6 +60,7 @@
 
     const varIdentifier = (name: string, type?: string) => identifier(name, "var", type);
     const intIdentifier = (name: string) => varIdentifier(name, "int");
+    const int64Identifier = (name: string) => varIdentifier(name, "int64");
     const fnIdentifier = (name: string, type?: string) => identifier(name, "fn", type);
     const typeIdentifier = (name: string) => identifier(name, "type");
     const numberLiteral = (value: string | number) => ({
@@ -1821,19 +1822,35 @@
         ),
     ]);
 
+    const corr2dHeightType =
+        "(((h + (2 * padding0)) - m) + stride0) / stride0";
+    const corr2dWidthType =
+        "(((w + (2 * padding1)) - n) + stride1) / stride1";
+    const corr2dResultType = `Tensor[float][[${corr2dHeightType}, ${corr2dWidthType}]]`;
+    const corr2dRank3ResultType =
+        `Tensor[float][[c, ${corr2dHeightType}, ${corr2dWidthType}]]`;
+    const corr2dSeqHeightType = `Tensor[int64][[${corr2dHeightType}]]`;
+    const corr2dSeqWidthType = `Tensor[int64][[${corr2dWidthType}]]`;
+    const corr2dPaddedType =
+        "Tensor[float][[(padding0 + h) + padding0, w + (2 * padding1)]]";
+    const corr2dMultiInOutWidthType =
+        "(((width + (2 * padding1)) - n) + stride1) / stride1";
+    const corr2dMultiInOutResultType =
+        `Tensor[float][[o, ${corr2dHeightType}, ${corr2dMultiInOutWidthType}]]`;
+
     const corr2dseqHeightEndExpr = () =>
         binOp(
             binOp(
                 binOp(
                     intIdentifier("h"),
                     "+",
-                    binOp(numberLiteral(2), "*", intIdentifier("padding0"))
+                    binOp(numberLiteral(2), "*", int64Identifier("padding0"))
                 ),
                 "-",
                 intIdentifier("m")
             ),
             "+",
-            intIdentifier("stride0")
+            int64Identifier("stride0")
         );
 
     const corr2dseqWidthEndExpr = () =>
@@ -1842,36 +1859,36 @@
                 binOp(
                     intIdentifier("w"),
                     "+",
-                    binOp(numberLiteral(2), "*", intIdentifier("padding1"))
+                    binOp(numberLiteral(2), "*", int64Identifier("padding1"))
                 ),
                 "-",
                 intIdentifier("n")
             ),
             "+",
-            intIdentifier("stride1")
+            int64Identifier("stride1")
         );
 
     const corr2dHeightSpanExpr = () =>
-        binOp(corr2dseqHeightEndExpr(), "/", intIdentifier("stride0"));
+        binOp(corr2dseqHeightEndExpr(), "/", int64Identifier("stride0"));
 
     const corr2dWidthSpanExpr = () =>
-        binOp(corr2dseqWidthEndExpr(), "/", intIdentifier("stride1"));
+        binOp(corr2dseqWidthEndExpr(), "/", int64Identifier("stride1"));
 
     const corr2dReturnType = () =>
         floatTensorType([corr2dHeightSpanExpr(), corr2dWidthSpanExpr()]);
 
     const corr2dSeqWidthCall = () =>
-        callExpr(fnIdentifier("seq", "Tensor[int][[((w + 2 * padding1 - n + stride1) / stride1)]]"), [
+        callExpr(fnIdentifier("seq", corr2dSeqWidthType), [
             numberLiteral(0),
             corr2dseqWidthEndExpr(),
-            intIdentifier("stride1"),
+            int64Identifier("stride1"),
         ]);
 
     const corr2dSeqHeightCall = () =>
-        callExpr(fnIdentifier("seq", "Tensor[int][[((h + 2 * padding0 - m + stride0) / stride0)]]"), [
+        callExpr(fnIdentifier("seq", corr2dSeqHeightType), [
             numberLiteral(0),
             corr2dseqHeightEndExpr(),
-            intIdentifier("stride0"),
+            int64Identifier("stride0"),
         ]);
 
     const corr2dBaseArgs = () => [
@@ -1885,10 +1902,10 @@
             floatTensorType([intIdentifier("m"), intIdentifier("n")]),
             "Tensor[float][[m, n]]"
         ),
-        argNode("stride0", typeIdentifier("int"), "int"),
-        argNode("stride1", typeIdentifier("int"), "int"),
-        argNode("padding0", typeIdentifier("int"), "int"),
-        argNode("padding1", typeIdentifier("int"), "int"),
+        argNode("stride0", typeIdentifier("int"), "int64"),
+        argNode("stride1", typeIdentifier("int"), "int64"),
+        argNode("padding0", typeIdentifier("int"), "int64"),
+        argNode("padding1", typeIdentifier("int"), "int64"),
     ];
 
     const corr2dBiasArgs = () => [
@@ -1900,40 +1917,40 @@
     const corr2dNoBiasCallArgs = () => [
         varIdentifier("s", "Tensor[float][[h, w]]"),
         varIdentifier("p", "Tensor[float][[m, n]]"),
-        intIdentifier("stride0"),
-        intIdentifier("stride1"),
-        intIdentifier("padding0"),
-        intIdentifier("padding1"),
+        int64Identifier("stride0"),
+        int64Identifier("stride1"),
+        int64Identifier("padding0"),
+        int64Identifier("padding1"),
     ];
 
     const corr2dWindowExpr = () =>
         subscriptExpr(
-            varIdentifier("padded", "Tensor[float][[2 * padding0 + h, w + 2 * padding1]]"),
+            varIdentifier("padded", corr2dPaddedType),
             tupleExpr([
                 sliceExpr(
-                    intIdentifier("j"),
-                    binOp(intIdentifier("j"), "+", intIdentifier("m"))
+                    int64Identifier("j"),
+                    binOp(int64Identifier("j"), "+", intIdentifier("m"))
                 ),
                 sliceExpr(
-                    intIdentifier("i"),
-                    binOp(intIdentifier("i"), "+", intIdentifier("n"))
+                    int64Identifier("i"),
+                    binOp(int64Identifier("i"), "+", intIdentifier("n"))
                 ),
             ])
         );
 
     const corr2dNoBiasBody = (elt: unknown = callExpr(fnIdentifier("dot2d", "float"), [corr2dWindowExpr(), varIdentifier("p", "Tensor[float][[m, n]]")])) => [
         assignStmt(
-            varIdentifier("padded", "Tensor[float][[2 * padding0 + h, w + 2 * padding1]]"),
-            callExpr(fnIdentifier("pad2d", "Tensor[float][[2 * padding0 + h, w + 2 * padding1]]"), [
+            varIdentifier("padded", corr2dPaddedType),
+            callExpr(fnIdentifier("pad2d", corr2dPaddedType), [
                 varIdentifier("s", "Tensor[float][[h, w]]"),
-                intIdentifier("padding0"),
-                intIdentifier("padding1"),
+                int64Identifier("padding0"),
+                int64Identifier("padding1"),
             ])
         ),
         returnStmt(
             listCompExpr(
-                listCompExpr(elt, [intIdentifier("i")], corr2dSeqWidthCall()),
-                [intIdentifier("j")],
+                listCompExpr(elt, [int64Identifier("i")], corr2dSeqWidthCall()),
+                [int64Identifier("j")],
                 corr2dSeqHeightCall()
             )
         ),
@@ -1959,7 +1976,7 @@
                 returnStmt(
                     binOp(
                         callExpr(
-                            fnIdentifier("corr2d", "Tensor[float][[((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]"),
+                            fnIdentifier("corr2d", corr2dResultType),
                             corr2dNoBiasCallArgs()
                         ),
                         "+",
@@ -1992,10 +2009,10 @@
                     "Tensor[float][[c, m, n]]"
                 ),
                 argNode("bias", typeIdentifier("float"), "float"),
-                argNode("stride0", typeIdentifier("int"), "int"),
-                argNode("stride1", typeIdentifier("int"), "int"),
-                argNode("padding0", typeIdentifier("int"), "int"),
-                argNode("padding1", typeIdentifier("int"), "int"),
+                argNode("stride0", typeIdentifier("int"), "int64"),
+                argNode("stride1", typeIdentifier("int"), "int64"),
+                argNode("padding0", typeIdentifier("int"), "int64"),
+                argNode("padding1", typeIdentifier("int"), "int64"),
             ],
             corr2dReturnType(),
             [
@@ -2004,18 +2021,18 @@
                         callExpr(
                             attrExpr(
                                 callExpr(
-                                    fnIdentifier("corr2d", "Tensor[float][[c, ((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]"),
+                                    fnIdentifier("corr2d", corr2dRank3ResultType),
                                     [
                                         varIdentifier("s", "Tensor[float][[c, h, w]]"),
                                         varIdentifier("p", "Tensor[float][[c, m, n]]"),
-                                        intIdentifier("stride0"),
-                                        intIdentifier("stride1"),
-                                        intIdentifier("padding0"),
-                                        intIdentifier("padding1"),
+                                        int64Identifier("stride0"),
+                                        int64Identifier("stride1"),
+                                        int64Identifier("padding0"),
+                                        int64Identifier("padding1"),
                                     ]
                                 ),
                                 "sum",
-                                "Tensor[float][[((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]"
+                                corr2dResultType
                             ),
                             [numberLiteral(0)]
                         ),
@@ -2043,20 +2060,20 @@
                 binOp(
                     intIdentifier("width"),
                     "+",
-                    binOp(numberLiteral(2), "*", intIdentifier("padding1"))
+                    binOp(numberLiteral(2), "*", int64Identifier("padding1"))
                 ),
                 "-",
                 intIdentifier("n")
             ),
             "+",
-            intIdentifier("stride1")
+            int64Identifier("stride1")
         );
 
     const corr2dMultiInOutReturnType = () =>
         floatTensorType([
             intIdentifier("o"),
             corr2dHeightSpanExpr(),
-            binOp(corr2dMultiInOutWidthSpanExpr(), "/", intIdentifier("stride1")),
+            binOp(corr2dMultiInOutWidthSpanExpr(), "/", int64Identifier("stride1")),
         ]);
 
     const corr2dMultiInOutFunctionBlock = codeBlock([
@@ -2084,24 +2101,24 @@
                     floatTensorType([intIdentifier("o")]),
                     "Tensor[float][[o]]"
                 ),
-                argNode("stride0", typeIdentifier("int"), "int"),
-                argNode("stride1", typeIdentifier("int"), "int"),
-                argNode("padding0", typeIdentifier("int"), "int"),
-                argNode("padding1", typeIdentifier("int"), "int"),
+                argNode("stride0", typeIdentifier("int"), "int64"),
+                argNode("stride1", typeIdentifier("int"), "int64"),
+                argNode("padding0", typeIdentifier("int"), "int64"),
+                argNode("padding1", typeIdentifier("int"), "int64"),
             ],
             corr2dMultiInOutReturnType(),
             [
                 returnStmt(
                     callExpr(
-                        fnIdentifier("corr2d_multi_in", "Tensor[float][[o, ((h + 2 * padding0 - m + stride0) / stride0), ((width + 2 * padding1 - n + stride1) / stride1)]]"),
+                        fnIdentifier("corr2d_multi_in", corr2dMultiInOutResultType),
                         [
                             varIdentifier("s", "Tensor[float][[i, h, width]]"),
                             varIdentifier("w", "Tensor[float][[o, i, m, n]]"),
                             varIdentifier("b", "Tensor[float][[o]]"),
-                            intIdentifier("stride0"),
-                            intIdentifier("stride1"),
-                            intIdentifier("padding0"),
-                            intIdentifier("padding1"),
+                            int64Identifier("stride0"),
+                            int64Identifier("stride1"),
+                            int64Identifier("padding0"),
+                            int64Identifier("padding1"),
                         ]
                     )
                 ),
@@ -2112,6 +2129,15 @@
     const corr2dMultiInOutDefinitionBlock = codeBlock([
         ...corr2dMultiInOutFunctionBlock.body,
     ]);
+
+    const pool2dHeightType =
+        "(((m + (2 * padding0)) - h) + stride0) / stride0";
+    const pool2dWidthType =
+        "(((n + (2 * padding1)) - w) + stride1) / stride1";
+    const pool2dPaddedType =
+        "Tensor[float][[(padding0 + m) + padding0, n + (2 * padding1)]]";
+    const pool2dSeqHeightType = `Tensor[int64][[${pool2dHeightType}]]`;
+    const pool2dSeqWidthType = `Tensor[int64][[${pool2dWidthType}]]`;
 
     const pool2dHeightSpanExpr = () => ({
         kind: "BinOp",
@@ -2139,7 +2165,7 @@
                             kind: "Identifier",
                             name: "padding0",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                     },
                 },
@@ -2148,7 +2174,7 @@
                     kind: "Identifier",
                     name: "h",
                     role: "var",
-                    type: "int",
+                    type: "int64",
                 },
             },
             op: "+",
@@ -2156,7 +2182,7 @@
                 kind: "Identifier",
                 name: "stride0",
                 role: "var",
-                type: "int",
+                type: "int64",
             },
         },
         op: "/",
@@ -2164,7 +2190,7 @@
             kind: "Identifier",
             name: "stride0",
             role: "var",
-            type: "int",
+            type: "int64",
         },
     });
 
@@ -2194,7 +2220,7 @@
                             kind: "Identifier",
                             name: "padding1",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                     },
                 },
@@ -2203,7 +2229,7 @@
                     kind: "Identifier",
                     name: "w",
                     role: "var",
-                    type: "int",
+                    type: "int64",
                 },
             },
             op: "+",
@@ -2211,7 +2237,7 @@
                 kind: "Identifier",
                 name: "stride1",
                 role: "var",
-                type: "int",
+                type: "int64",
             },
         },
         op: "/",
@@ -2219,7 +2245,7 @@
             kind: "Identifier",
             name: "stride1",
             role: "var",
-            type: "int",
+            type: "int64",
         },
     });
 
@@ -2247,7 +2273,7 @@
                         kind: "Identifier",
                         name: "padding0",
                         role: "var",
-                        type: "int",
+                        type: "int64",
                     },
                 },
             },
@@ -2256,7 +2282,7 @@
                 kind: "Identifier",
                 name: "h",
                 role: "var",
-                type: "int",
+                type: "int64",
             },
         },
         op: "+",
@@ -2264,7 +2290,7 @@
             kind: "Identifier",
             name: "stride0",
             role: "var",
-            type: "int",
+            type: "int64",
         },
     });
 
@@ -2292,7 +2318,7 @@
                         kind: "Identifier",
                         name: "padding1",
                         role: "var",
-                        type: "int",
+                        type: "int64",
                     },
                 },
             },
@@ -2301,7 +2327,7 @@
                 kind: "Identifier",
                 name: "w",
                 role: "var",
-                type: "int",
+                type: "int64",
             },
         },
         op: "+",
@@ -2309,7 +2335,7 @@
             kind: "Identifier",
             name: "stride1",
             role: "var",
-            type: "int",
+            type: "int64",
         },
     });
 
@@ -2331,6 +2357,7 @@
                             kind: "Identifier",
                             name: "x",
                             role: "var",
+                            type: "Tensor[float][[m, n]]",
                         },
                         annotation: {
                             kind: "TypeSubscript",
@@ -2377,7 +2404,7 @@
                             kind: "Identifier",
                             name: "h",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2391,7 +2418,7 @@
                             kind: "Identifier",
                             name: "w",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2405,7 +2432,7 @@
                             kind: "Identifier",
                             name: "x_j",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2419,7 +2446,7 @@
                             kind: "Identifier",
                             name: "x_i",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2457,6 +2484,7 @@
                                                     kind: "Identifier",
                                                     name: "x",
                                                     role: "var",
+                                                    type: "Tensor[float][[m, n]]",
                                                 },
                                                 index: {
                                                     kind: "BinOp",
@@ -2464,14 +2492,14 @@
                                                         kind: "Identifier",
                                                         name: "j",
                                                         role: "var",
-                                                        type: "int",
+                                                        type: "int64",
                                                     },
                                                     op: "+",
                                                     right: {
                                                         kind: "Identifier",
                                                         name: "x_j",
                                                         role: "var",
-                                                        type: "int",
+                                                        type: "int64",
                                                     },
                                                 },
                                             },
@@ -2481,14 +2509,14 @@
                                                     kind: "Identifier",
                                                     name: "i",
                                                     role: "var",
-                                                    type: "int",
+                                                    type: "int64",
                                                 },
                                                 op: "+",
                                                 right: {
                                                     kind: "Identifier",
                                                     name: "x_i",
                                                     role: "var",
-                                                    type: "int",
+                                                    type: "int64",
                                                 },
                                             },
                                         },
@@ -2497,7 +2525,7 @@
                                                 kind: "Identifier",
                                                 name: "i",
                                                 role: "var",
-                                                type: "int",
+                                                type: "int64",
                                             },
                                         ],
                                         iter: {
@@ -2506,14 +2534,14 @@
                                                 kind: "Identifier",
                                                 name: "iota",
                                                 role: "fn",
-                                                type: "Tensor[int][[w]]",
+                                                type: "Tensor[int64][[w]]",
                                             },
                                             args: [
                                                 {
                                                     kind: "Identifier",
                                                     name: "w",
                                                     role: "var",
-                                                    type: "int",
+                                                    type: "int64",
                                                 },
                                             ],
                                         },
@@ -2523,7 +2551,7 @@
                                             kind: "Identifier",
                                             name: "j",
                                             role: "var",
-                                            type: "int",
+                                            type: "int64",
                                         },
                                     ],
                                     iter: {
@@ -2532,14 +2560,14 @@
                                             kind: "Identifier",
                                             name: "iota",
                                             role: "fn",
-                                            type: "Tensor[int][[h]]",
+                                            type: "Tensor[int64][[h]]",
                                         },
                                         args: [
                                             {
                                                 kind: "Identifier",
                                                 name: "h",
                                                 role: "var",
-                                                type: "int",
+                                                type: "int64",
                                             },
                                         ],
                                     },
@@ -2574,6 +2602,7 @@
                             kind: "Identifier",
                             name: "x",
                             role: "var",
+                            type: "Tensor[float][[m, n]]",
                         },
                         annotation: {
                             kind: "TypeSubscript",
@@ -2620,7 +2649,7 @@
                             kind: "Identifier",
                             name: "h",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2634,7 +2663,7 @@
                             kind: "Identifier",
                             name: "w",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2648,7 +2677,7 @@
                             kind: "Identifier",
                             name: "stride0",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2662,7 +2691,7 @@
                             kind: "Identifier",
                             name: "stride1",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2676,7 +2705,7 @@
                             kind: "Identifier",
                             name: "padding0",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2690,7 +2719,7 @@
                             kind: "Identifier",
                             name: "padding1",
                             role: "var",
-                            type: "int",
+                            type: "int64",
                         },
                         annotation: {
                             kind: "Identifier",
@@ -2739,6 +2768,7 @@
                             kind: "Identifier",
                             name: "padded",
                             role: "var",
+                            type: pool2dPaddedType,
                         },
                         value: {
                             kind: "Call",
@@ -2746,25 +2776,26 @@
                                 kind: "Identifier",
                                 name: "pad2d",
                                 role: "fn",
-                                type: "Tensor[float][[m + 2 * padding0, n + 2 * padding1]]",
+                                type: pool2dPaddedType,
                             },
                             args: [
                                 {
                                     kind: "Identifier",
                                     name: "x",
                                     role: "var",
+                                    type: "Tensor[float][[m, n]]",
                                 },
                                 {
                                     kind: "Identifier",
                                     name: "padding0",
                                     role: "var",
-                                    type: "int",
+                                    type: "int64",
                                 },
                                 {
                                     kind: "Identifier",
                                     name: "padding1",
                                     role: "var",
-                                    type: "int",
+                                    type: "int64",
                                 },
                             ],
                         },
@@ -2788,30 +2819,31 @@
                                             kind: "Identifier",
                                             name: "padded",
                                             role: "var",
+                                            type: pool2dPaddedType,
                                         },
                                         {
                                             kind: "Identifier",
                                             name: "h",
                                             role: "var",
-                                            type: "int",
+                                            type: "int64",
                                         },
                                         {
                                             kind: "Identifier",
                                             name: "w",
                                             role: "var",
-                                            type: "int",
+                                            type: "int64",
                                         },
                                         {
                                             kind: "Identifier",
                                             name: "j",
                                             role: "var",
-                                            type: "int",
+                                            type: "int64",
                                         },
                                         {
                                             kind: "Identifier",
                                             name: "i",
                                             role: "var",
-                                            type: "int",
+                                            type: "int64",
                                         },
                                     ],
                                 },
@@ -2820,7 +2852,7 @@
                                         kind: "Identifier",
                                         name: "i",
                                         role: "var",
-                                        type: "int",
+                                        type: "int64",
                                     },
                                 ],
                                 iter: {
@@ -2829,7 +2861,7 @@
                                         kind: "Identifier",
                                         name: "seq",
                                         role: "fn",
-                                        type: "Tensor[int][[((w + 2 * padding1 - n + stride1) / stride1)]]",
+                                        type: pool2dSeqWidthType,
                                     },
                                     args: [
                                         {
@@ -2841,7 +2873,7 @@
                                             kind: "Identifier",
                                             name: "stride1",
                                             role: "var",
-                                            type: "int",
+                                            type: "int64",
                                         },
                                     ],
                                 },
@@ -2851,7 +2883,7 @@
                                     kind: "Identifier",
                                     name: "j",
                                     role: "var",
-                                    type: "int",
+                                    type: "int64",
                                 },
                             ],
                             iter: {
@@ -2860,7 +2892,7 @@
                                     kind: "Identifier",
                                     name: "seq",
                                     role: "fn",
-                                    type: "Tensor[int][[((h + 2 * padding0 - m + stride0) / stride0)]]",
+                                    type: pool2dSeqHeightType,
                                 },
                                 args: [
                                     {
@@ -2872,7 +2904,7 @@
                                         kind: "Identifier",
                                         name: "stride0",
                                         role: "var",
-                                        type: "int",
+                                        type: "int64",
                                     },
                                 ],
                             },
