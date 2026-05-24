@@ -47,7 +47,7 @@ const run = () => {
         const outputPath = path.join(MANUAL_DIR, folder, "index.html");
         const html = renderPage(template, {
             pageId: folder,
-            docTitle: "PyPie - Language Reference",
+            docTitle: "PyPie - Reference",
             assetRoot: "../../",
             sharedScriptSrc: "../manual-shared.js",
             mainScriptSrc: "main.js",

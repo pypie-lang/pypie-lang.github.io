@@ -84,8 +84,8 @@
             },
             {
                 title: "Tensor as a constructor",
-                body: "Tensor converts a nested list to a Tensor value, such as `Tensor([[1, 2, 3], [4, 5, 6]])`. "+
-                "It automatically infers elements' type using the upper bound, e.g. `Tensor([[1, 2, 3], [4, 5, 6.0]])` has type `Tensor[float][[2, 3]]`."
+                body: "`Tensor` converts a nested list to a tensor, e.g. `Tensor([[1, 2, 3], [4, 5, 6]])` is a `Tensor[int64][[2, 3]]`.\n"+
+                "It optionally takes a desired type, e.g. `Tensor([[1, 2, 3], [4, 5, 6]], bf16)` is a `Tensor[bf16][[2, 3]]`."
             },
             {
                 title: "Interop with other systems",

@@ -1,6 +1,6 @@
 # pypie-website
 
-**ML Programming 101 Pages**
+**Tutorial Pages**
 The learn pages now use:
 - `learn/chapter-template.html` as the shared HTML template for all chapter pages.
 - `learn/generate-chapter-indexes.js` to generate each `learn/*/index.html`.

@@ -55,6 +55,7 @@ const ellipsis = () => ({ kind: "Ellipsis" });
 const unaryOp = (op, operand) => ({ kind: "UnaryOp", op, operand });
 const number = (value) => ({ kind: "Number", value: String(value) });
 const noWrap = (value) => ({ kind: "NoWrap", value });
+const comment = (text) => ({ kind: "Comment", text });
 const tensorType = (scalarType, shapeVars) => {
     const base = typeSubscript(typeId("Tensor"), typeId(scalarType));
     const shape = typeList([typeList(shapeVars)]);
@@ -140,6 +141,7 @@ const astApi = {
     unaryOp,
     number,
     noWrap,
+    comment,
     tensorType,
     block,
 };
@@ -816,6 +818,14 @@ const printStatement = (builder, node, options = {}) => {
         case "BlankLine":
             builder.newline();
             return;
+        case "Comment":
+            builder.token("#", "comment");
+            if (String(node.text ?? "").length > 0) {
+                builder.space();
+                builder.token(String(node.text), "comment");
+            }
+            builder.newline();
+            return;
         case "IndentedBlock": {
             const rawLevel = Number(node.level);
             const level = Number.isFinite(rawLevel) && rawLevel >= 0 ? Math.floor(rawLevel) : 1;
@@ -852,6 +862,11 @@ const printStatement = (builder, node, options = {}) => {
             builder.newline();
             return;
         case "ClassDef":
+            if (node.decorator) {
+                builder.token("@", "op");
+                printIdentifier(builder, node.decorator);
+                builder.newline();
+            }
             builder.token("class", "kw");
             builder.space();
             printIdentifier(builder, node.name);

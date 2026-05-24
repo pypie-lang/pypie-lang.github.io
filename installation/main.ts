@@ -68,16 +68,20 @@
         sections: [
             {
                 title: "Dependencies",
-                prose: "- Python >=3.10\n" +
-                "- C Compiler, such as `gcc` or `clang`.\n" +
-                "- [Optional] for the CUDA runtime, PyPie requires these headers: `libcuda`, `libcudart`, `libnvrtc`, and `lcublas`."
+                prose: "- Python >=3.12\n" +
+                "- [Optional] Python >=3.14, to avoid writing `from __future__ import annotations` in every file"
             },
             {
                 title: "Install PyPie",
                 content: [
                     {
-                        code: "pip install pypie-lang",
+                        code: "pip install -U pypie-lang",
                         codeLabel: "Install PyPie from pip",
+                    },
+                    {
+                        prose: "To run on CUDA:",
+                        code: "pip install -U \"pypie-lang[cuda13]\"",
+                        codeLabel: "Install PyPie with CUDA support",
                     },
                 ],
             },

@@ -61,7 +61,7 @@
         });
     };
     const LEARN_SERIES = {
-        title: "ML Programming 101",
+        title: "Tutorial",
         preludeSlug: "overview/index.html",
         pages: [
             {
@@ -90,7 +90,7 @@
             },
             {
                 slug: "transformer/index.html",
-                title: "transformer",
+                title: "The Transformer",
             },
         ],
     };

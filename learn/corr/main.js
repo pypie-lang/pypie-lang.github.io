@@ -661,7 +661,7 @@
                                 },
                                 orelse: {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                             },
                             target: [
@@ -2017,7 +2017,7 @@
                                     },
                                     orelse: {
                                         kind: "Number",
-                                        value: "0.0",
+                                        value: "0",
                                     },
                                 },
                                 target: [
@@ -4941,7 +4941,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -5060,7 +5060,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -5240,7 +5240,7 @@
                             elements: [
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
@@ -5248,7 +5248,7 @@
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                             ],
                         },
@@ -5277,7 +5277,7 @@
                             elements: [
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
@@ -5285,15 +5285,15 @@
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                             ],
                         },
@@ -5346,7 +5346,7 @@
                 "The dataset contains 70,000 images, each showing one item: a T-shirt, a dress, a coat, etc."),
             message("W", "So our model predicts the item in each image?\nLet's get started!"),
             message("D", "We begin with a baby step, detecting signals in rank-1 tensors.\n" +
-                "Here's a signal:\n`Tensor([0.0, 1.0, 0.0, 0.0, 0.0])`.\nLet's check if it contains the pattern\n`Tensor([0.0, 1.0, 0.0])`.\n" +
+                "Here's a signal:\n`Tensor([0, 1.0, 0, 0, 0])`.\nLet's check if it contains the pattern\n`Tensor([0, 1.0, 0])`.\n" +
                 "We align the pattern with the left end of the signal, and slide the pattern all the way to the right. " +
                 "For each segment in the signal, we compute a score of how well it matches the pattern."),
             message("W", "Let's define a function to compute this score!"),
@@ -5356,7 +5356,7 @@
                 buildCodeBlock: (_ast) => dotDefinitionBlock,
                 textAfterCode: "The `[n: int]` on `dot` says both tensors share the same length."
             },
-            message("W", "In our case, `n` is `3`, the length of the pattern. For the first segment of the signal, we have `dot(Tensor([0.0, 1.0, 0.0]), Tensor([0.0, 1.0, 0.0]))`, which is `1.0`."),
+            message("W", "In our case, `n` is `3`, the length of the pattern. For the first segment of the signal, we have `dot(Tensor([0, 1.0, 0]), Tensor([0, 1.0, 0]))`, which is `1.0`."),
             {
                 ...message("D", "Next, we slide the pattern and compute `dot` on every segment. This function is called `corr1d`, short for rank-1 !!correlation!!.\n"),
                 codeLabel: "`corr1d` definition",
@@ -5375,7 +5375,7 @@
                 ...message("W", "Of course."),
                 codeLabel: "`corr.py` lines 22-24",
                 buildCodeBlock: (_ast) => corr1dRunBlock,
-                textAfterCode: "It prints `Tensor([1.0, 0.0, 0.0])`--three `dot`s for three segments."
+                textAfterCode: "It prints `Tensor([1.0, 0, 0])`--three `dot`s for three segments."
             },
             message("D", "Now let's improve the coverage."),
             message("W", "Coverage of what?"),
@@ -5383,7 +5383,7 @@
                 ...message("D", "The coverage of the elements at the beginning and end of the signal.\n" +
                     "Our `corr1d` underutilizes the first and last elements of the signal--" +
                     "each is used only once, while the middle element is used three times.\n" +
-                    "To use elements more evenly, we can pad the signal before computing `corr1d` by appending `0.0`s to both ends."),
+                    "To use elements more evenly, we can pad the signal before computing `corr1d` by appending `0`s to both ends."),
                 codeLabel: "`pad1d` definition",
                 buildCodeBlock: (_ast) => pad1dDefinitionBlock,
                 textAfterCode: "Define `corr1d_padded` that extends `corr1d` with !!padding!!. How many elements does it return?"
@@ -5393,9 +5393,9 @@
                 codeLabel: "`corr1d_padded` definition",
                 buildCodeBlock: (_ast) => corr1dPaddedDefinitionBlock,
                 textAfterCode: "Running `corr1d_padded(signal, pattern, 1)` gives\n" +
-                    "`Tensor([0.0, 1.0, 0.0, 0.0, 0.0])`;\n" +
+                    "`Tensor([0, 1.0, 0, 0, 0])`;\n" +
                     "and `corr1d_padded(signal, pattern, 2)` gives\n" +
-                    "`Tensor([0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0])`.\n" +
+                    "`Tensor([0, 0, 1.0, 0, 0, 0, 0])`.\n" +
                     "The first and last elements are now used more frequently!"
             },
             {
@@ -5424,7 +5424,7 @@
                     "Define `pad2d` first. It should be very similar to its rank-1 counterpart."
             },
             {
-                ...message("W", "How about this? It pads `0.0`s to the top, bottom, left, and right."),
+                ...message("W", "How about this? It pads `0`s to the top, bottom, left, and right."),
                 codeLabel: "`pad2d` definition",
                 buildCodeBlock: (_ast) => pad2dDefinitionBlock,
             },
@@ -5501,7 +5501,7 @@
             message("D", "`larger` is an !!activation function!!. " +
                 "Activation functions add non-linearity so each layer remains expressive. " +
                 "Otherwise, two consecutive linear layers would collapse into a single linear layer.\n" +
-                "Here, we achieve non-linearity by simply replacing negative values with `0.0`."),
+                "Here, we achieve non-linearity by simply replacing negative values with `0`."),
             message("W", "Got it.\n" +
                 "`layer1` is a `Tensor[float][[6, 28, 28]]`,\n" +
                 "`layer2` is a `Tensor[float][[6, 14, 14]]`,\n" +

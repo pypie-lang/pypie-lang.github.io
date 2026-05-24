@@ -70,9 +70,8 @@
     };
 
     const links: LearnLink[] = [
-        { href: withRoot("learn/overview/index.html"), label: "ML Programming 101" },
-        { href: withRoot("why-pypie/index.html"), label: "Why PyPie?" },
-        { href: withRoot("manual/guide/index.html"), label: "Language Reference" },
+        { href: withRoot("learn/overview/index.html"), label: "Tutorial" },
+        { href: withRoot("manual/guide/index.html"), label: "Reference" },
         { href: withRoot("installation/index.html"), label: "Installation" },
     ];
     const homeLink = withRoot("index.html");

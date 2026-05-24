@@ -343,7 +343,7 @@
                                             op: "**",
                                             right: {
                                                 kind: "Number",
-                                                value: "2.0",
+                                                value: "2",
                                             },
                                         },
                                         attr: {
@@ -542,11 +542,11 @@
                     elements: [
                         {
                             kind: "Number",
-                            value: "0.0",
+                            value: "0",
                         },
                         {
                             kind: "Number",
-                            value: "0.0",
+                            value: "0",
                         },
                     ],
                 },
@@ -821,11 +821,11 @@
                             elements: [
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                             ],
                         },
@@ -923,7 +923,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -1244,7 +1244,7 @@
                                             op: "**",
                                             right: {
                                                 kind: "Number",
-                                                value: "2.0",
+                                                value: "2",
                                             },
                                         },
                                     ],
@@ -1640,7 +1640,7 @@
                                             op: "**",
                                             right: {
                                                 kind: "Number",
-                                                value: "2.0",
+                                                value: "2",
                                             },
                                         },
                                         attr: {
@@ -1783,7 +1783,7 @@
                                             op: "**",
                                             right: {
                                                 kind: "Number",
-                                                value: "2.0",
+                                                value: "2",
                                             },
                                         },
                                     ],
@@ -1941,7 +1941,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -2166,11 +2166,11 @@
                             elements: [
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                             ],
                         },

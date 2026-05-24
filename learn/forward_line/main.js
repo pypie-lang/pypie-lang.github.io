@@ -472,11 +472,11 @@
                     elements: [
                         {
                             kind: "Number",
-                            value: "0.0",
+                            value: "0",
                         },
                         {
                             kind: "Number",
-                            value: "0.0",
+                            value: "0",
                         },
                     ],
                 },
@@ -989,7 +989,7 @@
                                     op: "**",
                                     right: {
                                         kind: "Number",
-                                        value: "2.0",
+                                        value: "2",
                                     },
                                 },
                                 attr: {
@@ -1112,13 +1112,13 @@
                 "Then we write a program that estimates `params`."),
             message("W", "Okay. How do we begin?"),
             message("D", "Start with an initial guess for `params`.\n" +
-                "Any guess works; say `(0.0, 0.0)`.\n" +
+                "Any guess works; say `(0, 0)`.\n" +
                 "Run `line(xs, params)` and call the output `ys_pred`."),
             {
                 ...message("W", "You mean this?"),
                 codeLabel: "init run",
                 buildCodeBlock: (_ast) => runningInitParams,
-                textAfterCode: "We get `Tensor([-0.0, 0.0, 0.0, 0.0])`. `ys_pred` is far from the real `ys`.",
+                textAfterCode: "We get `Tensor([0, 0, 0, 0])`. `ys_pred` is far from the real `ys`.",
             },
             message("D", "Expected.\n" +
                 "Now we need to measure how far off we are. This is called the !!loss!!."),
@@ -1128,12 +1128,10 @@
                 codeLabel: "`loss` definition",
                 buildCodeBlock: (_ast) => lossDefinitionBlock,
             },
-            message("W", "The implicit variable now comes with a type!\n" +
-                "Does `[n: int]` mean `n` must be an `int`?"),
-            message("D", "Yes, since `n` describes a dimension of the input tensors.\n" +
-                "When validating `loss`, PyPie knows that `ys_pred` and `ys` share the same shape. So that `ys_pred - ys` is valid.\n" +
-                "When applying `loss` on actual inputs, PyPie also checks for the shapes equality, modulo rank polymorphism."),
-            message("W", "Why square with `** 2.0` and then call `sum(0)`?"),
+            message("W", "Does `[n]` introduce a new implicit variable?"),
+            message("D", "Yes, `n` describes a dimension of the input tensors. It tells " +
+                "PyPie that `ys_pred` and `ys` share the same shape. So that `ys_pred - ys` is valid."),
+            message("W", "Why square with `** 2` and then call `sum(0)`?"),
             message("D", "Almost always, we use a scalar as the loss.\n" +
                 "We first square each difference, so negatives and positives cannot cancel out during the following `sum`.\n" +
                 "This gives us a `Tensor[float][[n]]`.\n" +
@@ -1143,7 +1141,7 @@
                 ...message("W", "Like this?"),
                 codeLabel: "run `loss`",
                 buildCodeBlock: (_ast) => runLossBlock,
-                textAfterCode: "It prints `32.19`, the loss at `(0.0, 0.0)`?",
+                textAfterCode: "It prints `32.19`, the loss at `(0, 0)`?",
             },
             message("D", "Exactly.\n" +
                 "Then we update `params`, recompute loss, and repeat."),

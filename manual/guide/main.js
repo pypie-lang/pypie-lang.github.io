@@ -15,9 +15,9 @@
     render({
         id: "guide",
         title: "The PyPie Guide",
-        lead: "PyPie is a Python DSL. A PyPie function is just a Python function--it is defined among other " +
-            "Python functions and can be invoked like any other Python function.\nThis guide shows what Python syntax is " +
-            "supported by PyPie and what the expected behaviors are.",
+        lead: "PyPie is a Python DSL. A PyPie function is just a Python function, with an `@op` on it.\n" +
+            "This guide shows the subset of Python syntax supported in an `@op` " +
+            "and their expected behaviors.",
         intro: "",
         sections: [],
     });

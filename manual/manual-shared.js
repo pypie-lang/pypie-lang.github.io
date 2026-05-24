@@ -61,7 +61,7 @@
         });
     };
     const DEFAULT_MANUAL_SERIES = {
-        title: "Language Reference",
+        title: "Reference",
         pages: [
             {
                 slug: "guide/index.html",
@@ -73,7 +73,7 @@
             },
             {
                 slug: "ops/index.html",
-                title: "Ops",
+                title: "Ops & Types",
             },
             {
                 slug: "parallel/index.html",

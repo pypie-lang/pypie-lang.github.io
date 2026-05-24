@@ -695,7 +695,7 @@
                                 },
                                 orelse: {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                             },
                             target: [
@@ -2057,7 +2057,7 @@
                                     },
                                     orelse: {
                                         kind: "Number",
-                                        value: "0.0",
+                                        value: "0",
                                     },
                                 },
                                 target: [
@@ -4997,7 +4997,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -5116,7 +5116,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -5298,7 +5298,7 @@
                             elements: [
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
@@ -5306,7 +5306,7 @@
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                             ],
                         },
@@ -5335,7 +5335,7 @@
                             elements: [
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
@@ -5343,15 +5343,15 @@
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                                 {
                                     kind: "Number",
-                                    value: "0.0",
+                                    value: "0",
                                 },
                             ],
                         },
@@ -5413,7 +5413,7 @@
             message(
                 "D",
                 "We begin with a baby step, detecting signals in rank-1 tensors.\n" +
-                "Here's a signal:\n`Tensor([0.0, 1.0, 0.0, 0.0, 0.0])`.\nLet's check if it contains the pattern\n`Tensor([0.0, 1.0, 0.0])`.\n" +
+                "Here's a signal:\n`Tensor([0, 1.0, 0, 0, 0])`.\nLet's check if it contains the pattern\n`Tensor([0, 1.0, 0])`.\n" +
                 "We align the pattern with the left end of the signal, and slide the pattern all the way to the right. " +
                 "For each segment in the signal, we compute a score of how well it matches the pattern."
             ),
@@ -5432,7 +5432,7 @@
             },
             message(
                 "W",
-                "In our case, `n` is `3`, the length of the pattern. For the first segment of the signal, we have `dot(Tensor([0.0, 1.0, 0.0]), Tensor([0.0, 1.0, 0.0]))`, which is `1.0`."
+                "In our case, `n` is `3`, the length of the pattern. For the first segment of the signal, we have `dot(Tensor([0, 1.0, 0]), Tensor([0, 1.0, 0]))`, which is `1.0`."
             ),
             {
                 ...message(
@@ -5464,7 +5464,7 @@
                 ),
                 codeLabel: "`corr.py` lines 22-24",
                 buildCodeBlock: (_ast: AstApi) => corr1dRunBlock,
-                textAfterCode: "It prints `Tensor([1.0, 0.0, 0.0])`--three `dot`s for three segments."
+                textAfterCode: "It prints `Tensor([1.0, 0, 0])`--three `dot`s for three segments."
             },
             message(
                 "D",
@@ -5480,7 +5480,7 @@
                     "The coverage of the elements at the beginning and end of the signal.\n" +
                     "Our `corr1d` underutilizes the first and last elements of the signal--" +
                     "each is used only once, while the middle element is used three times.\n" +
-                    "To use elements more evenly, we can pad the signal before computing `corr1d` by appending `0.0`s to both ends."
+                    "To use elements more evenly, we can pad the signal before computing `corr1d` by appending `0`s to both ends."
                 ),
                 codeLabel: "`pad1d` definition",
                 buildCodeBlock: (_ast: AstApi) => pad1dDefinitionBlock,
@@ -5494,9 +5494,9 @@
                 codeLabel: "`corr1d_padded` definition",
                 buildCodeBlock: (_ast: AstApi) => corr1dPaddedDefinitionBlock,
                 textAfterCode: "Running `corr1d_padded(signal, pattern, 1)` gives\n" +
-                    "`Tensor([0.0, 1.0, 0.0, 0.0, 0.0])`;\n" +
+                    "`Tensor([0, 1.0, 0, 0, 0])`;\n" +
                     "and `corr1d_padded(signal, pattern, 2)` gives\n" +
-                    "`Tensor([0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0])`.\n" +
+                    "`Tensor([0, 0, 1.0, 0, 0, 0, 0])`.\n" +
                     "The first and last elements are now used more frequently!"
             },
             {
@@ -5536,7 +5536,7 @@
             {
                 ...message(
                     "W",
-                    "How about this? It pads `0.0`s to the top, bottom, left, and right."
+                    "How about this? It pads `0`s to the top, bottom, left, and right."
                 ),
                 codeLabel: "`pad2d` definition",
                 buildCodeBlock: (_ast: AstApi) => pad2dDefinitionBlock,
@@ -5676,7 +5676,7 @@
                 "`larger` is an !!activation function!!. " +
                 "Activation functions add non-linearity so each layer remains expressive. " +
                 "Otherwise, two consecutive linear layers would collapse into a single linear layer.\n" +
-                "Here, we achieve non-linearity by simply replacing negative values with `0.0`."
+                "Here, we achieve non-linearity by simply replacing negative values with `0`."
             ),
             message(
                 "W",

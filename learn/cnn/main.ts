@@ -1458,7 +1458,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -1580,7 +1580,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -1740,7 +1740,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -1796,7 +1796,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -2683,7 +2683,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -2802,7 +2802,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -2959,7 +2959,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },
@@ -3012,7 +3012,7 @@
                                         },
                                         {
                                             kind: "Number",
-                                            value: "0.0",
+                                            value: "0",
                                         },
                                     ],
                                 },

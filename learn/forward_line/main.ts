@@ -504,11 +504,11 @@ const lineDefinitionBlock = {
                     elements: [
                         {
                             kind: "Number",
-                            value: "0.0",
+                            value: "0",
                         },
                         {
                             kind: "Number",
-                            value: "0.0",
+                            value: "0",
                         },
                     ],
                 },
@@ -1024,7 +1024,7 @@ const lineDefinitionBlock = {
                                     op: "**",
                                     right: {
                                         kind: "Number",
-                                        value: "2.0",
+                                        value: "2",
                                     },
                                 },
                                 attr: {
@@ -1217,7 +1217,7 @@ const lineDefinitionBlock = {
             message(
                 "D",
                 "Start with an initial guess for `params`.\n" +
-                "Any guess works; say `(0.0, 0.0)`.\n" +
+                "Any guess works; say `(0, 0)`.\n" +
                 "Run `line(xs, params)` and call the output `ys_pred`."
             ),
             {
@@ -1227,7 +1227,7 @@ const lineDefinitionBlock = {
                 ),
                 codeLabel: "init run",
                 buildCodeBlock: (_ast: AstApi) => runningInitParams,
-                textAfterCode: "We get `Tensor([-0.0, 0.0, 0.0, 0.0])`. `ys_pred` is far from the real `ys`.",
+                textAfterCode: "We get `Tensor([0, 0, 0, 0])`. `ys_pred` is far from the real `ys`.",
             },
             message(
                 "D",
@@ -1248,18 +1248,16 @@ const lineDefinitionBlock = {
             },
             message(
                 "W",
-                "The implicit variable now comes with a type!\n" +
-                "Does `[n: int]` mean `n` must be an `int`?"
+                "Does `[n]` introduce a new implicit variable?"
             ),
             message(
                 "D",
-                "Yes, since `n` describes a dimension of the input tensors.\n" +
-                "When validating `loss`, PyPie knows that `ys_pred` and `ys` share the same shape. So that `ys_pred - ys` is valid.\n" +
-                "When applying `loss` on actual inputs, PyPie also checks for the shapes equality, modulo rank polymorphism."
+                "Yes, `n` describes a dimension of the input tensors. It tells " +
+                "PyPie that `ys_pred` and `ys` share the same shape. So that `ys_pred - ys` is valid."
             ),
             message(
                 "W",
-                "Why square with `** 2.0` and then call `sum(0)`?"
+                "Why square with `** 2` and then call `sum(0)`?"
             ),
             message(
                 "D",
@@ -1276,7 +1274,7 @@ const lineDefinitionBlock = {
                 ),
                 codeLabel: "run `loss`",
                 buildCodeBlock: (_ast: AstApi) => runLossBlock,
-                textAfterCode: "It prints `32.19`, the loss at `(0.0, 0.0)`?",
+                textAfterCode: "It prints `32.19`, the loss at `(0, 0)`?",
             },
             message(
                 "D",
