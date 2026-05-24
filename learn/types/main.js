@@ -53,15 +53,15 @@
             message("W", "Can we make `[[1, 2, 3], [4, 5]]` a `Tensor`?"),
             message("D", "Good question. What's its shape?"),
             message("W", "Hmm... I don't know how to describe its shape."),
-            message("D", "Neither do I. We cannot make `[[1, 2, 3], [4, 5]]` a `Tensor`, because it does not have a shape!"),
+            message("D", "Neither do I. We cannot make `[[1, 2, 3], [4, 5]]` a `Tensor`, since it does not have a shape!"),
             message("W", "So `Tensor`s are special because of shapes!"),
             message("D", "Yes. !!`Tensor[t][s]`!! is a type as long as `t` is a type and `s` is a `List[int]`.\n" +
                 "With shapes, `Tensor`s describe their values more accurately than `List`s do.\n" +
-                "This precision enables many useful things."),
+                "This precision enables many cool things."),
             message("W", "Such as?"),
             message("D", "Running programs efficiently in parallel.\n" +
                 "Since all elements in a tensor share the same shape, it is easier to run commands on all of them together."),
-            message("W", "Sounds useful! Let's see an example!"),
+            message("W", "Sounds cool! Let's see an example!"),
             message("D", "We will, in the next chapter. Now it's time to take a break."),
             message("W", "See you there!"),
         ],

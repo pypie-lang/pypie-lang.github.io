@@ -4065,7 +4065,7 @@
             {
                 ...message(
                     "D",
-                    "Yes, here's our final LeNet, with parameters properly organized.*"
+                    "Yes, here's our final LeNet, with parameters properly organized."
                 ),
                 codeLabel: "`LeNet` definition",
                 buildCodeBlock: (_ast: AstApi) => lenetClassDefinitionBlock,
@@ -4076,6 +4076,6 @@
                 "We are here! We are waiting!"
             )
         ],
-        notes: "*The code is available at [PyPie's GitHub repository](https://github.com/pypie-lang/pypie-examples/blob/main/models/lenet.py)."
+        notes: "The code of this chapter is available at [PyPie's GitHub repository](https://github.com/pypie-lang/pypie-examples/blob/main/models/lenet.py)."
     });
 })();

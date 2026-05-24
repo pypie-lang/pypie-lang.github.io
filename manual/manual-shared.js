@@ -61,7 +61,7 @@
         });
     };
     const DEFAULT_MANUAL_SERIES = {
-        title: "Reference",
+        title: "Manual",
         pages: [
             {
                 slug: "guide/index.html",

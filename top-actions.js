@@ -55,7 +55,7 @@
     };
     const links = [
         { href: withRoot("learn/overview/index.html"), label: "Tutorial" },
-        { href: withRoot("manual/guide/index.html"), label: "Reference" },
+        { href: withRoot("manual/guide/index.html"), label: "Manual" },
         { href: withRoot("installation/index.html"), label: "Installation" },
     ];
     const homeLink = withRoot("index.html");

@@ -140,7 +140,7 @@
     };
 
     const DEFAULT_MANUAL_SERIES: ManualSeries = {
-        title: "Reference",
+        title: "Manual",
         pages: [
             {
                 slug: "guide/index.html",

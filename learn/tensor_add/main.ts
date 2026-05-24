@@ -145,7 +145,7 @@
             message(
                 "D",
                 "Two `List[int]`s are !!compatible!!, if we line them up from the right and find a " +
-                "!!suffix!! in the longer one that matches the shorter.* " +
+                "!!suffix!! in the longer one that matches the shorter*. " +
                 "The remaining part in the longer list is called the !!prefix!!.\n" +
                 "Find the suffix and prefix for `x` and `y`."
             ),

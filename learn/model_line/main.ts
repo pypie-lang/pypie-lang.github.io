@@ -2396,24 +2396,6 @@
                 buildCodeBlock: (_ast: AstApi) => lineRmsLearnRunBlock,
                 textAfterCode: "`(1.005, 0.512)`. `LineRMS` has learned!"
             },
-            message(
-                "D",
-                "Very well. Mission complete."
-            ),
-            message(
-                "W",
-                "A short chapter?"
-            ),
-            message(
-                "D",
-                "Because it answers a simpler question: " +
-                "how a `Model` `learn`s. The core is `predict`, `loss`, and `update`; " +
-                "with `inflate` and `deflate` occasionally."
-            ),
-            message(
-                "W",
-                "And shaped `Tensor`s!"
-            ),
         ],
     });
 })();

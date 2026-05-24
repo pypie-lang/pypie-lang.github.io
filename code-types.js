@@ -537,7 +537,18 @@ const printExpr = (builder, node, parentPrecedence = 0, options = {}) => {
         case "Subscript":
             printExpr(builder, node.value, 0, resolvedOptions);
             builder.token("[");
-            printExpr(builder, node.index, 0, resolvedOptions);
+            if (node.index?.kind === "Tuple") {
+                (node.index.elements || []).forEach((element, index) => {
+                    printExpr(builder, element, 0, resolvedOptions);
+                    if (index < node.index.elements.length - 1) {
+                        builder.token(",");
+                        builder.space();
+                    }
+                });
+            }
+            else {
+                printExpr(builder, node.index, 0, resolvedOptions);
+            }
             builder.token("]");
             return;
         case "Slice":

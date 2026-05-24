@@ -3954,13 +3954,13 @@
             },
             message("W", "Now we can rework LeNet!"),
             {
-                ...message("D", "Yes, here's our final LeNet, with parameters properly organized.*"),
+                ...message("D", "Yes, here's our final LeNet, with parameters properly organized."),
                 codeLabel: "`LeNet` definition",
                 buildCodeBlock: (_ast) => lenetClassDefinitionBlock,
                 textAfterCode: "Now it's time to take a break. In the next chapter, we will build a transformer."
             },
             message("W", "We are here! We are waiting!")
         ],
-        notes: "*The code is available at [PyPie's GitHub repository](https://github.com/pypie-lang/pypie-examples/blob/main/models/lenet.py)."
+        notes: "The code of this chapter is available at [PyPie's GitHub repository](https://github.com/pypie-lang/pypie-examples/blob/main/models/lenet.py)."
     });
 })();

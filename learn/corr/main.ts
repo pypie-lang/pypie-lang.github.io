@@ -47,6 +47,133 @@
 
     const intTypeParams = (...names: string[]) => names.map((name) => intTypeParam(name));
 
+    const identifier = (
+        name: string,
+        role: "fn" | "plain" | "type" | "var",
+        type?: string
+    ) => ({
+        kind: "Identifier",
+        name,
+        role,
+        ...(type === undefined ? {} : { type }),
+    });
+
+    const varIdentifier = (name: string, type?: string) => identifier(name, "var", type);
+    const intIdentifier = (name: string) => varIdentifier(name, "int");
+    const fnIdentifier = (name: string, type?: string) => identifier(name, "fn", type);
+    const typeIdentifier = (name: string) => identifier(name, "type");
+    const numberLiteral = (value: string | number) => ({
+        kind: "Number",
+        value: String(value),
+    });
+    const binOp = (left: unknown, op: string, right: unknown) => ({
+        kind: "BinOp",
+        left,
+        op,
+        right,
+    });
+    const callExpr = (callee: unknown, args: unknown[]) => ({
+        kind: "Call",
+        callee,
+        args,
+    });
+    const listCompExpr = (elt: unknown, target: unknown[], iter: unknown) => ({
+        kind: "ListComp",
+        elt,
+        target,
+        iter,
+    });
+    const assignStmt = (target: unknown, value: unknown) => ({
+        kind: "Assign",
+        target,
+        value,
+    });
+    const returnStmt = (value: unknown) => ({ kind: "Return", value });
+    const argNode = (name: string, annotation: unknown, type?: string) => ({
+        kind: "Arg",
+        name: varIdentifier(name, type),
+        annotation,
+    });
+    const tensorType = (scalarType: unknown, shapeItems: unknown[]) => ({
+        kind: "TypeSubscript",
+        base: {
+            kind: "TypeSubscript",
+            base: typeIdentifier("Tensor"),
+            index: scalarType,
+        },
+        index: {
+            kind: "TypeList",
+            items: [
+                {
+                    kind: "TypeList",
+                    items: shapeItems,
+                },
+            ],
+        },
+    });
+    const floatTensorType = (shapeItems: unknown[]) =>
+        tensorType(typeIdentifier("float"), shapeItems);
+    const functionDef = (
+        name: string,
+        typeParams: unknown[],
+        args: unknown[],
+        returns: unknown,
+        body: unknown[]
+    ) => ({
+        kind: "FunctionDef",
+        name: fnIdentifier(name),
+        typeParams,
+        args,
+        returns,
+        decorator: fnIdentifier("op"),
+        body,
+    });
+    const codeBlock = (body: unknown[]) => ({ kind: "Block", body });
+    const classDef = (
+        name: string,
+        typeParams: unknown[],
+        body: unknown[],
+        decorator?: unknown
+    ) => ({
+        kind: "ClassDef",
+        name: typeIdentifier(name),
+        typeParams,
+        body,
+        ...(decorator === undefined ? {} : { decorator }),
+    });
+    const annAssign = (target: unknown, annotation: unknown) => ({
+        kind: "AnnAssign",
+        target,
+        annotation,
+    });
+    const attrExpr = (value: unknown, name: string, type?: string) => ({
+        kind: "Attribute",
+        value,
+        attr: identifier(name, "plain", type),
+    });
+    const subscriptExpr = (value: unknown, index: unknown) => ({
+        kind: "Subscript",
+        value,
+        index,
+    });
+    const sliceExpr = (start: unknown, end: unknown, step?: unknown) => ({
+        kind: "Slice",
+        start,
+        end,
+        ...(step === undefined ? {} : { step }),
+    });
+    const tupleExpr = (elements: unknown[]) => ({ kind: "Tuple", elements });
+    const ellipsisExpr = () => ({ kind: "Ellipsis" });
+    const exprStmt = (value: unknown) => ({ kind: "ExprStmt", value });
+    const genericType = (name: string, args: unknown[]) => ({
+        kind: "TypeSubscript",
+        base: typeIdentifier(name),
+        index: {
+            kind: "TypeList",
+            items: args,
+        },
+    });
+
     const dotDefinitionBlock = {
         kind: "Block",
         body: [
@@ -491,262 +618,52 @@
         ],
     };
 
-    const pad1dDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "FunctionDef",
-                name: {
-                    kind: "Identifier",
-                    name: "pad1d",
-                    role: "fn",
-                },
-                typeParams: intTypeParams("n"),
-                args: [
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "xs",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "n",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                ],
-                returns: {
-                    kind: "TypeSubscript",
-                    base: {
-                        kind: "TypeSubscript",
-                        base: {
-                            kind: "Identifier",
-                            name: "Tensor",
-                            role: "type",
-                        },
-                        index: {
-                            kind: "Identifier",
-                            name: "float",
-                            role: "type",
-                        },
-                    },
-                    index: {
-                        kind: "TypeList",
-                        items: [
-                            {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "BinOp",
-                                        left: {
-                                            kind: "Identifier",
-                                            name: "n",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        op: "+",
-                                        right: {
-                                            kind: "BinOp",
-                                            left: {
-                                                kind: "Number",
-                                                value: "2",
-                                            },
-                                            op: "*",
-                                            right: {
-                                                kind: "Identifier",
-                                                name: "padding",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        },
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                },
-                decorator: {
-                    kind: "Identifier",
-                    name: "op",
-                    role: "fn",
-                },
-                body: [
-                    {
-                        kind: "Return",
-                        value: {
-                            kind: "ListComp",
-                            elt: {
-                                kind: "IfExpr",
-                                body: {
-                                    kind: "Subscript",
-                                    value: {
-                                        kind: "Identifier",
-                                        name: "xs",
-                                        role: "var",
-                                        type: "Tensor[float][[n]]",
-                                    },
-                                    index: {
-                                        kind: "BinOp",
-                                        left: {
-                                            kind: "Identifier",
-                                            name: "i",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        op: "-",
-                                        right: {
-                                            kind: "Identifier",
-                                            name: "padding",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                    },
-                                },
-                                test: {
-                                    kind: "BoolOp",
-                                    op: "and",
-                                    values: [
-                                        {
-                                            kind: "Compare",
-                                            left: {
-                                                kind: "Identifier",
-                                                name: "padding",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            op: "<=",
-                                            right: {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        },
-                                        {
-                                            kind: "Compare",
-                                            left: {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            op: "<",
-                                            right: {
-                                                kind: "BinOp",
-                                                left: {
-                                                    kind: "Identifier",
-                                                    name: "n",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                                op: "+",
-                                                right: {
-                                                    kind: "Identifier",
-                                                    name: "padding",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                            },
-                                        },
-                                    ],
-                                },
-                                orelse: {
-                                    kind: "Number",
-                                    value: "0",
-                                },
-                            },
-                            target: [
-                                {
-                                    kind: "Identifier",
-                                    name: "i",
-                                    role: "var",
-                                    type: "int",
-                                },
-                            ],
-                            iter: {
-                                kind: "Call",
-                                callee: {
-                                    kind: "Identifier",
-                                    name: "iota",
-                                    role: "fn",
-                                    type: "Tensor[int][[n + 2 * padding]]",
-                                },
-                                args: [
-                                    {
-                                        kind: "BinOp",
-                                        left: {
-                                            kind: "Identifier",
-                                            name: "n",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        op: "+",
-                                        right: {
-                                            kind: "BinOp",
-                                            left: {
-                                                kind: "Number",
-                                                value: "2",
-                                            },
-                                            op: "*",
-                                            right: {
-                                                kind: "Identifier",
-                                                name: "padding",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                ],
-            },
-        ],
-    };
+    const pad1dLengthExpr = () =>
+        binOp(
+            binOp(numberLiteral(2), "*", varIdentifier("padding", "int")),
+            "+",
+            varIdentifier("w", "int")
+        );
+
+    const pad1dDefinitionBlock = codeBlock([
+        functionDef(
+            "pad1d",
+            [typeIdentifier("T"), ...intTypeParams("w")],
+            [
+                argNode(
+                    "xs",
+                    tensorType(typeIdentifier("T"), [varIdentifier("w", "int")]),
+                    "Tensor[T][[w]]"
+                ),
+                argNode("padding", typeIdentifier("int"), "int"),
+            ],
+            tensorType(typeIdentifier("T"), [pad1dLengthExpr()]),
+            [
+                assignStmt(
+                    varIdentifier("side_padding", "Tensor[T][[padding]]"),
+                    callExpr(fnIdentifier("replicate", "Tensor[T][[padding]]"), [
+                        varIdentifier("padding", "int"),
+                        numberLiteral(0),
+                    ])
+                ),
+                returnStmt(
+                    callExpr(
+                        fnIdentifier("concat", "Tensor[T][[2 * padding + w]]"),
+                        [
+                            callExpr(
+                                fnIdentifier("concat", "Tensor[T][[padding + w]]"),
+                                [
+                                    varIdentifier("side_padding", "Tensor[T][[padding]]"),
+                                    varIdentifier("xs", "Tensor[T][[w]]"),
+                                ]
+                            ),
+                            varIdentifier("side_padding", "Tensor[T][[padding]]"),
+                        ]
+                    )
+                ),
+            ]
+        ),
+    ]);
 
     const corr1dPaddedDefinitionBlock = {
         kind: "Block",
@@ -1747,2085 +1664,454 @@
         ],
     };
 
-    const pad2dDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "FunctionDef",
-                name: {
-                    kind: "Identifier",
-                    name: "pad2d",
-                    role: "fn",
-                },
-                typeParams: intTypeParams("h", "w"),
-                args: [
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "xs",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "h",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "w",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding0",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding1",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                ],
-                returns: {
-                    kind: "TypeSubscript",
-                    base: {
-                        kind: "TypeSubscript",
-                        base: {
-                            kind: "Identifier",
-                            name: "Tensor",
-                            role: "type",
-                        },
-                        index: {
-                            kind: "Identifier",
-                            name: "float",
-                            role: "type",
-                        },
-                    },
-                    index: {
-                        kind: "TypeList",
-                        items: [
-                            {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "BinOp",
-                                        left: {
-                                            kind: "Identifier",
-                                            name: "h",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        op: "+",
-                                        right: {
-                                            kind: "BinOp",
-                                            left: {
-                                                kind: "Number",
-                                                value: "2",
-                                            },
-                                            op: "*",
-                                            right: {
-                                                kind: "Identifier",
-                                                name: "padding0",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        },
-                                    },
-                                    {
-                                        kind: "BinOp",
-                                        left: {
-                                            kind: "Identifier",
-                                            name: "w",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        op: "+",
-                                        right: {
-                                            kind: "BinOp",
-                                            left: {
-                                                kind: "Number",
-                                                value: "2",
-                                            },
-                                            op: "*",
-                                            right: {
-                                                kind: "Identifier",
-                                                name: "padding1",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        },
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                },
-                decorator: {
-                    kind: "Identifier",
-                    name: "op",
-                    role: "fn",
-                },
-                body: [
-                    {
-                        kind: "Return",
-                        value: {
-                            kind: "ListComp",
-                            elt: {
-                                kind: "ListComp",
-                                elt: {
-                                    kind: "IfExpr",
-                                    body: {
-                                        kind: "Subscript",
-                                        value: {
-                                            kind: "Subscript",
-                                            value: {
-                                                kind: "Identifier",
-                                                name: "xs",
-                                                role: "var",
-                                            },
-                                            index: {
-                                                kind: "BinOp",
-                                                left: {
-                                                    kind: "Identifier",
-                                                    name: "j",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                                op: "-",
-                                                right: {
-                                                    kind: "Identifier",
-                                                    name: "padding0",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                            },
-                                        },
-                                        index: {
-                                            kind: "BinOp",
-                                            left: {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            op: "-",
-                                            right: {
-                                                kind: "Identifier",
-                                                name: "padding1",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        },
-                                    },
-                                    test: {
-                                        kind: "BoolOp",
-                                        op: "and",
-                                        values: [
-                                            {
-                                                kind: "Compare",
-                                                left: {
-                                                    kind: "Identifier",
-                                                    name: "padding1",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                                op: "<=",
-                                                right: {
-                                                    kind: "Identifier",
-                                                    name: "i",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                            },
-                                            {
-                                                kind: "Compare",
-                                                left: {
-                                                    kind: "Identifier",
-                                                    name: "i",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                                op: "<",
-                                                right: {
-                                                    kind: "BinOp",
-                                                    left: {
-                                                        kind: "Identifier",
-                                                        name: "w",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                    op: "+",
-                                                    right: {
-                                                        kind: "Identifier",
-                                                        name: "padding1",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                },
-                                            },
-                                            {
-                                                kind: "Compare",
-                                                left: {
-                                                    kind: "Identifier",
-                                                    name: "padding0",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                                op: "<=",
-                                                right: {
-                                                    kind: "Identifier",
-                                                    name: "j",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                            },
-                                            {
-                                                kind: "Compare",
-                                                left: {
-                                                    kind: "Identifier",
-                                                    name: "j",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                                op: "<",
-                                                right: {
-                                                    kind: "BinOp",
-                                                    left: {
-                                                        kind: "Identifier",
-                                                        name: "h",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                    op: "+",
-                                                    right: {
-                                                        kind: "Identifier",
-                                                        name: "padding0",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                },
-                                            },
-                                        ],
-                                    },
-                                    orelse: {
-                                        kind: "Number",
-                                        value: "0",
-                                    },
-                                },
-                                target: [
-                                    {
-                                        kind: "Identifier",
-                                        name: "i",
-                                        role: "var",
-                                        type: "int",
-                                    },
-                                ],
-                                iter: {
-                                    kind: "Call",
-                                    callee: {
-                                        kind: "Identifier",
-                                        name: "iota",
-                                        role: "fn",
-                                        type: "Tensor[int][[w + 2 * padding1]]",
-                                    },
-                                    args: [
-                                        {
-                                            kind: "BinOp",
-                                            left: {
-                                                kind: "Identifier",
-                                                name: "w",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            op: "+",
-                                            right: {
-                                                kind: "BinOp",
-                                                left: {
-                                                    kind: "Number",
-                                                    value: "2",
-                                                },
-                                                op: "*",
-                                                right: {
-                                                    kind: "Identifier",
-                                                    name: "padding1",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                            },
-                                        },
-                                    ],
-                                },
-                            },
-                            target: [
-                                {
-                                    kind: "Identifier",
-                                    name: "j",
-                                    role: "var",
-                                    type: "int",
-                                },
-                            ],
-                            iter: {
-                                kind: "Call",
-                                callee: {
-                                    kind: "Identifier",
-                                    name: "iota",
-                                    role: "fn",
-                                    type: "Tensor[int][[h + 2 * padding0]]",
-                                },
-                                args: [
-                                    {
-                                        kind: "BinOp",
-                                        left: {
-                                            kind: "Identifier",
-                                            name: "h",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        op: "+",
-                                        right: {
-                                            kind: "BinOp",
-                                            left: {
-                                                kind: "Number",
-                                                value: "2",
-                                            },
-                                            op: "*",
-                                            right: {
-                                                kind: "Identifier",
-                                                name: "padding0",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                ],
-            },
-        ],
-    };
+    const pad2dHeightExpr = () =>
+        binOp(
+            binOp(numberLiteral(2), "*", varIdentifier("padding0", "int")),
+            "+",
+            varIdentifier("h", "int")
+        );
 
-    const dot2dIncompleteDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "FunctionDef",
-                name: {
-                    kind: "Identifier",
-                    name: "dot2d",
-                    role: "fn",
-                },
-                typeParams: intTypeParams("h", "w", "m", "n"),
-                args: [
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "h",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "w",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "p",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "m",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "n",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s_j",
-                            role: "var"
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        }
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s_i",
-                            role: "var"
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        }
-                    }
-                ],
-                returns: {
-                    kind: "Identifier",
-                    name: "float",
-                    role: "type",
-                },
-                decorator: {
-                    kind: "Identifier",
-                    name: "op",
-                    role: "fn",
-                },
-                body: [
-                    {
-                        kind: "ExprStmt",
-                        value: {
-                            kind: "Ellipsis",
-                        },
-                    },
-                ],
-            },
-        ],
-    };
+    const pad2dWidthExpr = () =>
+        binOp(
+            varIdentifier("w", "int"),
+            "+",
+            binOp(numberLiteral(2), "*", varIdentifier("padding1", "int"))
+        );
 
-    const dot2dDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "FunctionDef",
-                name: {
-                    kind: "Identifier",
-                    name: "dot2d",
-                    role: "fn",
-                },
-                typeParams: intTypeParams("h", "w", "m", "n"),
-                args: [
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "h",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "w",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "p",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "m",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "n",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s_j",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s_i",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                ],
-                returns: {
-                    kind: "Identifier",
-                    name: "float",
-                    role: "type",
-                },
-                decorator: {
-                    kind: "Identifier",
-                    name: "op",
-                    role: "fn",
-                },
-                body: [
-                    {
-                        kind: "Return",
-                        value: {
-                            kind: "Call",
-                            callee: {
-                                kind: "Attribute",
-                                value: {
-                                    kind: "ListComp",
-                                    elt: {
-                                        kind: "ListComp",
-                                        elt: {
-                                            kind: "BinOp",
-                                            left: {
-                                                kind: "Subscript",
-                                                value: {
-                                                    kind: "Subscript",
-                                                    value: {
-                                                        kind: "Identifier",
-                                                        name: "s",
-                                                        role: "var",
-                                                    },
-                                                    index: {
-                                                        kind: "BinOp",
-                                                        left: {
-                                                            kind: "Identifier",
-                                                            name: "s_j",
-                                                            role: "var",
-                                                            type: "int",
-                                                        },
-                                                        op: "+",
-                                                        right: {
-                                                            kind: "Identifier",
-                                                            name: "j",
-                                                            role: "var",
-                                                            type: "int",
-                                                        },
-                                                    },
-                                                },
-                                                index: {
-                                                    kind: "BinOp",
-                                                    left: {
-                                                        kind: "Identifier",
-                                                        name: "s_i",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                    op: "+",
-                                                    right: {
-                                                        kind: "Identifier",
-                                                        name: "i",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                },
-                                            },
-                                            op: "*",
-                                            right: {
-                                                kind: "Subscript",
-                                                value: {
-                                                    kind: "Subscript",
-                                                    value: {
-                                                        kind: "Identifier",
-                                                        name: "p",
-                                                        role: "var",
-                                                    },
-                                                    index: {
-                                                        kind: "Identifier",
-                                                        name: "j",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                },
-                                                index: {
-                                                    kind: "Identifier",
-                                                    name: "i",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                            },
-                                        },
-                                        target: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                        iter: {
-                                            kind: "Call",
-                                            callee: {
-                                                kind: "Identifier",
-                                                name: "iota",
-                                                role: "fn",
-                                            },
-                                            args: [
-                                                {
-                                                    kind: "Identifier",
-                                                    name: "n",
-                                                    role: "var",
-                                                    type: "int",
-                                                },
-                                            ],
-                                        },
-                                    },
-                                    target: [
-                                        {
-                                            kind: "Identifier",
-                                            name: "j",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                    ],
-                                    iter: {
-                                        kind: "Call",
-                                        callee: {
-                                            kind: "Identifier",
-                                            name: "iota",
-                                            role: "fn",
-                                        },
-                                        args: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "m",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                },
-                                attr: {
-                                    kind: "Identifier",
-                                    name: "sum",
-                                    role: "plain",
-                                    type: "float",
-                                },
-                            },
-                            args: [
-                                {
-                                    kind: "Number",
-                                    value: "0",
-                                },
-                                {
-                                    kind: "Number",
-                                    value: "1",
-                                },
-                            ],
-                        },
-                    },
-                ],
-            },
-        ],
-    };
+    const pad2dDefinitionBlock = codeBlock([
+        functionDef(
+            "pad2d",
+            [typeIdentifier("T"), ...intTypeParams("h", "w")],
+            [
+                argNode(
+                    "xs",
+                    tensorType(typeIdentifier("T"), [
+                        varIdentifier("h", "int"),
+                        varIdentifier("w", "int"),
+                    ]),
+                    "Tensor[T][[h, w]]"
+                ),
+                argNode("padding0", typeIdentifier("int"), "int"),
+                argNode("padding1", typeIdentifier("int"), "int"),
+            ],
+            tensorType(typeIdentifier("T"), [pad2dHeightExpr(), pad2dWidthExpr()]),
+            [
+                assignStmt(
+                    varIdentifier(
+                        "padded_rows",
+                        "Tensor[T][[h, w + 2 * padding1]]"
+                    ),
+                    listCompExpr(
+                        callExpr(
+                            fnIdentifier("pad1d", "Tensor[T][[w + 2 * padding1]]"),
+                            [
+                                varIdentifier("row", "Tensor[T][[w]]"),
+                                varIdentifier("padding1", "int"),
+                            ]
+                        ),
+                        [varIdentifier("row", "Tensor[T][[w]]")],
+                        varIdentifier("xs", "Tensor[T][[h, w]]")
+                    )
+                ),
+                assignStmt(
+                    varIdentifier("zero_row", "Tensor[T][[w + 2 * padding1]]"),
+                    callExpr(
+                        fnIdentifier("replicate", "Tensor[T][[w + 2 * padding1]]"),
+                        [pad2dWidthExpr(), numberLiteral(0)]
+                    )
+                ),
+                assignStmt(
+                    varIdentifier(
+                        "top_bottom",
+                        "Tensor[T][[padding0, w + 2 * padding1]]"
+                    ),
+                    callExpr(
+                        fnIdentifier(
+                            "replicate",
+                            "Tensor[T][[padding0, w + 2 * padding1]]"
+                        ),
+                        [
+                            varIdentifier("padding0", "int"),
+                            varIdentifier(
+                                "zero_row",
+                                "Tensor[T][[w + 2 * padding1]]"
+                            ),
+                        ]
+                    )
+                ),
+                returnStmt(
+                    callExpr(
+                        fnIdentifier(
+                            "concat",
+                            "Tensor[T][[2 * padding0 + h, w + 2 * padding1]]"
+                        ),
+                        [
+                            callExpr(
+                                fnIdentifier(
+                                    "concat",
+                                    "Tensor[T][[padding0 + h, w + 2 * padding1]]"
+                                ),
+                                [
+                                    varIdentifier(
+                                        "top_bottom",
+                                        "Tensor[T][[padding0, w + 2 * padding1]]"
+                                    ),
+                                    varIdentifier(
+                                        "padded_rows",
+                                        "Tensor[T][[h, w + 2 * padding1]]"
+                                    ),
+                                ]
+                            ),
+                            varIdentifier(
+                                "top_bottom",
+                                "Tensor[T][[padding0, w + 2 * padding1]]"
+                            ),
+                        ]
+                    )
+                ),
+            ]
+        ),
+    ]);
 
-    const corr2dHeightSpanExpr = () => ({
-        kind: "BinOp",
-        left: {
-            kind: "BinOp",
-            left: {
-                kind: "BinOp",
-                left: {
-                    kind: "BinOp",
-                    left: {
-                        kind: "Identifier",
-                        name: "h",
-                        role: "var",
-                        type: "int",
-                    },
-                    op: "+",
-                    right: {
-                        kind: "BinOp",
-                        left: {
-                            kind: "Number",
-                            value: "2",
-                        },
-                        op: "*",
-                        right: {
-                            kind: "Identifier",
-                            name: "padding0",
-                            role: "var",
-                            type: "int",
-                        },
-                    },
-                },
-                op: "-",
-                right: {
-                    kind: "Identifier",
-                    name: "m",
-                    role: "var",
-                    type: "int",
-                },
-            },
-            op: "+",
-            right: {
-                kind: "Identifier",
-                name: "stride0",
-                role: "var",
-                type: "int",
-            },
-        },
-        op: "/",
-        right: {
-            kind: "Identifier",
-            name: "stride0",
-            role: "var",
-            type: "int",
-        },
-    });
+    const dot2dArgs = () => [
+        argNode(
+            "s",
+            floatTensorType([intIdentifier("m"), intIdentifier("n")]),
+            "Tensor[float][[m, n]]"
+        ),
+        argNode(
+            "p",
+            floatTensorType([intIdentifier("m"), intIdentifier("n")]),
+            "Tensor[float][[m, n]]"
+        ),
+    ];
 
-    const corr2dWidthSpanExpr = () => ({
-        kind: "BinOp",
-        left: {
-            kind: "BinOp",
-            left: {
-                kind: "BinOp",
-                left: {
-                    kind: "BinOp",
-                    left: {
-                        kind: "Identifier",
-                        name: "w",
-                        role: "var",
-                        type: "int",
-                    },
-                    op: "+",
-                    right: {
-                        kind: "BinOp",
-                        left: {
-                            kind: "Number",
-                            value: "2",
-                        },
-                        op: "*",
-                        right: {
-                            kind: "Identifier",
-                            name: "padding1",
-                            role: "var",
-                            type: "int",
-                        },
-                    },
-                },
-                op: "-",
-                right: {
-                    kind: "Identifier",
-                    name: "n",
-                    role: "var",
-                    type: "int",
-                },
-            },
-            op: "+",
-            right: {
-                kind: "Identifier",
-                name: "stride1",
-                role: "var",
-                type: "int",
-            },
-        },
-        op: "/",
-        right: {
-            kind: "Identifier",
-            name: "stride1",
-            role: "var",
-            type: "int",
-        },
-    });
+    const dot2dIncompleteDefinitionBlock = codeBlock([
+        functionDef(
+            "dot2d",
+            intTypeParams("m", "n"),
+            dot2dArgs(),
+            typeIdentifier("float"),
+            [exprStmt(ellipsisExpr())]
+        ),
+    ]);
 
-    const corr2dseqHeightEndExpr = () => ({
-        kind: "BinOp",
-        left: {
-            kind: "BinOp",
-            left: {
-                kind: "BinOp",
-                left: {
-                    kind: "Identifier",
-                    name: "h",
-                    role: "var",
-                    type: "int",
-                },
-                op: "+",
-                right: {
-                    kind: "BinOp",
-                    left: {
-                        kind: "Number",
-                        value: "2",
-                    },
-                    op: "*",
-                    right: {
-                        kind: "Identifier",
-                        name: "padding0",
-                        role: "var",
-                        type: "int",
-                    },
-                },
-            },
-            op: "-",
-            right: {
-                kind: "Identifier",
-                name: "m",
-                role: "var",
-                type: "int",
-            },
-        },
-        op: "+",
-        right: {
-            kind: "Identifier",
-            name: "stride0",
-            role: "var",
-            type: "int",
-        },
-    });
+    const dot2dDefinitionBlock = codeBlock([
+        functionDef(
+            "dot2d",
+            intTypeParams("m", "n"),
+            dot2dArgs(),
+            typeIdentifier("float"),
+            [
+                returnStmt(
+                    callExpr(
+                        attrExpr(
+                            binOp(
+                                varIdentifier("s", "Tensor[float][[m, n]]"),
+                                "*",
+                                varIdentifier("p", "Tensor[float][[m, n]]")
+                            ),
+                            "sum",
+                            "float"
+                        ),
+                        [numberLiteral(0), numberLiteral(1)]
+                    )
+                ),
+            ]
+        ),
+    ]);
 
-    const corr2dseqWidthEndExpr = () => ({
-        kind: "BinOp",
-        left: {
-            kind: "BinOp",
-            left: {
-                kind: "BinOp",
-                left: {
-                    kind: "Identifier",
-                    name: "w",
-                    role: "var",
-                    type: "int",
-                },
-                op: "+",
-                right: {
-                    kind: "BinOp",
-                    left: {
-                        kind: "Number",
-                        value: "2",
-                    },
-                    op: "*",
-                    right: {
-                        kind: "Identifier",
-                        name: "padding1",
-                        role: "var",
-                        type: "int",
-                    },
-                },
-            },
-            op: "-",
-            right: {
-                kind: "Identifier",
-                name: "n",
-                role: "var",
-                type: "int",
-            },
-        },
-        op: "+",
-        right: {
-            kind: "Identifier",
-            name: "stride1",
-            role: "var",
-            type: "int",
-        },
-    });
+    const corr2dseqHeightEndExpr = () =>
+        binOp(
+            binOp(
+                binOp(
+                    intIdentifier("h"),
+                    "+",
+                    binOp(numberLiteral(2), "*", intIdentifier("padding0"))
+                ),
+                "-",
+                intIdentifier("m")
+            ),
+            "+",
+            intIdentifier("stride0")
+        );
 
-    const corr2dDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "FunctionDef",
-                name: {
-                    kind: "Identifier",
-                    name: "corr2d",
-                    role: "fn",
-                },
-                typeParams: intTypeParams("h", "w", "m", "n"),
-                args: [
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "h",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "w",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "p",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "m",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "n",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "bias",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "float",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "stride0",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "stride1",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding0",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding1",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                ],
-                returns: {
-                    kind: "TypeSubscript",
-                    base: {
-                        kind: "TypeSubscript",
-                        base: {
-                            kind: "Identifier",
-                            name: "Tensor",
-                            role: "type",
-                        },
-                        index: {
-                            kind: "Identifier",
-                            name: "float",
-                            role: "type",
-                        },
-                    },
-                    index: {
-                        kind: "TypeList",
-                        items: [
-                            {
-                                kind: "TypeList",
-                                items: [
-                                    corr2dHeightSpanExpr(),
-                                    corr2dWidthSpanExpr(),
-                                ],
-                            },
-                        ],
-                    },
-                },
-                decorator: {
-                    kind: "Identifier",
-                    name: "op",
-                    role: "fn",
-                },
-                body: [
-                    {
-                        kind: "Assign",
-                        target: {
-                            kind: "Identifier",
-                            name: "padded",
-                            role: "var",
-                        },
-                        value: {
-                            kind: "Call",
-                            callee: {
-                                kind: "Identifier",
-                                name: "pad2d",
-                                role: "fn",
-                                type: "Tensor[float][[h + 2 * padding0, w + 2 * padding1]]",
-                            },
-                            args: [
-                                {
-                                    kind: "Identifier",
-                                    name: "s",
-                                    role: "var",
-                                },
-                                {
-                                    kind: "Identifier",
-                                    name: "padding0",
-                                    role: "var",
-                                    type: "int",
-                                },
-                                {
-                                    kind: "Identifier",
-                                    name: "padding1",
-                                    role: "var",
-                                    type: "int",
-                                },
-                            ],
-                        },
-                    },
-                    {
-                        kind: "Return",
-                        value: {
-                            kind: "ListComp",
-                            elt: {
-                                kind: "ListComp",
-                                elt: {
-                                    kind: "BinOp",
-                                    left: {
-                                        kind: "Call",
-                                        callee: {
-                                            kind: "Identifier",
-                                            name: "dot2d",
-                                            role: "fn",
-                                            type: "float",
-                                        },
-                                        args: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "padded",
-                                                role: "var",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "p",
-                                                role: "var",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "j",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                    op: "+",
-                                    right: {
-                                        kind: "Identifier",
-                                        name: "bias",
-                                        role: "var",
-                                    },
-                                },
-                                target: [
-                                    {
-                                        kind: "Identifier",
-                                        name: "i",
-                                        role: "var",
-                                        type: "int",
-                                    },
-                                ],
-                                iter: {
-                                    kind: "Call",
-                                    callee: {
-                                        kind: "Identifier",
-                                        name: "seq",
-                                        role: "fn",
-                                        type: "Tensor[int][[((w + 2 * padding1 - n + stride1) / stride1)]]",
-                                    },
-                                    args: [
-                                        {
-                                            kind: "Number",
-                                            value: "0",
-                                        },
-                                        corr2dseqWidthEndExpr(),
-                                        {
-                                            kind: "Identifier",
-                                            name: "stride1",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                    ],
-                                },
-                            },
-                            target: [
-                                {
-                                    kind: "Identifier",
-                                    name: "j",
-                                    role: "var",
-                                    type: "int",
-                                },
-                            ],
-                            iter: {
-                                kind: "Call",
-                                callee: {
-                                    kind: "Identifier",
-                                    name: "seq",
-                                    role: "fn",
-                                    type: "Tensor[int][[((h + 2 * padding0 - m + stride0) / stride0)]]",
-                                },
-                                args: [
-                                    {
-                                        kind: "Number",
-                                        value: "0",
-                                    },
-                                    corr2dseqHeightEndExpr(),
-                                    {
-                                        kind: "Identifier",
-                                        name: "stride0",
-                                        role: "var",
-                                        type: "int",
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                ],
-            },
-        ],
-    };
+    const corr2dseqWidthEndExpr = () =>
+        binOp(
+            binOp(
+                binOp(
+                    intIdentifier("w"),
+                    "+",
+                    binOp(numberLiteral(2), "*", intIdentifier("padding1"))
+                ),
+                "-",
+                intIdentifier("n")
+            ),
+            "+",
+            intIdentifier("stride1")
+        );
 
-    const corr2dMultiInDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "FunctionDef",
-                name: {
-                    kind: "Identifier",
-                    name: "corr2d_multi_in",
-                    role: "fn",
-                },
-                typeParams: intTypeParams("i", "h", "w", "m", "n"),
-                args: [
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "h",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "w",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "p",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "m",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "n",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "bias",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "float",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "stride0",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "stride1",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding0",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding1",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                ],
-                returns: {
-                    kind: "TypeSubscript",
-                    base: {
-                        kind: "TypeSubscript",
-                        base: {
-                            kind: "Identifier",
-                            name: "Tensor",
-                            role: "type",
-                        },
-                        index: {
-                            kind: "Identifier",
-                            name: "float",
-                            role: "type",
-                        },
-                    },
-                    index: {
-                        kind: "TypeList",
-                        items: [
-                            {
-                                kind: "TypeList",
-                                items: [
-                                    corr2dHeightSpanExpr(),
-                                    corr2dWidthSpanExpr(),
-                                ],
-                            },
-                        ],
-                    },
-                },
-                decorator: {
-                    kind: "Identifier",
-                    name: "op",
-                    role: "fn",
-                },
-                body: [
-                    {
-                        kind: "Return",
-                        value: {
-                            kind: "Call",
-                            callee: {
-                                kind: "Attribute",
-                                value: {
-                                    kind: "Call",
-                                    callee: {
-                                        kind: "Identifier",
-                                        name: "corr2d",
-                                        role: "fn",
-                                        type: "Tensor[float][[i, ((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]",
-                                    },
-                                    args: [
-                                        {
-                                            kind: "Identifier",
-                                            name: "s",
-                                            role: "var",
-                                            type: "Tensor[float][[i, h, w]]",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "p",
-                                            role: "var",
-                                            type: "Tensor[float][[i, m, n]]",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "bias",
-                                            role: "var",
-                                            type: "float",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "stride0",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "stride1",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "padding0",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "padding1",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                    ],
-                                },
-                                attr: {
-                                    kind: "Identifier",
-                                    name: "sum",
-                                    role: "plain",
-                                    type: "Tensor[float][[((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]",
-                                },
-                            },
-                            args: [
-                                {
-                                    kind: "Number",
-                                    value: "0",
-                                },
-                            ],
-                        },
-                    },
-                ],
-            },
-        ],
-    };
+    const corr2dHeightSpanExpr = () =>
+        binOp(corr2dseqHeightEndExpr(), "/", intIdentifier("stride0"));
 
-    const corr2dMultiInReturnTypeBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "ExprStmt",
-                value: {
-                    kind: "TypeSubscript",
-                    base: {
-                        kind: "TypeSubscript",
-                        base: {
-                            kind: "Identifier",
-                            name: "Tensor",
-                            role: "type",
-                        },
-                        index: {
-                            kind: "Identifier",
-                            name: "float",
-                            role: "type",
-                        },
-                    },
-                    index: {
-                        kind: "TypeList",
-                        items: [
-                            {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "Identifier",
-                                        name: "i",
-                                        role: "var",
-                                        type: "int",
-                                    },
-                                    corr2dHeightSpanExpr(),
-                                    corr2dWidthSpanExpr(),
-                                ],
-                            },
-                        ],
-                    },
-                },
-            },
-        ],
-    };
+    const corr2dWidthSpanExpr = () =>
+        binOp(corr2dseqWidthEndExpr(), "/", intIdentifier("stride1"));
 
-    const corr2dMultiInOutDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "FunctionDef",
-                name: {
-                    kind: "Identifier",
-                    name: "corr2d_multi_in_out",
-                    role: "fn",
-                },
-                typeParams: intTypeParams("o", "i", "h", "w", "m", "n"),
-                args: [
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "s",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "h",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "w",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "p",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "o",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "i",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "m",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                            {
-                                                kind: "Identifier",
-                                                name: "n",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "bias",
-                            role: "var",
-                        },
-                        annotation: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Identifier",
-                                                name: "o",
-                                                role: "var",
-                                                type: "int",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "stride0",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "stride1",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding0",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                    {
-                        kind: "Arg",
-                        name: {
-                            kind: "Identifier",
-                            name: "padding1",
-                            role: "var",
-                            type: "int",
-                        },
-                        annotation: {
-                            kind: "Identifier",
-                            name: "int",
-                            role: "type",
-                        },
-                    },
-                ],
-                returns: {
-                    kind: "TypeSubscript",
-                    base: {
-                        kind: "TypeSubscript",
-                        base: {
-                            kind: "Identifier",
-                            name: "Tensor",
-                            role: "type",
-                        },
-                        index: {
-                            kind: "Identifier",
-                            name: "float",
-                            role: "type",
-                        },
-                    },
-                    index: {
-                        kind: "TypeList",
-                        items: [
-                            {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "Identifier",
-                                        name: "o",
-                                        role: "var",
-                                        type: "int",
-                                    },
-                                    corr2dHeightSpanExpr(),
-                                    corr2dWidthSpanExpr(),
-                                ],
-                            },
-                        ],
-                    },
-                },
-                decorator: {
-                    kind: "Identifier",
-                    name: "op",
-                    role: "fn",
-                },
-                body: [
-                    {
-                        kind: "Return",
-                        value: {
-                            kind: "Call",
-                            callee: {
-                                kind: "Identifier",
-                                name: "corr2d_multi_in",
-                                role: "fn",
-                                type: "Tensor[float][[o, ((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]",
-                            },
-                            args: [
-                                {
-                                    kind: "Identifier",
-                                    name: "s",
-                                    role: "var",
-                                    type: "Tensor[float][[i, h, w]]",
-                                },
-                                {
-                                    kind: "Identifier",
-                                    name: "p",
-                                    role: "var",
-                                    type: "Tensor[float][[o, i, m, n]]",
-                                },
-                                {
-                                    kind: "Identifier",
-                                    name: "bias",
-                                    role: "var",
-                                    type: "Tensor[float][[o]]",
-                                },
-                                {
-                                    kind: "Identifier",
-                                    name: "stride0",
-                                    role: "var",
-                                    type: "int",
-                                },
-                                {
-                                    kind: "Identifier",
-                                    name: "stride1",
-                                    role: "var",
-                                    type: "int",
-                                },
-                                {
-                                    kind: "Identifier",
-                                    name: "padding0",
-                                    role: "var",
-                                    type: "int",
-                                },
-                                {
-                                    kind: "Identifier",
-                                    name: "padding1",
-                                    role: "var",
-                                    type: "int",
-                                },
-                            ],
-                        },
-                    },
-                ],
-            },
-        ],
-    };
+    const corr2dReturnType = () =>
+        floatTensorType([corr2dHeightSpanExpr(), corr2dWidthSpanExpr()]);
+
+    const corr2dSeqWidthCall = () =>
+        callExpr(fnIdentifier("seq", "Tensor[int][[((w + 2 * padding1 - n + stride1) / stride1)]]"), [
+            numberLiteral(0),
+            corr2dseqWidthEndExpr(),
+            intIdentifier("stride1"),
+        ]);
+
+    const corr2dSeqHeightCall = () =>
+        callExpr(fnIdentifier("seq", "Tensor[int][[((h + 2 * padding0 - m + stride0) / stride0)]]"), [
+            numberLiteral(0),
+            corr2dseqHeightEndExpr(),
+            intIdentifier("stride0"),
+        ]);
+
+    const corr2dBaseArgs = () => [
+        argNode(
+            "s",
+            floatTensorType([intIdentifier("h"), intIdentifier("w")]),
+            "Tensor[float][[h, w]]"
+        ),
+        argNode(
+            "p",
+            floatTensorType([intIdentifier("m"), intIdentifier("n")]),
+            "Tensor[float][[m, n]]"
+        ),
+        argNode("stride0", typeIdentifier("int"), "int"),
+        argNode("stride1", typeIdentifier("int"), "int"),
+        argNode("padding0", typeIdentifier("int"), "int"),
+        argNode("padding1", typeIdentifier("int"), "int"),
+    ];
+
+    const corr2dBiasArgs = () => [
+        ...corr2dBaseArgs().slice(0, 2),
+        argNode("bias", typeIdentifier("float"), "float"),
+        ...corr2dBaseArgs().slice(2),
+    ];
+
+    const corr2dNoBiasCallArgs = () => [
+        varIdentifier("s", "Tensor[float][[h, w]]"),
+        varIdentifier("p", "Tensor[float][[m, n]]"),
+        intIdentifier("stride0"),
+        intIdentifier("stride1"),
+        intIdentifier("padding0"),
+        intIdentifier("padding1"),
+    ];
+
+    const corr2dWindowExpr = () =>
+        subscriptExpr(
+            varIdentifier("padded", "Tensor[float][[2 * padding0 + h, w + 2 * padding1]]"),
+            tupleExpr([
+                sliceExpr(
+                    intIdentifier("j"),
+                    binOp(intIdentifier("j"), "+", intIdentifier("m"))
+                ),
+                sliceExpr(
+                    intIdentifier("i"),
+                    binOp(intIdentifier("i"), "+", intIdentifier("n"))
+                ),
+            ])
+        );
+
+    const corr2dNoBiasBody = (elt: unknown = callExpr(fnIdentifier("dot2d", "float"), [corr2dWindowExpr(), varIdentifier("p", "Tensor[float][[m, n]]")])) => [
+        assignStmt(
+            varIdentifier("padded", "Tensor[float][[2 * padding0 + h, w + 2 * padding1]]"),
+            callExpr(fnIdentifier("pad2d", "Tensor[float][[2 * padding0 + h, w + 2 * padding1]]"), [
+                varIdentifier("s", "Tensor[float][[h, w]]"),
+                intIdentifier("padding0"),
+                intIdentifier("padding1"),
+            ])
+        ),
+        returnStmt(
+            listCompExpr(
+                listCompExpr(elt, [intIdentifier("i")], corr2dSeqWidthCall()),
+                [intIdentifier("j")],
+                corr2dSeqHeightCall()
+            )
+        ),
+    ];
+
+    const corr2dDefinitionBlock = codeBlock([
+        functionDef(
+            "corr2d",
+            intTypeParams("h", "w", "m", "n"),
+            corr2dBaseArgs(),
+            corr2dReturnType(),
+            corr2dNoBiasBody()
+        ),
+    ]);
+
+    const corr2dWithBiasDefinitionBlock = codeBlock([
+        functionDef(
+            "corr2d_with_bias",
+            intTypeParams("h", "w", "m", "n"),
+            corr2dBiasArgs(),
+            corr2dReturnType(),
+            [
+                returnStmt(
+                    binOp(
+                        callExpr(
+                            fnIdentifier("corr2d", "Tensor[float][[((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]"),
+                            corr2dNoBiasCallArgs()
+                        ),
+                        "+",
+                        varIdentifier("bias", "float")
+                    )
+                ),
+            ]
+        ),
+    ]);
+
+    const corr2dPairDefinitionBlock = codeBlock([
+        ...corr2dDefinitionBlock.body,
+        { kind: "BlankLine" },
+        ...corr2dWithBiasDefinitionBlock.body,
+    ]);
+
+    const corr2dMultiInDefinitionBlock = codeBlock([
+        functionDef(
+            "corr2d_multi_in",
+            intTypeParams("c", "h", "w", "m", "n"),
+            [
+                argNode(
+                    "s",
+                    floatTensorType([intIdentifier("c"), intIdentifier("h"), intIdentifier("w")]),
+                    "Tensor[float][[c, h, w]]"
+                ),
+                argNode(
+                    "p",
+                    floatTensorType([intIdentifier("c"), intIdentifier("m"), intIdentifier("n")]),
+                    "Tensor[float][[c, m, n]]"
+                ),
+                argNode("bias", typeIdentifier("float"), "float"),
+                argNode("stride0", typeIdentifier("int"), "int"),
+                argNode("stride1", typeIdentifier("int"), "int"),
+                argNode("padding0", typeIdentifier("int"), "int"),
+                argNode("padding1", typeIdentifier("int"), "int"),
+            ],
+            corr2dReturnType(),
+            [
+                returnStmt(
+                    binOp(
+                        callExpr(
+                            attrExpr(
+                                callExpr(
+                                    fnIdentifier("corr2d", "Tensor[float][[c, ((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]"),
+                                    [
+                                        varIdentifier("s", "Tensor[float][[c, h, w]]"),
+                                        varIdentifier("p", "Tensor[float][[c, m, n]]"),
+                                        intIdentifier("stride0"),
+                                        intIdentifier("stride1"),
+                                        intIdentifier("padding0"),
+                                        intIdentifier("padding1"),
+                                    ]
+                                ),
+                                "sum",
+                                "Tensor[float][[((h + 2 * padding0 - m + stride0) / stride0), ((w + 2 * padding1 - n + stride1) / stride1)]]"
+                            ),
+                            [numberLiteral(0)]
+                        ),
+                        "+",
+                        varIdentifier("bias", "float")
+                    )
+                ),
+            ]
+        ),
+    ]);
+
+    const corr2dMultiInReturnTypeBlock = codeBlock([
+        exprStmt(
+            floatTensorType([
+                intIdentifier("c"),
+                corr2dHeightSpanExpr(),
+                corr2dWidthSpanExpr(),
+            ])
+        ),
+    ]);
+
+    const corr2dMultiInOutWidthSpanExpr = () =>
+        binOp(
+            binOp(
+                binOp(
+                    intIdentifier("width"),
+                    "+",
+                    binOp(numberLiteral(2), "*", intIdentifier("padding1"))
+                ),
+                "-",
+                intIdentifier("n")
+            ),
+            "+",
+            intIdentifier("stride1")
+        );
+
+    const corr2dMultiInOutReturnType = () =>
+        floatTensorType([
+            intIdentifier("o"),
+            corr2dHeightSpanExpr(),
+            binOp(corr2dMultiInOutWidthSpanExpr(), "/", intIdentifier("stride1")),
+        ]);
+
+    const corr2dMultiInOutFunctionBlock = codeBlock([
+        functionDef(
+            "corr2d_multi_in_out",
+            intTypeParams("o", "i", "h", "width", "m", "n"),
+            [
+                argNode(
+                    "s",
+                    floatTensorType([intIdentifier("i"), intIdentifier("h"), intIdentifier("width")]),
+                    "Tensor[float][[i, h, width]]"
+                ),
+                argNode(
+                    "w",
+                    floatTensorType([
+                        intIdentifier("o"),
+                        intIdentifier("i"),
+                        intIdentifier("m"),
+                        intIdentifier("n"),
+                    ]),
+                    "Tensor[float][[o, i, m, n]]"
+                ),
+                argNode(
+                    "b",
+                    floatTensorType([intIdentifier("o")]),
+                    "Tensor[float][[o]]"
+                ),
+                argNode("stride0", typeIdentifier("int"), "int"),
+                argNode("stride1", typeIdentifier("int"), "int"),
+                argNode("padding0", typeIdentifier("int"), "int"),
+                argNode("padding1", typeIdentifier("int"), "int"),
+            ],
+            corr2dMultiInOutReturnType(),
+            [
+                returnStmt(
+                    callExpr(
+                        fnIdentifier("corr2d_multi_in", "Tensor[float][[o, ((h + 2 * padding0 - m + stride0) / stride0), ((width + 2 * padding1 - n + stride1) / stride1)]]"),
+                        [
+                            varIdentifier("s", "Tensor[float][[i, h, width]]"),
+                            varIdentifier("w", "Tensor[float][[o, i, m, n]]"),
+                            varIdentifier("b", "Tensor[float][[o]]"),
+                            intIdentifier("stride0"),
+                            intIdentifier("stride1"),
+                            intIdentifier("padding0"),
+                            intIdentifier("padding1"),
+                        ]
+                    )
+                ),
+            ]
+        ),
+    ]);
+
+    const corr2dMultiInOutDefinitionBlock = codeBlock([
+        ...corr2dMultiInOutFunctionBlock.body,
+    ]);
 
     const pool2dHeightSpanExpr = () => ({
         kind: "BinOp",
@@ -4597,681 +2883,130 @@
         ],
     };
 
-    const lenetDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                kind: "ImportFrom",
-                module: {
-                    kind: "Identifier",
-                    name: "pypie",
-                    role: "plain",
-                },
-                names: [
-                    {
-                        kind: "Identifier",
-                        name: "larger",
-                        role: "fn",
-                    },
-                ],
-            },
-            {
-                kind: "BlankLine",
-            },
-            {
-                kind: "ClassDef",
-                name: {
-                    kind: "Identifier",
-                    name: "LeNet",
-                    role: "type",
-                },
-                bases: [
-                    {
-                        kind: "Identifier",
-                        name: "Model",
-                        role: "type",
-                    },
-                ],
-                body: [
-                    {
-                        kind: "FunctionDef",
-                        name: {
-                            kind: "Identifier",
-                            name: "predict",
-                            role: "fn",
-                        },
-                        typeParams: intTypeParams("h", "w"),
-                        args: [
-                            {
-                                kind: "Arg",
-                                name: {
-                                    kind: "Identifier",
-                                    name: "x",
-                                    role: "var",
-                                    type: "Tensor[float][[1, 28, 28]]",
-                                },
-                                annotation: {
-                                    kind: "TypeSubscript",
-                                    base: {
-                                        kind: "TypeSubscript",
-                                        base: {
-                                            kind: "Identifier",
-                                            name: "Tensor",
-                                            role: "type",
-                                        },
-                                        index: {
-                                            kind: "Identifier",
-                                            name: "float",
-                                            role: "type",
-                                        },
-                                    },
-                                    index: {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "TypeList",
-                                                items: [
-                                                    {
-                                                        kind: "Number",
-                                                        value: "1",
-                                                    },
-                                                    {
-                                                        kind: "Identifier",
-                                                        name: "h",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                    {
-                                                        kind: "Identifier",
-                                                        name: "w",
-                                                        role: "var",
-                                                        type: "int",
-                                                    },
-                                                ],
-                                            },
-                                        ],
-                                    },
-                                },
-                            },
-                            {
-                                kind: "Arg",
-                                name: {
-                                    kind: "Identifier",
-                                    name: "params",
-                                    role: "var",
-                                },
-                                annotation: {
-                                    kind: "TypeSubscript",
-                                    base: {
-                                        kind: "Identifier",
-                                        name: "Tuple",
-                                        role: "type",
-                                    },
-                                    index: {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "TypeSubscript",
-                                                base: {
-                                                    kind: "TypeSubscript",
-                                                    base: {
-                                                        kind: "Identifier",
-                                                        name: "Tensor",
-                                                        role: "type",
-                                                    },
-                                                    index: {
-                                                        kind: "Identifier",
-                                                        name: "float",
-                                                        role: "type",
-                                                    },
-                                                },
-                                                index: {
-                                                    kind: "TypeList",
-                                                    items: [
-                                                        {
-                                                            kind: "TypeList",
-                                                            items: [
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "6",
-                                                                },
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "1",
-                                                                },
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "5",
-                                                                },
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "5",
-                                                                },
-                                                            ],
-                                                        },
-                                                    ],
-                                                },
-                                            },
-                                            {
-                                                kind: "TypeSubscript",
-                                                base: {
-                                                    kind: "TypeSubscript",
-                                                    base: {
-                                                        kind: "Identifier",
-                                                        name: "Tensor",
-                                                        role: "type",
-                                                    },
-                                                    index: {
-                                                        kind: "Identifier",
-                                                        name: "float",
-                                                        role: "type",
-                                                    },
-                                                },
-                                                index: {
-                                                    kind: "TypeList",
-                                                    items: [
-                                                        {
-                                                            kind: "TypeList",
-                                                            items: [
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "6",
-                                                                },
-                                                            ],
-                                                        },
-                                                    ],
-                                                },
-                                            },
-                                            {
-                                                kind: "TypeSubscript",
-                                                base: {
-                                                    kind: "TypeSubscript",
-                                                    base: {
-                                                        kind: "Identifier",
-                                                        name: "Tensor",
-                                                        role: "type",
-                                                    },
-                                                    index: {
-                                                        kind: "Identifier",
-                                                        name: "float",
-                                                        role: "type",
-                                                    },
-                                                },
-                                                index: {
-                                                    kind: "TypeList",
-                                                    items: [
-                                                        {
-                                                            kind: "TypeList",
-                                                            items: [
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "16",
-                                                                },
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "6",
-                                                                },
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "5",
-                                                                },
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "5",
-                                                                },
-                                                            ],
-                                                        },
-                                                    ],
-                                                },
-                                            },
-                                            {
-                                                kind: "TypeSubscript",
-                                                base: {
-                                                    kind: "TypeSubscript",
-                                                    base: {
-                                                        kind: "Identifier",
-                                                        name: "Tensor",
-                                                        role: "type",
-                                                    },
-                                                    index: {
-                                                        kind: "Identifier",
-                                                        name: "float",
-                                                        role: "type",
-                                                    },
-                                                },
-                                                index: {
-                                                    kind: "TypeList",
-                                                    items: [
-                                                        {
-                                                            kind: "TypeList",
-                                                            items: [
-                                                                {
-                                                                    kind: "Number",
-                                                                    value: "16",
-                                                                },
-                                                            ],
-                                                        },
-                                                    ],
-                                                },
-                                            },
-                                            {
-                                                kind: "Ellipsis",
-                                            },
-                                        ],
-                                    },
-                                },
-                            },
+    const lenetDefinitionBlock = codeBlock([
+        {
+            kind: "ImportFrom",
+            module: identifier("pypie", "plain"),
+            names: [fnIdentifier("larger")],
+        },
+        { kind: "BlankLine" },
+        {
+            kind: "ClassDef",
+            name: typeIdentifier("LeNet"),
+            bases: [typeIdentifier("Model")],
+            body: [
+                {
+                    ...functionDef(
+                        "predict",
+                        intTypeParams("h", "w"),
+                        [
+                            argNode(
+                                "x",
+                                floatTensorType([numberLiteral(1), intIdentifier("h"), intIdentifier("w")]),
+                                "Tensor[float][[1, 28, 28]]"
+                            ),
+                            argNode(
+                                "params",
+                                genericType("Tuple", [
+                                    floatTensorType([
+                                        numberLiteral(6),
+                                        numberLiteral(1),
+                                        numberLiteral(5),
+                                        numberLiteral(5),
+                                    ]),
+                                    floatTensorType([numberLiteral(6)]),
+                                    floatTensorType([
+                                        numberLiteral(16),
+                                        numberLiteral(6),
+                                        numberLiteral(5),
+                                        numberLiteral(5),
+                                    ]),
+                                    floatTensorType([numberLiteral(16)]),
+                                    ellipsisExpr(),
+                                ])
+                            ),
                         ],
-                        returns: {
-                            kind: "TypeSubscript",
-                            base: {
-                                kind: "TypeSubscript",
-                                base: {
-                                    kind: "Identifier",
-                                    name: "Tensor",
-                                    role: "type",
-                                },
-                                index: {
-                                    kind: "Identifier",
-                                    name: "float",
-                                    role: "type",
-                                },
-                            },
-                            index: {
-                                kind: "TypeList",
-                                items: [
-                                    {
-                                        kind: "TypeList",
-                                        items: [
-                                            {
-                                                kind: "Number",
-                                                value: "10",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                        body: [
-                            {
-                                kind: "Assign",
-                                target: {
-                                    kind: "Tuple",
-                                    elements: [
-                                        {
-                                            kind: "Identifier",
-                                            name: "p1",
-                                            role: "var",
-                                            type: "Tensor[float][[6, 1, 5, 5]]",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "b1",
-                                            role: "var",
-                                            type: "Tensor[float][[6]]",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "p2",
-                                            role: "var",
-                                            type: "Tensor[float][[16, 6, 5, 5]]",
-                                        },
-                                        {
-                                            kind: "Identifier",
-                                            name: "b2",
-                                            role: "var",
-                                            type: "Tensor[float][[16]]",
-                                        },
-                                        {
-                                            kind: "Ellipsis",
-                                        },
-                                    ],
-                                },
-                                value: {
-                                    kind: "Identifier",
-                                    name: "params",
-                                    role: "var",
-                                },
-                            },
-                            {
-                                kind: "Assign",
-                                target: {
-                                    kind: "Identifier",
-                                    name: "layer1",
-                                    role: "var",
-                                    type: "Tensor[float][[6, 28, 28]]",
-                                },
-                                value: {
-                                    kind: "Call",
-                                    callee: {
-                                        kind: "Identifier",
-                                        name: "larger",
-                                        role: "fn",
-                                        type: "Tensor[float][[6, 28, 28]]",
-                                    },
-                                    args: [
-                                        {
-                                            kind: "Call",
-                                            callee: {
-                                                kind: "Identifier",
-                                                name: "corr2d_multi_in_out",
-                                                role: "fn",
-                                                type: "Tensor[float][[6, 28, 28]]",
-                                            },
-                                            args: [
-                                                {
-                                                    kind: "Identifier",
-                                                    name: "x",
-                                                    role: "var",
-                                                    type: "Tensor[float][[1, 28, 28]]",
-                                                },
-                                                {
-                                                    kind: "Identifier",
-                                                    name: "p1",
-                                                    role: "var",
-                                                    type: "Tensor[float][[6, 1, 5, 5]]",
-                                                },
-                                                {
-                                                    kind: "Identifier",
-                                                    name: "b1",
-                                                    role: "var",
-                                                    type: "Tensor[float][[6]]",
-                                                },
-                                                {
-                                                    kind: "Number",
-                                                    value: "1",
-                                                },
-                                                {
-                                                    kind: "Number",
-                                                    value: "1",
-                                                },
-                                                {
-                                                    kind: "Number",
-                                                    value: "2",
-                                                },
-                                                {
-                                                    kind: "Number",
-                                                    value: "2",
-                                                },
-                                            ],
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "0",
-                                        },
-                                    ],
-                                },
-                            },
-                            {
-                                kind: "Assign",
-                                target: {
-                                    kind: "Identifier",
-                                    name: "layer2",
-                                    role: "var",
-                                    type: "Tensor[float][[6, 14, 14]]",
-                                },
-                                value: {
-                                    kind: "Call",
-                                    callee: {
-                                        kind: "Identifier",
-                                        name: "pool2d",
-                                        role: "fn",
-                                        type: "Tensor[float][[6, 14, 14]]",
-                                    },
-                                    args: [
-                                        {
-                                            kind: "Identifier",
-                                            name: "layer1",
-                                            role: "var",
-                                            type: "Tensor[float][[6, 28, 28]]",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "2",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "2",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "2",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "2",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "0",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "0",
-                                        },
-                                    ],
-                                },
-                            },
-                            {
-                                kind: "Assign",
-                                target: {
-                                    kind: "Identifier",
-                                    name: "layer3",
-                                    role: "var",
-                                    type: "Tensor[float][[16, 10, 10]]",
-                                },
-                                value: {
-                                    kind: "Call",
-                                    callee: {
-                                        kind: "Identifier",
-                                        name: "larger",
-                                        role: "fn",
-                                        type: "Tensor[float][[16, 10, 10]]",
-                                    },
-                                    args: [
-                                        {
-                                            kind: "Call",
-                                            callee: {
-                                                kind: "Identifier",
-                                                name: "corr2d_multi_in_out",
-                                                role: "fn",
-                                                type: "Tensor[float][[16, 10, 10]]",
-                                            },
-                                            args: [
-                                                {
-                                                    kind: "Identifier",
-                                                    name: "layer2",
-                                                    role: "var",
-                                                    type: "Tensor[float][[6, 14, 14]]",
-                                                },
-                                                {
-                                                    kind: "Identifier",
-                                                    name: "p2",
-                                                    role: "var",
-                                                    type: "Tensor[float][[16, 6, 5, 5]]",
-                                                },
-                                                {
-                                                    kind: "Identifier",
-                                                    name: "b2",
-                                                    role: "var",
-                                                    type: "Tensor[float][[16]]",
-                                                },
-                                                {
-                                                    kind: "Number",
-                                                    value: "1",
-                                                },
-                                                {
-                                                    kind: "Number",
-                                                    value: "1",
-                                                },
-                                                {
-                                                    kind: "Number",
-                                                    value: "0",
-                                                },
-                                                {
-                                                    kind: "Number",
-                                                    value: "0",
-                                                },
-                                            ],
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "0",
-                                        },
-                                    ],
-                                },
-                            },
-                            {
-                                kind: "Assign",
-                                target: {
-                                    kind: "Identifier",
-                                    name: "layer4",
-                                    role: "var",
-                                    type: "Tensor[float][[16, 5, 5]]",
-                                },
-                                value: {
-                                    kind: "Call",
-                                    callee: {
-                                        kind: "Identifier",
-                                        name: "pool2d",
-                                        role: "fn",
-                                        type: "Tensor[float][[16, 5, 5]]",
-                                    },
-                                    args: [
-                                        {
-                                            kind: "Identifier",
-                                            name: "layer3",
-                                            role: "var",
-                                            type: "Tensor[float][[16, 10, 10]]",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "2",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "2",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "2",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "2",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "0",
-                                        },
-                                        {
-                                            kind: "Number",
-                                            value: "0",
-                                        },
-                                    ],
-                                },
-                            },
-                            {
-                                kind: "ExprStmt",
-                                value: {
-                                    kind: "Ellipsis",
-                                },
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
-    };
+                        floatTensorType([numberLiteral(10)]),
+                        [
+                            assignStmt(
+                                tupleExpr([
+                                    varIdentifier("p1", "Tensor[float][[6, 1, 5, 5]]"),
+                                    varIdentifier("b1", "Tensor[float][[6]]"),
+                                    varIdentifier("p2", "Tensor[float][[16, 6, 5, 5]]"),
+                                    varIdentifier("b2", "Tensor[float][[16]]"),
+                                    ellipsisExpr(),
+                                ]),
+                                varIdentifier("params")
+                            ),
+                            assignStmt(
+                                varIdentifier("layer1", "Tensor[float][[6, 28, 28]]"),
+                                callExpr(fnIdentifier("larger", "Tensor[float][[6, 28, 28]]"), [
+                                    callExpr(fnIdentifier("corr2d_multi_in_out", "Tensor[float][[6, 28, 28]]"), [
+                                        varIdentifier("x", "Tensor[float][[1, 28, 28]]"),
+                                        varIdentifier("p1", "Tensor[float][[6, 1, 5, 5]]"),
+                                        varIdentifier("b1", "Tensor[float][[6]]"),
+                                        numberLiteral(1),
+                                        numberLiteral(1),
+                                        numberLiteral(2),
+                                        numberLiteral(2),
+                                    ]),
+                                    numberLiteral(0),
+                                ])
+                            ),
+                            assignStmt(
+                                varIdentifier("layer2", "Tensor[float][[6, 14, 14]]"),
+                                callExpr(fnIdentifier("pool2d", "Tensor[float][[6, 14, 14]]"), [
+                                    varIdentifier("layer1", "Tensor[float][[6, 28, 28]]"),
+                                    numberLiteral(2),
+                                    numberLiteral(2),
+                                    numberLiteral(2),
+                                    numberLiteral(2),
+                                    numberLiteral(0),
+                                    numberLiteral(0),
+                                ])
+                            ),
+                            assignStmt(
+                                varIdentifier("layer3", "Tensor[float][[16, 10, 10]]"),
+                                callExpr(fnIdentifier("larger", "Tensor[float][[16, 10, 10]]"), [
+                                    callExpr(fnIdentifier("corr2d_multi_in_out", "Tensor[float][[16, 10, 10]]"), [
+                                        varIdentifier("layer2", "Tensor[float][[6, 14, 14]]"),
+                                        varIdentifier("p2", "Tensor[float][[16, 6, 5, 5]]"),
+                                        varIdentifier("b2", "Tensor[float][[16]]"),
+                                        numberLiteral(1),
+                                        numberLiteral(1),
+                                        numberLiteral(0),
+                                        numberLiteral(0),
+                                    ]),
+                                    numberLiteral(0),
+                                ])
+                            ),
+                            assignStmt(
+                                varIdentifier("layer4", "Tensor[float][[16, 5, 5]]"),
+                                callExpr(fnIdentifier("pool2d", "Tensor[float][[16, 5, 5]]"), [
+                                    varIdentifier("layer3", "Tensor[float][[16, 10, 10]]"),
+                                    numberLiteral(2),
+                                    numberLiteral(2),
+                                    numberLiteral(2),
+                                    numberLiteral(2),
+                                    numberLiteral(0),
+                                    numberLiteral(0),
+                                ])
+                            ),
+                            exprStmt(ellipsisExpr()),
+                        ]
+                    ),
+                    decorator: undefined,
+                },
+            ],
+        },
+    ]);
 
-    const corr2dIncompleteDefinitionBlock = {
-        kind: "Block",
-        body: [
-            {
-                ...corr2dDefinitionBlock.body[0],
-                body: [
-                    {
-                        kind: "ExprStmt",
-                        value: {
-                            kind: "Ellipsis",
-                        },
-                    },
-                    {
-                        kind: "Return",
-                        value: {
-                            kind: "ListComp",
-                            elt: {
-                                kind: "ListComp",
-                                elt: {
-                                    kind: "Ellipsis",
-                                },
-                                target: [
-                                    {
-                                        kind: "Identifier",
-                                        name: "i",
-                                        role: "var",
-                                        type: "int",
-                                    },
-                                ],
-                                iter: {
-                                    kind: "Call",
-                                    callee: {
-                                        kind: "Identifier",
-                                        name: "seq",
-                                        role: "fn",
-                                        type: "Tensor[int][[((w + 2 * padding1 - n + stride1) / stride1)]]",
-                                    },
-                                    args: [
-                                        {
-                                            kind: "Number",
-                                            value: "0",
-                                        },
-                                        corr2dseqWidthEndExpr(),
-                                        {
-                                            kind: "Identifier",
-                                            name: "stride1",
-                                            role: "var",
-                                            type: "int",
-                                        },
-                                    ],
-                                },
-                            },
-                            target: [
-                                {
-                                    kind: "Identifier",
-                                    name: "j",
-                                    role: "var",
-                                    type: "int",
-                                },
-                            ],
-                            iter: {
-                                kind: "Call",
-                                callee: {
-                                    kind: "Identifier",
-                                    name: "seq",
-                                    role: "fn",
-                                    type: "Tensor[int][[((h + 2 * padding0 - m + stride0) / stride0)]]",
-                                },
-                                args: [
-                                    {
-                                        kind: "Number",
-                                        value: "0",
-                                    },
-                                    corr2dseqHeightEndExpr(),
-                                    {
-                                        kind: "Identifier",
-                                        name: "stride0",
-                                        role: "var",
-                                        type: "int",
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                ],
-            },
-        ],
-    };
+    const corr2dIncompleteDefinitionBlock = codeBlock([
+        {
+            ...(corr2dDefinitionBlock.body[0] as object),
+            body: corr2dNoBiasBody(ellipsisExpr()),
+        },
+    ]);
 
     const corr1dRunBlock = {
         kind: "Block",
@@ -5428,7 +3163,6 @@
                 ),
                 codeLabel: "`dot` definition",
                 buildCodeBlock: (_ast: AstApi) => dotDefinitionBlock,
-                textAfterCode: "The `[n: int]` on `dot` says both tensors share the same length."
             },
             message(
                 "W",
@@ -5445,7 +3179,7 @@
             },
             message(
                 "W",
-                "The signal `s` and the pattern `p` are rank-1 tensors, but they have different shapes. " +
+                "The signal `s` and the pattern `p` are rank-1 tensors, but they may have different shapes. " +
                 "The result is also rank-1, with `w - n + 1` elements, since there are `w - n + 1` segments.\n" +
                 "Does `corr1d` return a tensor?"
             ),
@@ -5480,11 +3214,13 @@
                     "The coverage of the elements at the beginning and end of the signal.\n" +
                     "Our `corr1d` underutilizes the first and last elements of the signal--" +
                     "each is used only once, while the middle element is used three times.\n" +
-                    "To use elements more evenly, we can pad the signal before computing `corr1d` by appending `0`s to both ends."
+                    "To use elements more evenly, we can pad the signal before computing `corr1d`.\n" +
+                    "`pad1d` builds zero tensors with `replicate`, then uses `concat` to put one on each side of `xs`."
                 ),
                 codeLabel: "`pad1d` definition",
                 buildCodeBlock: (_ast: AstApi) => pad1dDefinitionBlock,
-                textAfterCode: "Define `corr1d_padded` that extends `corr1d` with !!padding!!. How many elements does it return?"
+                textAfterCode: "`pad1d` returns `2 * padding + w` elements.\n" +
+                    "Extend `corr1d` with !!padding!!. How many elements does it return?"
             },
             {
                 ...message(
@@ -5524,22 +3260,22 @@
                 ...message(
                     "D",
                     "Excellent! We are ready to detect patterns in images.\n" +
-                    "Here's the template for `corr2d`."
+                    "Here's the template for `corr2d`, which handles padding, strides, and the sliding windows."
                 ),
                 codeLabel: "`corr2d` definition (incomplete)",
                 buildCodeBlock: (_ast: AstApi) => corr2dIncompleteDefinitionBlock,
                 textAfterCode: "`j` is the index along `h`, sliding from top to bottom. `i` is the index along `w`, sliding from left to right.\n" +
-                    "We also give `corr2d` a `bias`, which is added to each dot product.\n" +
                     "We need functions for padding and dot products for rank-2 tensors. " +
-                    "Define `pad2d` first. It should be very similar to its rank-1 counterpart."
+                    "Define `pad2d` first by reusing `pad1d` on each row, then concatenating zero rows above and below."
             },
             {
                 ...message(
                     "W",
-                    "How about this? It pads `0`s to the top, bottom, left, and right."
+                    "How about this? It pads every row left and right, then adds the top and bottom rows with `replicate` and `concat`."
                 ),
                 codeLabel: "`pad2d` definition",
                 buildCodeBlock: (_ast: AstApi) => pad2dDefinitionBlock,
+                textAfterCode: "`padding0` controls height padding; `padding1` controls width padding."
             },
             {
                 ...message(
@@ -5549,7 +3285,7 @@
                 ),
                 codeLabel: "incomplete `dot2d`",
                 buildCodeBlock: (_ast: AstApi) => dot2dIncompleteDefinitionBlock,
-                textAfterCode: "It takes in the entire `s`. `s_j` and `s_i` tell us where `p` is currently positioned.* They are the starting indices in `s` for the dot product.\n" +
+                textAfterCode: "`dot2d` takes two tensors with the same shape, so `corr2d` can pass the current slice of `s` directly.\n" +
                 "Complete `dot2d`."
             },
             {
@@ -5559,16 +3295,15 @@
                 ),
                 codeLabel: "`dot2d` definition",
                 buildCodeBlock: (_ast: AstApi) => dot2dDefinitionBlock,
-                textAfterCode: "We need to multiply `m * n` pairs of elements from the two tensors and sum them. We use `s_j` and `s_i` as offsets to find each element in `s`.\n" +
-                "Then we get a two dimensional tensor and collapse both dimensions with `sum(0, 1)`."
+                textAfterCode: "We multiply the two tensors element-wise, then collapse both dimensions with `sum(0, 1)`."
             },
             {
                 ...message(
                     "D",
-                    "Exactly. Now we have `corr2d`."
+                    "Exactly. Now we can finish `corr2d`, and make `corr2d_with_bias` the small bias wrapper."
                 ),
-                codeLabel: "`corr2d` definition",
-                buildCodeBlock: (_ast: AstApi) => corr2dDefinitionBlock,
+                codeLabel: "`corr2d` and `corr2d_with_bias` definitions",
+                buildCodeBlock: (_ast: AstApi) => corr2dPairDefinitionBlock,
             },
             message(
                 "W",
@@ -5608,11 +3343,11 @@
                 ),
                 codeLabel: "`corr2d` return type",
                 buildCodeBlock: (_ast: AstApi) => corr2dMultiInReturnTypeBlock,
-                textAfterCode: "But the returned value should be rank-2--does `sum(0)` remove `i`?"
+                textAfterCode: "But the returned value should be rank-2--does `sum(0)` remove `c`?"
             },
             message(
                 "D",
-                "Yes. We can specify dimensions for `sum`. Here, `sum` collapses the first dimension, `i`, producing the expected rank-2 tensor."
+                "Yes. We can specify dimensions for `sum`. Here, `sum` collapses the first dimension, `c`, producing the expected rank-2 tensor."
             ),
             message(
                 "W",
@@ -5621,15 +3356,15 @@
             {
                 ...message(
                     "D",
-                    "Next, for multiple output channels, we use `corr2d_multi_in_out`."
+                    "Next, for multiple output channels, we pass the output-channel weights and biases separately."
                 ),
                 codeLabel: "`corr2d_multi_in_out` definition",
                 buildCodeBlock: (_ast: AstApi) => corr2dMultiInOutDefinitionBlock,
             },
             message(
                 "W",
-                "I see. Each input now corresponds to `o` patterns; each pattern has its own `bias`.\n" +
-                "And we can directly reuse `corr2d_multi_in` thanks to rank polymorphism."
+                "I see. `w` stores `o` patterns, and `b` stores one bias for each output channel.\n" +
+                "And we can directly reuse `corr2d_multi_in`."
             ),
             message(
                 "D",
@@ -5664,8 +3399,8 @@
                 ),
                 codeLabel: "`LeNet` definition",
                 buildCodeBlock: (_ast: AstApi) => lenetDefinitionBlock,
-                textAfterCode: "`p1` is the pattern for the first round of correlation: it has `1` input channel to match `x`, and `6` output channels.\n" +
-                "`p2` is the pattern for the second round: it has `6` input channels to match `p1`, and `16` output channels.\n"
+                textAfterCode: "`p1` is the pattern tensor for the first round of correlation: it has `1` input channel to match `x`, and `6` output channels. `b1` has one bias per output channel.\n" +
+                "`p2` and `b2` do the same for the second round: `6` input channels and `16` output channels.\n"
             },
             message(
                 "W",
@@ -5697,7 +3432,5 @@
                 "This is getting exciting!"
             )
         ],
-        notes: "* It is mathematically correct to pass only the slice of `s` that `p` is sliding over, just like in the rank-1 version. " +
-        "But with PyPie's current implementation, calculating gradients on slices is less efficient."
     });
 })();

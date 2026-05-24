@@ -5778,7 +5778,7 @@
             message(
                 "D",
                 "A token is one unit that the model reads.\n" +
-                "Sometimes one token is a whole word, and sometimes it is part of a word or a piece of punctuation.\n" +
+                "Sometimes one token is a whole word. Some other times it is part of a word or a piece of punctuation.\n" +
                 "Different tokens may learn similar embeddings, if these tokens share similar roles."
             ),
             message(
@@ -5956,13 +5956,13 @@
             {
                 ...message(
                     "D",
-                    "We use our old RMS `update` to stabilize gradients. Now the LittleTransformer is complete!**"
+                    "We use our old RMS `update` to stabilize gradients. Now our LittleTransformer is complete!"
                 ),
                 codeLabel: "full `LittleTransformer`",
                 buildCodeBlock: (_ast: AstApi) => littleTransformerFullClassBlock,
             }
         ],
-        notes: "* Of course, there are other transformers that are designed to peek into the future.\n" +
-        "** The code is available at [PyPie's Github repository](https://github.com/pypie-lang/pypie-examples/blob/main/models/transformer.py)."
+        notes: "* Of course, there are other transformers that are designed to peek into the future.\n\n" +
+        "The code of this chapter is available at [PyPie's Github repository](https://github.com/pypie-lang/pypie-examples/blob/main/models/transformer.py)."
     });
 })();
