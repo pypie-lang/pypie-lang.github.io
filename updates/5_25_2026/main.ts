@@ -77,7 +77,7 @@
             {
                 title: "Language core",
                 body: "PyPie is powered by a mini, fully functioning, and seasoned dependent type checker.\n" +
-                "It's small, since there's only one universe (e.g. type does not have a type) and no user-defined datatypes. That's " +
+                "It's mini, since there's only one universe (e.g. type does not have a type) and no user-defined datatypes. That's " +
                 "probably good enough for writing tensor programs. It's fully functioning in the sense that typing judgements, normalization by evaluation, " +
                 "and bi-directional type checking are up and running. It's seasoned with rank-polymorphism (so people don't need to write map everywhere) " +
                 "and some arithmetic rewriting (so people don't need to prove commutativity).\n" +
