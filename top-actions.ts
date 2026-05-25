@@ -74,6 +74,7 @@
         { href: withRoot("learn/overview/index.html"), label: "Tutorial" },
         { href: withRoot("manual/guide/index.html"), label: "Manual" },
         { href: withRoot("installation/index.html"), label: "Installation" },
+        { href: withRoot("updates/5_25_2026/index.html"), label: "Updates" },
     ];
     const homeLink = withRoot("index.html");
 
