@@ -88,14 +88,14 @@
             {
                 title: "Tutorial",
                 body:
-                 "To help people think in PyPie, we drafted a hands-on tutorial to build three models: a linear regression model, a CNN, and a transformer. " +
+                 "To help people think in PyPie, we've drafted a hands-on tutorial to build three models: a linear regression model, a CNN, and a transformer. " +
                  "The chapters are written in the style of [The Little Learner](https://www.thelittlelearner.com/). " +
                 "(The idea of PyPie came from \"What if The Little Learner were typed and Pythonic?\")"
             },
             {
                 title: "Authoring",
                 body: "PyPie is designed to be a natural part of Python.\n" +
-                "It's available through `pip install`, uses a subset of Python syntax, and runs as ordinary Python functions."
+                "It's available through `pip install pypie-lang`, uses a subset of Python syntax, and runs as ordinary Python functions."
             },
             {
                 title: "Optimization and backends",
@@ -113,7 +113,7 @@
                 "change is the ASTs of code snippets. Now Codex has an AST grammar defined in TypeScript and \"makes\" an AST object out of a piece of Python code. " +
                 "Initially we thought it was funny, but now it has become unmanageable; e.g. it often generates the wrong type annotations. " +
                 "We are now exploring running PyPie in WebAssembly so that the type annotations are generated correctly.\n" +
-                "Codex wrote the VS Code plugin, which seems to be small and harmless."
+                "Codex also wrote the VS Code plugin, which seems to be small and harmless."
             },
         ],
     });
