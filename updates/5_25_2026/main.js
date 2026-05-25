@@ -22,10 +22,10 @@
             {
                 title: "Language core",
                 body: "PyPie is powered by a mini, fully functioning, and seasoned dependent type checker.\n" +
-                    "It's small, since there's only one universe (e.g. type does not have a type) and no user-defined datatypes. That's " +
+                    "It's mini, since there's only one universe (e.g. type does not have a type) and no user-defined datatypes. That's " +
                     "probably good enough for writing tensor programs. It's fully functioning in the sense that typing judgements, normalization by evaluation, " +
                     "and bi-directional type checking are up and running. It's seasoned with rank-polymorphism (so people don't need to write map everywhere) " +
-                    "and common arithmetic rewriting (so people don't need to prove commutativity).\n" +
+                    "and some arithmetic rewriting (so people don't need to prove commutativity).\n" +
                     "We have intentionally left out some checks for the time being. For `xs[n]` as an example, PyPie does not require a proof like `n < len(xs)`, " +
                     "since we'd like to keep authoring as Pythonic as possible.\n"
             },
@@ -42,9 +42,9 @@
             },
             {
                 title: "Optimization and backends",
-                body: "PyPie currently compiles to JAX, which handles optimizations like fusion and parallelization. PyPie has a few " +
+                body: "PyPie currently compiles to JAX, which optimizes for fusion, parallelization, etc. PyPie has a few " +
                     "rewrite rules to help JAX recognize special patterns, like dot products and sliding windows.\n" +
-                    "So, in theory, PyPie is supposed to work on any backend supported by JAX. We have tested Apple Silicon and Linux with CUDA."
+                    "So, in theory, PyPie is supposed to work on any backend supported by JAX. We have tested Linux with CUDA and Apple Silicon."
             },
             {
                 title: "AI slop",
