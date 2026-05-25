@@ -64,7 +64,7 @@
             message("D", "We need a rule for the compatibility between `List[int]`s."),
             message("W", "Let's see it!"),
             message("D", "Two `List[int]`s are !!compatible!!, if we line them up from the right and find a " +
-                "!!suffix!! in the longer one that matches the shorter*. " +
+                "!!suffix!! in the longer one that matches the shorter.* " +
                 "The remaining part in the longer list is called the !!prefix!!.\n" +
                 "Find the suffix and prefix for `x` and `y`."),
             message("W", "For `x`, compare `[2, 3]` with `[]`: suffix `[]`, prefix `[2, 3]`.\n" +

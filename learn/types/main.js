@@ -39,7 +39,7 @@
                 "Now there is a stricter way to group things."),
             message("W", "Go for it!"),
             message("D", "```Tensor([[1, 2, 3], [4, 5, 6]])```"),
-            message("W", "It just wraps this `Tensor` thing around the list. How is it different?"),
+            message("W", "It just wraps this `Tensor` thing around the list.** How is it different?"),
             message("D", "It has the type `Tensor[int][[2, 3]]`. A `Tensor` knows two things about its elements: their type and their shape."),
             message("W", "`[2, 3]` is a `List[int]` that describes the !!shape!! of `Tensor([[1, 2, 3], [4, 5, 6]])`, since the outer layer contains two `List[int]`s and each inner layer contains three `int`s?"),
             message("D", "Not quite, but close.\n" +
@@ -66,6 +66,7 @@
             message("W", "See you there!"),
         ],
         notes: "* In this tutorial, we use `int` for 64-bit integers and `float` for 64-bit floating-point numbers for simplicity. " +
-            "In practice, people prefer smaller and more efficient variants, such as `float32` or `bfloat16`, which are available in PyPie."
+            "In practice, people prefer smaller and more efficient variants, such as `float32` or `bfloat16`, which are available in PyPie.\n" +
+            "** `Tensor` is available through `from pypie import Tensor`."
     });
 })();

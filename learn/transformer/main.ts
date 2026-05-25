@@ -5812,7 +5812,7 @@
                 ...message(
                     "D",
                     "Channels are a useful analogy, and we will return to it soon.\n"+
-                    "For language generation, each position should focus on earlier words.\n" +
+                    "For our transformer, each position should focus on earlier words.*\n" +
                     "So we add `causal_mask` to guide attention toward the left side of the sequence."
                 ),
                 codeLabel: "`causal_mask` definition",
