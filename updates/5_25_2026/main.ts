@@ -75,7 +75,7 @@
         lead: "PyPie is here! We invite feedback and criticism at hi@pypie.dev.",
         sections: [
             {
-                title: "Language core",
+                title: "Type safety for tensor shapes, at compile time",
                 body: "PyPie is powered by a mini, fully functioning, and seasoned dependent type checker.\n" +
                 "It's mini, since there's only one universe (e.g. type does not have a type) and no user-defined datatypes. That's " +
                 "probably good enough for writing tensor programs. It's fully functioning in the sense that typing judgements, normalization by evaluation, " +
