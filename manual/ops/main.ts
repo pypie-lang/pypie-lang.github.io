@@ -40,10 +40,20 @@
         return;
     }
 
+    const blankLine = () => ({ kind: "BlankLine" });
+
+    const pypieImport = (ast: AstApi, names: unknown[]) => ({
+        kind: "ImportFrom",
+        module: ast.plainId("pypie"),
+        names,
+    });
+
     const buildPlusExample = (ast: AstApi) => {
         const t = ast.typeId("T");
         const n = ast.varId("n", "int");
         return ast.block([
+            pypieImport(ast, [ast.typeId("Tensor"), ast.fnId("op")]),
+            blankLine(),
             ast.noWrap(
                 ast.funcDef(
                     "plus",
@@ -68,7 +78,6 @@
         const y = ast.typeId("Y");
         const float32 = ast.typeId("float32");
         const float16 = ast.typeId("float16");
-        const blankLine = () => ({ kind: "BlankLine" });
         const addReturn = (left: unknown, right: unknown) => [
             ast.noWrap(ast.ret(ast.binOp(left, "+", right))),
         ];
@@ -78,6 +87,8 @@
         ];
 
         return ast.block([
+            pypieImport(ast, [ast.fnId("op")]),
+            blankLine(),
             ast.noWrap(
                 ast.funcDef(
                     "x_is_not_y",
@@ -128,7 +139,6 @@
         const y = ast.typeId("Y");
         const float32 = ast.typeId("float32");
         const float16 = ast.typeId("float16");
-        const blankLine = () => ({ kind: "BlankLine" });
         const cast = (value: unknown, target: unknown) =>
             ast.call(ast.attr(value, "cast"), [target]);
         const addReturn = (left: unknown, right: unknown) => [
@@ -136,6 +146,8 @@
         ];
 
         return ast.block([
+            pypieImport(ast, [ast.fnId("op")]),
+            blankLine(),
             ast.noWrap(
                 ast.funcDef(
                     "cast_y",
@@ -181,6 +193,8 @@
         const x = ast.typeId("X");
 
         return ast.block([
+            pypieImport(ast, [ast.fnId("op")]),
+            blankLine(),
             ast.noWrap(
                 ast.funcDef(
                     "literal_is_flexible",

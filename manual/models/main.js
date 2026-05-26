@@ -134,6 +134,19 @@
         const lineTensorType = "Tensor[float32][[n]]";
         return ast.block([
             {
+                kind: "ImportFrom",
+                module: ast.plainId("pypie"),
+                names: [ast.typeId("Model"), ast.typeId("Tensor")],
+            },
+            {
+                kind: "ImportFrom",
+                module: ast.plainId("typing"),
+                names: [ast.typeId("Tuple")],
+            },
+            {
+                kind: "BlankLine",
+            },
+            {
                 kind: "ClassDef",
                 name: ast.typeId("Line"),
                 bases: [
@@ -175,10 +188,23 @@
         const paramsTypeText = "Params[T]";
         const tensorType = ast.tensorType("T", [n]);
         const tensorTypeText = "Tensor[T][[n]]";
-        const stateType = ast.typeSubscript(ast.typeId("tuple"), ast.typeList([t, t, t]));
-        const stateTypeText = "tuple[T, T, T]";
+        const stateType = ast.typeSubscript(ast.typeId("Tuple"), ast.typeList([t, t, t]));
+        const stateTypeText = "Tuple[T, T, T]";
         const stateItem = (index) => ast.subscript(ast.varId("s", stateTypeText), ast.number(index));
         return ast.block([
+            {
+                kind: "ImportFrom",
+                module: ast.plainId("pypie"),
+                names: [ast.typeId("Model"), ast.typeId("Tensor")],
+            },
+            {
+                kind: "ImportFrom",
+                module: ast.plainId("typing"),
+                names: [ast.typeId("Tuple")],
+            },
+            {
+                kind: "BlankLine",
+            },
             {
                 kind: "ClassDef",
                 decorator: ast.fnId("dataclass"),
@@ -281,8 +307,8 @@
                     {
                         prose: "Users define `predict`, `loss`, and `update`. Then PyPie generates `learn`.\n" +
                             "`predict` and `update` operates on individual elements, while `loss` is for batched elements. That is, `predict` " +
-                            "takes each `X` in a `Tensor[X][[n]]`; `update` works on each `P` inside the potentially nested structure `Ps`.\n" +
-                            "Here's a concrete example.",
+                            "takes each `X` in a `Tensor[X][[n]]`; `update` works on each `P` inside the potentially nested structure `Ps`.\n\n" +
+                            "Here's a concrete example. When subclassing a `Model`, we omit the `op` decorators on its methods.",
                         codeLabel: "Line model",
                         buildCodeBlock: buildLineModel,
                     },

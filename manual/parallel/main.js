@@ -3,9 +3,16 @@
     if (typeof render !== "function") {
         return;
     }
+    const pypieImport = (ast) => ({
+        kind: "ImportFrom",
+        module: ast.plainId("pypie"),
+        names: [ast.typeId("Tensor"), ast.fnId("op")],
+    });
     const buildExpressionExample = (ast) => {
         const n = ast.varId("n", "int");
         return ast.block([
+            pypieImport(ast),
+            { kind: "BlankLine" },
             ast.noWrap(ast.funcDef("log_mean", [ast.arg("xs", ast.tensorType("float", [n]))], ast.typeId("float"), [
                 ast.noWrap(ast.ret(ast.call(ast.attr(ast.call(ast.attr(ast.varId("xs"), "log"), []), "avg"), [ast.number(0)]))),
             ], { typeParams: [n] })),
@@ -16,6 +23,8 @@
         const m = ast.varId("m", "int");
         const itemType = ast.typeId("T");
         return ast.block([
+            pypieImport(ast),
+            { kind: "BlankLine" },
             ast.noWrap(ast.funcDef("map_get", [
                 ast.arg("emb", ast.tensorType("T", [n, m])),
                 ast.arg("indices", ast.tensorType("int", [n]), "int"),

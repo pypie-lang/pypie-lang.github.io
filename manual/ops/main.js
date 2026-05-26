@@ -3,10 +3,18 @@
     if (typeof render !== "function") {
         return;
     }
+    const blankLine = () => ({ kind: "BlankLine" });
+    const pypieImport = (ast, names) => ({
+        kind: "ImportFrom",
+        module: ast.plainId("pypie"),
+        names,
+    });
     const buildPlusExample = (ast) => {
         const t = ast.typeId("T");
         const n = ast.varId("n", "int");
         return ast.block([
+            pypieImport(ast, [ast.typeId("Tensor"), ast.fnId("op")]),
+            blankLine(),
             ast.noWrap(ast.funcDef("plus", [
                 ast.arg("x", ast.tensorType("T", [n])),
                 ast.arg("y", ast.tensorType("T", [n])),
@@ -20,7 +28,6 @@
         const y = ast.typeId("Y");
         const float32 = ast.typeId("float32");
         const float16 = ast.typeId("float16");
-        const blankLine = () => ({ kind: "BlankLine" });
         const addReturn = (left, right) => [
             ast.noWrap(ast.ret(ast.binOp(left, "+", right))),
         ];
@@ -29,6 +36,8 @@
             ...addReturn(left, right),
         ];
         return ast.block([
+            pypieImport(ast, [ast.fnId("op")]),
+            blankLine(),
             ast.noWrap(ast.funcDef("x_is_not_y", [
                 ast.arg("x", x, "X"),
                 ast.arg("y", y, "Y"),
@@ -50,12 +59,13 @@
         const y = ast.typeId("Y");
         const float32 = ast.typeId("float32");
         const float16 = ast.typeId("float16");
-        const blankLine = () => ({ kind: "BlankLine" });
         const cast = (value, target) => ast.call(ast.attr(value, "cast"), [target]);
         const addReturn = (left, right) => [
             ast.noWrap(ast.ret(ast.binOp(left, "+", right))),
         ];
         return ast.block([
+            pypieImport(ast, [ast.fnId("op")]),
+            blankLine(),
             ast.noWrap(ast.funcDef("cast_y", [
                 ast.arg("x", x, "X"),
                 ast.arg("y", y, "Y"),
@@ -75,6 +85,8 @@
     const buildLiteralIsFlexible = (ast) => {
         const x = ast.typeId("X");
         return ast.block([
+            pypieImport(ast, [ast.fnId("op")]),
+            blankLine(),
             ast.noWrap(ast.funcDef("literal_is_flexible", [
                 ast.arg("x", x, "X"),
             ], x, [

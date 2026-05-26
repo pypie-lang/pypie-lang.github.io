@@ -34,6 +34,12 @@
         const itemType = ast.typeId("T");
         const returnShape = ast.typeList([m, ast.typeId("n1 + n2")]);
         return ast.block([
+            {
+                kind: "ImportFrom",
+                module: ast.plainId("pypie"),
+                names: [ast.typeId("Tensor"), ast.fnId("op")],
+            },
+            { kind: "BlankLine" },
             ast.funcDef("concat_1_1", [
                 ast.arg("xs", ast.tensorType("T", [m, n1])),
                 ast.arg("ys", ast.tensorType("T", [m, n2])),

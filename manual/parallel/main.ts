@@ -40,9 +40,17 @@
         return;
     }
 
+    const pypieImport = (ast: AstApi) => ({
+        kind: "ImportFrom",
+        module: ast.plainId("pypie"),
+        names: [ast.typeId("Tensor"), ast.fnId("op")],
+    });
+
     const buildExpressionExample = (ast: AstApi) => {
         const n = ast.varId("n", "int");
         return ast.block([
+            pypieImport(ast),
+            { kind: "BlankLine" },
             ast.noWrap(
                 ast.funcDef(
                     "log_mean",
@@ -69,6 +77,8 @@
         const m = ast.varId("m", "int");
         const itemType = ast.typeId("T");
         return ast.block([
+            pypieImport(ast),
+            { kind: "BlankLine" },
             ast.noWrap(
                 ast.funcDef(
                     "map_get",
