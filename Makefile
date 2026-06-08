@@ -3,6 +3,7 @@ MANUAL_MAIN_TS := $(sort $(shell find manual -mindepth 2 -maxdepth 2 -name main.
 INSTALLATION_MAIN_TS := $(sort $(shell find installation -mindepth 1 -maxdepth 1 -name main.ts ! -path '* *' 2>/dev/null))
 UPDATES_MAIN_TS := $(sort $(shell find updates -mindepth 2 -maxdepth 2 -name main.ts ! -path '* *' 2>/dev/null))
 DEVELOPER_NOTES_MAIN_TS := $(sort $(shell find developer-notes -mindepth 1 -maxdepth 1 -name main.ts ! -path '* *' 2>/dev/null))
+PLAYGROUND_TS := playground/main.ts playground/pyodide-worker.ts
 
 TS_SOURCES := \
 	code-types.ts \
@@ -42,13 +43,19 @@ UPDATES_TEMPLATE_GENERATOR := updates/generate-chapter-indexes.js
 TSC_BIN := node_modules/.bin/tsc
 TSC := $(TSC_BIN)
 TSC_FLAGS := --target ES2020 --lib DOM,ES2020 --module none --pretty false --skipLibCheck --noEmitOnError
+ESBUILD_BIN := node_modules/.bin/esbuild
+ESBUILD := $(ESBUILD_BIN)
+ESBUILD_FLAGS := --bundle --format=iife --target=es2020 --outdir=playground/dist --entry-names=[name] --chunk-names=chunks/[name] --asset-names=assets/[name]
 
-.PHONY: build compile-ts generate-learn-html generate-manual-html generate-installation-html generate-updates-html generate-developer-notes-html deps clean
+.PHONY: build compile-ts build-playground generate-learn-html generate-manual-html generate-installation-html generate-updates-html generate-developer-notes-html deps clean
 
-build: generate-learn-html generate-manual-html generate-installation-html generate-updates-html generate-developer-notes-html compile-ts
+build: generate-learn-html generate-manual-html generate-installation-html generate-updates-html generate-developer-notes-html compile-ts build-playground
 
 compile-ts: $(TSC_BIN)
 	$(TSC) $(TSC_FLAGS) $(TS_SOURCES)
+
+build-playground: $(ESBUILD_BIN) $(PLAYGROUND_TS)
+	$(ESBUILD) $(PLAYGROUND_TS) $(ESBUILD_FLAGS)
 
 generate-learn-html: $(LEARN_TEMPLATE_GENERATOR) $(LEARN_TEMPLATE)
 	node $(LEARN_TEMPLATE_GENERATOR)
@@ -62,10 +69,14 @@ generate-installation-html: $(INSTALLATION_TEMPLATE_GENERATOR) $(INSTALLATION_TE
 generate-updates-html: $(UPDATES_TEMPLATE_GENERATOR) $(UPDATES_TEMPLATE)
 	node $(UPDATES_TEMPLATE_GENERATOR)
 
-deps: $(TSC_BIN)
+deps: $(TSC_BIN) $(ESBUILD_BIN)
 
 $(TSC_BIN): package-lock.json
 	npm ci
 
+$(ESBUILD_BIN): package-lock.json
+	npm ci
+
 clean:
 	rm -f $(CLEAN_FILES)
+	rm -rf playground/dist
