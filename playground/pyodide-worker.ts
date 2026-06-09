@@ -22,6 +22,7 @@ declare function importScripts(...urls: string[]): void;
 declare function loadPyodide(options: { indexURL: string }): Promise<PyodideRuntime>;
 
 type TfDType = "float32" | "int32" | "bool" | "string";
+type TfjsBackend = "webgl" | "wasm";
 
 type TfTensor = {
     dtype: TfDType | string;
@@ -89,8 +90,10 @@ const DEFAULT_PYODIDE_VERSION = "0.27.7";
 const DEFAULT_PYPIE_WHEEL_FILE = "pypie_lang-0.0.6-cp310-abi3-emscripten_3_1_58_wasm32.whl";
 const TFJS_VERSION = "4.22.0";
 const TFJS_SCRIPT_URL = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@${TFJS_VERSION}/dist/tf.min.js`;
+const TFJS_WEBGL_SCRIPT_URL = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@${TFJS_VERSION}/dist/tf-backend-webgl.min.js`;
 const TFJS_WASM_SCRIPT_URL = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VERSION}/dist/tf-backend-wasm.min.js`;
 const TFJS_WASM_PATH = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VERSION}/dist/`;
+const TFJS_BACKEND_CANDIDATES: TfjsBackend[] = ["webgl", "wasm"];
 const WORKER_URL = self.location.href;
 const WORKER_CACHE_BUSTER = new URL(WORKER_URL).searchParams.get("v");
 const WHEEL_MANIFEST_URL = new URL("../pypie-wheel.json", WORKER_URL).href;
@@ -100,6 +103,7 @@ let tfjsInitPromise: Promise<string> | null = null;
 let pyodide: PyodideRuntime | null = null;
 let stdoutBuffer: string[] = [];
 let stderrBuffer: string[] = [];
+const loadedTfjsBackendScripts = new Set<string>();
 
 (self as unknown as { __pypieRunTfjsSync: (payload: RuntimePayload) => unknown }).__pypieRunTfjsSync =
     runTfjsSync;
@@ -142,13 +146,46 @@ function initTfjs(): Promise<string> {
     if (!tfjsInitPromise) {
         tfjsInitPromise = (async () => {
             importScripts(TFJS_SCRIPT_URL, TFJS_WASM_SCRIPT_URL);
+            loadedTfjsBackendScripts.add("wasm");
             tf.wasm.setWasmPaths(TFJS_WASM_PATH);
-            await tf.setBackend("wasm");
-            await tf.ready();
+            await selectTfjsBackend();
             return `TFJS ${tf.getBackend().toUpperCase()}`;
         })();
     }
     return tfjsInitPromise;
+}
+
+async function selectTfjsBackend(): Promise<void> {
+    const failures: string[] = [];
+    for (const backend of TFJS_BACKEND_CANDIDATES) {
+        try {
+            loadTfjsBackendScript(backend);
+            const ok = await tf.setBackend(backend);
+            await tf.ready();
+            if (ok && tf.getBackend() === backend) {
+                return;
+            }
+            failures.push(`${backend}: backend was not selected`);
+        } catch (error) {
+            failures.push(`${backend}: ${errorMessage(error)}`);
+        }
+    }
+    throw new Error(`No TensorFlow.js backend is available (${failures.join("; ")})`);
+}
+
+function loadTfjsBackendScript(backend: TfjsBackend): void {
+    if (loadedTfjsBackendScripts.has(backend)) {
+        return;
+    }
+    switch (backend) {
+        case "webgl":
+            importScripts(TFJS_WEBGL_SCRIPT_URL);
+            break;
+        case "wasm":
+            importScripts(TFJS_WASM_SCRIPT_URL);
+            break;
+    }
+    loadedTfjsBackendScripts.add(backend);
 }
 
 async function loadRuntime(): Promise<RuntimeStatus> {
@@ -343,9 +380,19 @@ exec(
 }
 
 function runTfjsSync(payload: RuntimePayload): unknown {
-    if (tf.getBackend() !== "wasm") {
-        throw new Error("TensorFlow.js WASM backend is not ready");
+    if (!tf.getBackend()) {
+        throw new Error("TensorFlow.js backend is not ready");
     }
+    const { result, args } = executeTfjs(payload);
+    try {
+        return serializeResultSync(result);
+    } finally {
+        disposeResult(result);
+        disposeResult(args);
+    }
+}
+
+function executeTfjs(payload: RuntimePayload): { result: unknown; args: unknown[] } {
     const factory = new Function("tf", payload.runtimeSource) as (tfModule: TfModule) => (...args: unknown[]) => unknown;
     const entry = factory(tf);
     if (typeof entry !== "function") {
@@ -353,10 +400,7 @@ function runTfjsSync(payload: RuntimePayload): unknown {
     }
     const args = payload.inputs.map((input) => materializeRuntimeValue(input.schema, input.value));
     const result = entry(tf, ...args);
-    const serialized = serializeResultSync(result);
-    disposeResult(result);
-    disposeResult(args);
-    return serialized;
+    return { result, args };
 }
 
 function materializeRuntimeValue(schema: RuntimeSchema, value: unknown): unknown {

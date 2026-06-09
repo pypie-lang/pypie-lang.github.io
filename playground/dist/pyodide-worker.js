@@ -4,8 +4,10 @@
   var DEFAULT_PYPIE_WHEEL_FILE = "pypie_lang-0.0.6-cp310-abi3-emscripten_3_1_58_wasm32.whl";
   var TFJS_VERSION = "4.22.0";
   var TFJS_SCRIPT_URL = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@${TFJS_VERSION}/dist/tf.min.js`;
+  var TFJS_WEBGL_SCRIPT_URL = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@${TFJS_VERSION}/dist/tf-backend-webgl.min.js`;
   var TFJS_WASM_SCRIPT_URL = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VERSION}/dist/tf-backend-wasm.min.js`;
   var TFJS_WASM_PATH = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VERSION}/dist/`;
+  var TFJS_BACKEND_CANDIDATES = ["webgl", "wasm"];
   var WORKER_URL = self.location.href;
   var WORKER_CACHE_BUSTER = new URL(WORKER_URL).searchParams.get("v");
   var WHEEL_MANIFEST_URL = new URL("../pypie-wheel.json", WORKER_URL).href;
@@ -14,6 +16,7 @@
   var pyodide = null;
   var stdoutBuffer = [];
   var stderrBuffer = [];
+  var loadedTfjsBackendScripts = /* @__PURE__ */ new Set();
   self.__pypieRunTfjsSync = runTfjsSync;
   self.addEventListener("message", (event) => {
     const message = event.data;
@@ -48,13 +51,44 @@
     if (!tfjsInitPromise) {
       tfjsInitPromise = (async () => {
         importScripts(TFJS_SCRIPT_URL, TFJS_WASM_SCRIPT_URL);
+        loadedTfjsBackendScripts.add("wasm");
         tf.wasm.setWasmPaths(TFJS_WASM_PATH);
-        await tf.setBackend("wasm");
-        await tf.ready();
+        await selectTfjsBackend();
         return `TFJS ${tf.getBackend().toUpperCase()}`;
       })();
     }
     return tfjsInitPromise;
+  }
+  async function selectTfjsBackend() {
+    const failures = [];
+    for (const backend of TFJS_BACKEND_CANDIDATES) {
+      try {
+        loadTfjsBackendScript(backend);
+        const ok = await tf.setBackend(backend);
+        await tf.ready();
+        if (ok && tf.getBackend() === backend) {
+          return;
+        }
+        failures.push(`${backend}: backend was not selected`);
+      } catch (error) {
+        failures.push(`${backend}: ${errorMessage(error)}`);
+      }
+    }
+    throw new Error(`No TensorFlow.js backend is available (${failures.join("; ")})`);
+  }
+  function loadTfjsBackendScript(backend) {
+    if (loadedTfjsBackendScripts.has(backend)) {
+      return;
+    }
+    switch (backend) {
+      case "webgl":
+        importScripts(TFJS_WEBGL_SCRIPT_URL);
+        break;
+      case "wasm":
+        importScripts(TFJS_WASM_SCRIPT_URL);
+        break;
+    }
+    loadedTfjsBackendScripts.add(backend);
   }
   async function loadRuntime() {
     const wheelManifest = await loadWheelManifest();
@@ -242,9 +276,18 @@ exec(
     };
   }
   function runTfjsSync(payload) {
-    if (tf.getBackend() !== "wasm") {
-      throw new Error("TensorFlow.js WASM backend is not ready");
+    if (!tf.getBackend()) {
+      throw new Error("TensorFlow.js backend is not ready");
     }
+    const { result, args } = executeTfjs(payload);
+    try {
+      return serializeResultSync(result);
+    } finally {
+      disposeResult(result);
+      disposeResult(args);
+    }
+  }
+  function executeTfjs(payload) {
     const factory = new Function("tf", payload.runtimeSource);
     const entry = factory(tf);
     if (typeof entry !== "function") {
@@ -252,10 +295,7 @@ exec(
     }
     const args = payload.inputs.map((input) => materializeRuntimeValue(input.schema, input.value));
     const result = entry(tf, ...args);
-    const serialized = serializeResultSync(result);
-    disposeResult(result);
-    disposeResult(args);
-    return serialized;
+    return { result, args };
   }
   function materializeRuntimeValue(schema, value) {
     switch (schema.kind) {

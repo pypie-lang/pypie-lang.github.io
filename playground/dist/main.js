@@ -33498,7 +33498,7 @@
     }
     return new URL("./dist/main.js", document.baseURI).href;
   })();
-  var PLAYGROUND_BUILD_ID = "20260609-status-header-a";
+  var PLAYGROUND_BUILD_ID = "20260609-tfjs-gpu-e";
   var LOCAL_PLAYGROUND_URL = "http://localhost:8000/playground/";
   var DEFAULT_SAMPLE_KEY = "line";
   var PLAYGROUND_ROOT_URL = new URL("../", SCRIPT_URL).href;
@@ -33591,6 +33591,7 @@
   }
   function initializeRuntime() {
     void ensureWorkerClient().request("init").then((result) => {
+      statusElement.dataset.backend = result.backend || "";
       if (!isRunning) {
         setStatus(result.status);
       }

@@ -29,6 +29,7 @@ type Sample = {
 
 type RuntimeStatus = {
     status: string;
+    backend?: string;
 };
 
 type LspPosition = {
@@ -166,7 +167,7 @@ const SCRIPT_URL = (() => {
     return new URL("./dist/main.js", document.baseURI).href;
 })();
 
-const PLAYGROUND_BUILD_ID = "20260609-status-header-a";
+const PLAYGROUND_BUILD_ID = "20260609-tfjs-gpu-e";
 const LOCAL_PLAYGROUND_URL = "http://localhost:8000/playground/";
 const DEFAULT_SAMPLE_KEY = "line";
 const PLAYGROUND_ROOT_URL = new URL("../", SCRIPT_URL).href;
@@ -271,6 +272,7 @@ function initializeRuntime(): void {
     void ensureWorkerClient()
         .request<RuntimeStatus>("init")
         .then((result) => {
+            statusElement.dataset.backend = result.backend || "";
             if (!isRunning) {
                 setStatus(result.status);
             }
