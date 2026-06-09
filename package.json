@@ -23,7 +23,9 @@
   "homepage": "https://github.com/WeixiMa/pypie-website#readme",
   "devDependencies": {
     "@codemirror/lang-python": "^6.2.1",
+    "@codemirror/lint": "^6.9.6",
     "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.43.0",
     "@replit/codemirror-vim": "^6.3.0",
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-backend-wasm": "^4.22.0",

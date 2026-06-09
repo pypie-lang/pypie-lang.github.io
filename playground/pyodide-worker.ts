@@ -1,10 +1,6 @@
-import * as tf from "@tensorflow/tfjs";
-import { setWasmPaths } from "@tensorflow/tfjs-backend-wasm";
-import "@tensorflow/tfjs-backend-wasm";
-
 type RequestMessage = {
     id: number;
-    type: "init" | "runSource";
+    type: "init" | "runSource" | "analyzeSource";
     payload?: Record<string, unknown>;
 };
 
@@ -25,6 +21,34 @@ type PyodideRuntime = {
 declare function importScripts(...urls: string[]): void;
 declare function loadPyodide(options: { indexURL: string }): Promise<PyodideRuntime>;
 
+type TfDType = "float32" | "int32" | "bool" | "string";
+
+type TfTensor = {
+    dtype: TfDType | string;
+    shape: number[];
+    arraySync(): unknown;
+    dispose(): void;
+};
+
+type TfTensorConstructor = {
+    new (...args: never[]): TfTensor;
+    prototype: TfTensor;
+};
+
+type TfModule = {
+    Tensor: TfTensorConstructor;
+    getBackend(): string;
+    ready(): Promise<void>;
+    scalar(value: number | boolean | string, dtype: TfDType): TfTensor;
+    setBackend(name: string): Promise<boolean>;
+    tensor(value: unknown, shape: number[], dtype: TfDType): TfTensor;
+    wasm: {
+        setWasmPaths(path: string): void;
+    };
+};
+
+declare const tf: TfModule;
+
 type WheelManifest = {
     pyodideVersion: string;
     wheel: string;
@@ -33,6 +57,12 @@ type WheelManifest = {
 type RuntimeStatus = {
     status: string;
     backend: string;
+};
+
+type AnalyzeResult = {
+    version: number;
+    diagnostics: unknown[];
+    hovers: unknown[];
 };
 
 type RuntimeSchema =
@@ -57,8 +87,10 @@ type RuntimePayload = {
 
 const DEFAULT_PYODIDE_VERSION = "0.27.7";
 const DEFAULT_PYPIE_WHEEL_FILE = "pypie_lang-0.0.6-cp310-abi3-emscripten_3_1_58_wasm32.whl";
-const TFJS_WASM_VERSION = "4.22.0";
-const TFJS_WASM_PATH = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_WASM_VERSION}/dist/`;
+const TFJS_VERSION = "4.22.0";
+const TFJS_SCRIPT_URL = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@${TFJS_VERSION}/dist/tf.min.js`;
+const TFJS_WASM_SCRIPT_URL = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VERSION}/dist/tf-backend-wasm.min.js`;
+const TFJS_WASM_PATH = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VERSION}/dist/`;
 const WORKER_URL = self.location.href;
 const WORKER_CACHE_BUSTER = new URL(WORKER_URL).searchParams.get("v");
 const WHEEL_MANIFEST_URL = new URL("../pypie-wheel.json", WORKER_URL).href;
@@ -90,6 +122,12 @@ async function handleMessage(message: RequestMessage): Promise<unknown> {
         case "runSource":
             await initRuntime();
             return runSource(String(message.payload?.source || ""));
+        case "analyzeSource":
+            await initRuntime();
+            return analyzeSource(
+                String(message.payload?.source || ""),
+                Number(message.payload?.version || 0),
+            );
     }
 }
 
@@ -103,7 +141,8 @@ function initRuntime(): Promise<RuntimeStatus> {
 function initTfjs(): Promise<string> {
     if (!tfjsInitPromise) {
         tfjsInitPromise = (async () => {
-            setWasmPaths(TFJS_WASM_PATH);
+            importScripts(TFJS_SCRIPT_URL, TFJS_WASM_SCRIPT_URL);
+            tf.wasm.setWasmPaths(TFJS_WASM_PATH);
             await tf.setBackend("wasm");
             await tf.ready();
             return `TFJS ${tf.getBackend().toUpperCase()}`;
@@ -252,6 +291,22 @@ sys.modules["pypie_browser_runtime"] = module
 `);
 }
 
+async function analyzeSource(source: string, version: number): Promise<AnalyzeResult> {
+    if (!pyodide) {
+        throw new Error("Pyodide is not ready");
+    }
+    const rawResult = await pyodide.runPythonAsync(`
+import pypie
+pypie.analyze_source_json(${JSON.stringify(source)}, "playground.py")
+`);
+    const result = JSON.parse(String(rawResult)) as Partial<AnalyzeResult>;
+    return {
+        version,
+        diagnostics: Array.isArray(result.diagnostics) ? result.diagnostics : [],
+        hovers: Array.isArray(result.hovers) ? result.hovers : [],
+    };
+}
+
 async function runSource(source: string): Promise<{ stdout: string; stderr: string; result: unknown }> {
     if (!pyodide) {
         throw new Error("Pyodide is not ready");
@@ -291,7 +346,7 @@ function runTfjsSync(payload: RuntimePayload): unknown {
     if (tf.getBackend() !== "wasm") {
         throw new Error("TensorFlow.js WASM backend is not ready");
     }
-    const factory = new Function("tf", payload.runtimeSource) as (tfModule: typeof tf) => (...args: unknown[]) => unknown;
+    const factory = new Function("tf", payload.runtimeSource) as (tfModule: TfModule) => (...args: unknown[]) => unknown;
     const entry = factory(tf);
     if (typeof entry !== "function") {
         throw new Error("Generated TensorFlow.js runtime source did not return an entrypoint");
@@ -307,7 +362,7 @@ function runTfjsSync(payload: RuntimePayload): unknown {
 function materializeRuntimeValue(schema: RuntimeSchema, value: unknown): unknown {
     switch (schema.kind) {
         case "tensor":
-            return tf.tensor(value as tf.TensorLike, schema.shape, schema.dtype);
+            return tf.tensor(value, schema.shape, schema.dtype);
         case "scalar":
             return tf.scalar(value as number | boolean | string, schema.dtype);
         case "tuple":

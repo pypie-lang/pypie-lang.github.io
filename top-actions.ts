@@ -98,7 +98,9 @@
             return null;
         }
 
-        const linksMarkup = links
+        const hidePlayground = container instanceof HTMLElement && container.dataset.hidePlayground === "true";
+        const visibleLinks = links.filter((link) => !(hidePlayground && link.label === "Playground"));
+        const linksMarkup = visibleLinks
             .map(
                 (link) =>
                     `<a class="btn" data-theme-link="true" data-base-href="${link.href}" href="${withThemeParam(

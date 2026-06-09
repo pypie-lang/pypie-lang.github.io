@@ -112,8 +112,7 @@
 
         .theme-toggle:focus-visible,
         button:focus-visible,
-        select:focus-visible,
-        textarea:focus-visible {
+        select:focus-visible {
             outline: 2px solid var(--accent);
             outline-offset: 2px;
         }
@@ -138,14 +137,18 @@
             border-right: 1px solid var(--border);
         }
 
-        .toolbar {
+        .toolbar,
+        .side-header {
             min-height: 3.25rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
             padding: 0.625rem 0.75rem;
             border-bottom: 1px solid var(--border);
             background: var(--surface);
+        }
+
+        .toolbar {
+            gap: 0.5rem;
         }
 
         .toolbar-spacer {
@@ -156,7 +159,7 @@
             color: var(--muted-text);
             font-size: 0.875rem;
             white-space: nowrap;
-            max-width: 38%;
+            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -175,6 +178,14 @@
             padding: 0 0.75rem;
             cursor: pointer;
             font-weight: 600;
+        }
+
+        button.transport-button {
+            width: 2rem;
+            padding: 0;
+            display: inline-grid;
+            place-items: center;
+            line-height: 1;
         }
 
         button.primary {
@@ -233,13 +244,7 @@
         }
 
         .side-header {
-            height: 2.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 0.75rem;
-            border-bottom: 1px solid var(--border);
-            background: var(--surface-2);
+            justify-content: flex-start;
             font-weight: 600;
         }
 
@@ -249,16 +254,15 @@
             padding: 0.75rem;
         }
 
-        .diagnostics {
-            flex: 0 0 9.5rem;
-        }
-
-        .inputs {
-            flex: 0 0 14rem;
-        }
-
-        .output {
+        .run-panel {
             flex: 1 1 auto;
+        }
+
+        .combined-panel {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         .empty-state {
@@ -275,33 +279,6 @@
             line-height: 1.45;
         }
 
-        .input-row {
-            display: grid;
-            grid-template-columns: minmax(4rem, 7rem) 1fr;
-            gap: 0.5rem;
-            align-items: start;
-            margin-bottom: 0.75rem;
-        }
-
-        .input-meta {
-            color: var(--muted-text);
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.75rem;
-            overflow-wrap: anywhere;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 4rem;
-            resize: vertical;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: var(--editor-bg);
-            color: var(--text-color);
-            font: 0.85rem/1.45 "IBM Plex Mono", "Courier New", monospace;
-            padding: 0.5rem;
-        }
-
         pre {
             margin: 0;
             white-space: pre-wrap;
@@ -309,7 +286,8 @@
             font: 0.85rem/1.5 "IBM Plex Mono", "Courier New", monospace;
         }
 
-        .cm-tooltip.pypie-hover {
+        .cm-tooltip.pypie-hover,
+        .cm-tooltip-hover {
             max-width: min(32rem, 80vw);
             border: 1px solid var(--border);
             border-radius: 4px;
@@ -318,6 +296,10 @@
             box-shadow: var(--shadow);
             padding: 0.5rem;
             font: 0.82rem/1.45 "IBM Plex Mono", "Courier New", monospace;
+        }
+
+        .cm-tooltip .pypie-hover {
+            white-space: pre-wrap;
         }
 
         @media (max-width: 900px) {
@@ -362,6 +344,7 @@
                 white-space: nowrap;
             }
         }
+
     </style>
 </head>
 <body class="theme-solaris">
@@ -369,47 +352,26 @@
     <main class="playground">
         <section class="editor-column" aria-label="Editor">
             <div class="toolbar">
-                <select id="sample-select" aria-label="Sample">
-                    <option value="line" selected>Baseline Line</option>
-                    <option value="add">Vector Add</option>
-                    <option value="matmul">Matrix Multiply</option>
-                    <option value="reduce">Reduce Mean</option>
-                </select>
-                <button id="run-button" class="primary" type="button">Run</button>
-                <button id="stop-button" type="button">Stop</button>
+                <select id="sample-select" aria-label="Sample"></select>
+                <button id="run-button" class="primary transport-button" type="button" aria-label="Run" title="Run">▶</button>
                 <button id="vim-button" type="button" aria-pressed="false">Vim</button>
                 <div class="toolbar-spacer"></div>
-                <div id="runtime-status" class="status">Starting</div>
             </div>
             <div id="editor"></div>
         </section>
-        <aside class="side-column" aria-label="Run panels">
-            <section class="side-section diagnostics">
+        <aside class="side-column" aria-label="Run panel">
+            <section class="side-section run-panel">
                 <div class="side-header">
-                    <span>Diagnostics</span>
-                    <span id="diagnostic-count">0</span>
+                    <div id="runtime-status" class="status">Starting</div>
                 </div>
-                <div id="diagnostics" class="side-body"></div>
-            </section>
-            <section class="side-section inputs">
-                <div class="side-header">
-                    <span>Script</span>
-                    <span id="entry-name">playground.py</span>
-                </div>
-                <div id="inputs" class="side-body"></div>
-            </section>
-            <section class="side-section output">
-                <div class="side-header">
-                    <span>Output</span>
-                    <span id="backend-name">TFJS WASM</span>
-                </div>
-                <div class="side-body">
-                    <pre id="output"></pre>
+                <div class="side-body combined-panel">
+                    <div id="diagnostics"></div>
+                    <pre id="output" hidden></pre>
                 </div>
             </section>
         </aside>
     </main>
     <script src="../top-actions.js"></script>
-    <script src="./dist/main.js?v=20260608-firefox-file-guard-a"></script>
+    <script src="./dist/main.js?v=20260609-status-header-a"></script>
 </body>
 </html>
