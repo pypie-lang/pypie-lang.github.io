@@ -57,7 +57,6 @@
     const links = [
         { href: withRoot("learn/overview/index.html"), label: "Tutorial" },
         { href: withRoot("manual/guide/index.html"), label: "Manual" },
-        { href: withRoot("playground/index.html"), label: "Playground" },
         { href: withRoot("installation/index.html"), label: "Installation" },
         { href: withRoot("updates/5_25_2026/index.html"), label: "Updates" },
     ];
@@ -77,9 +76,7 @@
         if (!container) {
             return null;
         }
-        const hidePlayground = container instanceof HTMLElement && container.dataset.hidePlayground === "true";
-        const visibleLinks = links.filter((link) => !(hidePlayground && link.label === "Playground"));
-        const linksMarkup = visibleLinks
+        const linksMarkup = links
             .map((link) => `<a class="btn" data-theme-link="true" data-base-href="${link.href}" href="${withThemeParam(link.href, theme)}">${link.label}</a>`)
             .join("");
         container.innerHTML = `
