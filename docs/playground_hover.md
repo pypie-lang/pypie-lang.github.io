@@ -338,7 +338,7 @@ Test cases:
 4. Assert diagnostics panel updates.
 5. Hover over a typed symbol and assert tooltip contains PyPie type text.
 6. Fix the code and assert diagnostics clear.
-7. Run Baseline Line and assert learned parameters appear in output.
+7. Run Line and assert learned parameters appear in output.
 8. Stop/restart the worker and assert analysis resumes.
 
 Validation:

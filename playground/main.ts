@@ -167,27 +167,15 @@ const SCRIPT_URL = (() => {
     return new URL("./dist/main.js", document.baseURI).href;
 })();
 
-const PLAYGROUND_BUILD_ID = "20260609-tfjs-gpu-e";
+const PLAYGROUND_BUILD_ID = "20260610-line-examples";
 const LOCAL_PLAYGROUND_URL = "http://localhost:8000/playground/";
 const DEFAULT_SAMPLE_KEY = "line";
 const PLAYGROUND_ROOT_URL = new URL("../", SCRIPT_URL).href;
 
 const samples: Record<string, Sample> = {
     line: {
-        label: "Baseline Line",
-        path: "./examples/baseline_line.py",
-    },
-    add: {
-        label: "Vector Add",
-        path: "./examples/vector_add.py",
-    },
-    matmul: {
-        label: "Matrix Multiply",
-        path: "./examples/matrix_multiply.py",
-    },
-    reduce: {
-        label: "Reduce Mean",
-        path: "./examples/reduce_mean.py",
+        label: "Line",
+        path: "./examples/line.py",
     },
 };
 

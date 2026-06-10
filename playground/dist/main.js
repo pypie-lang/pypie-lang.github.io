@@ -33498,26 +33498,14 @@
     }
     return new URL("./dist/main.js", document.baseURI).href;
   })();
-  var PLAYGROUND_BUILD_ID = "20260609-tfjs-gpu-e";
+  var PLAYGROUND_BUILD_ID = "20260610-line-examples";
   var LOCAL_PLAYGROUND_URL = "http://localhost:8000/playground/";
   var DEFAULT_SAMPLE_KEY = "line";
   var PLAYGROUND_ROOT_URL = new URL("../", SCRIPT_URL).href;
   var samples = {
     line: {
-      label: "Baseline Line",
-      path: "./examples/baseline_line.py"
-    },
-    add: {
-      label: "Vector Add",
-      path: "./examples/vector_add.py"
-    },
-    matmul: {
-      label: "Matrix Multiply",
-      path: "./examples/matrix_multiply.py"
-    },
-    reduce: {
-      label: "Reduce Mean",
-      path: "./examples/reduce_mean.py"
+      label: "Line",
+      path: "./examples/line.py"
     }
   };
   var pyWorker = null;
