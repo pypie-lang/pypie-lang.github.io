@@ -1,7 +1,5 @@
 from typing import Tuple
-
 from pypie import Model, Tensor, float32
-
 
 class Line(Model):
     def predict(x: float32, p: Tuple[float32, float32]) -> float32:
@@ -12,7 +10,6 @@ class Line(Model):
 
     def update(p: float32, g: float32) -> float32:
         return p - (0.01 * g)
-
 
 xs = Tensor([2.0, 1.0, 4.0, 3.0], float32)
 ys = Tensor([1.8, 1.2, 4.2, 3.3], float32)
