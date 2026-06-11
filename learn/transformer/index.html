@@ -3,473 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyPie - Tutorial</title>
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap");
-
-        body {
-            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-            margin: 0;
-            background-color: var(--hero-bg);
-            color: var(--hero-text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        :root {
-            --hero-bg: #343a40;
-            --hero-text: #ffffff;
-            --top-bar-bg: #212529;
-            --btn-text: #f8f9fa;
-            --btn-border: #f8f9fa;
-            --theme-toggle-bg: #fdf6e3;
-            --panel-bg: rgba(255, 255, 255, 0.06);
-            --panel-border: rgba(255, 255, 255, 0.14);
-            --muted-text: rgba(248, 249, 250, 0.72);
-            --link-color: #9ddcff;
-            --chat-left-bg: rgba(255, 255, 255, 0.05);
-            --chat-left-border: rgba(255, 255, 255, 0.22);
-            --chat-right-bg: rgba(157, 220, 255, 0.15);
-            --chat-right-border: rgba(157, 220, 255, 0.48);
-            --chat-speaker: rgba(248, 249, 250, 0.68);
-            --inline-code-bg: rgba(0, 0, 0, 0.32);
-            --inline-code-border: rgba(255, 255, 255, 0.18);
-            --code-bg: rgba(0, 0, 0, 0.35);
-            --code-border: rgba(255, 255, 255, 0.2);
-            --code-base: rgba(255, 255, 255, 0.88);
-            --code-kw: rgba(255, 219, 92, 0.9);
-            --code-fn: rgba(138, 235, 255, 0.9);
-            --code-type: rgba(255, 167, 227, 0.9);
-            --code-num: rgba(190, 255, 151, 0.9);
-            --code-op: rgba(255, 255, 255, 0.85);
-            --tooltip-bg: rgba(12, 12, 12, 0.9);
-            --tooltip-text: #f8f9fa;
-            --tooltip-border: rgba(255, 255, 255, 0.2);
-        }
-        body.theme-solaris {
-            --hero-bg: #eee8d5;
-            --hero-text: #073642;
-            --top-bar-bg: #e7ddc7;
-            --btn-text: #586e75;
-            --btn-border: #93a1a1;
-            --theme-toggle-bg: #343a40;
-            --panel-bg: rgba(253, 246, 227, 0.75);
-            --panel-border: rgba(147, 161, 161, 0.5);
-            --muted-text: rgba(88, 110, 117, 0.78);
-            --link-color: #268bd2;
-            --chat-left-bg: rgba(253, 246, 227, 0.88);
-            --chat-left-border: rgba(147, 161, 161, 0.5);
-            --chat-right-bg: rgba(38, 139, 210, 0.14);
-            --chat-right-border: rgba(38, 139, 210, 0.44);
-            --chat-speaker: rgba(88, 110, 117, 0.72);
-            --inline-code-bg: rgba(7, 54, 66, 0.08);
-            --inline-code-border: rgba(147, 161, 161, 0.45);
-            --code-bg: rgba(253, 246, 227, 0.9);
-            --code-border: rgba(147, 161, 161, 0.5);
-            --code-base: rgba(88, 110, 117, 0.95);
-            --code-kw: rgba(181, 137, 0, 0.95);
-            --code-fn: rgba(42, 161, 152, 0.95);
-            --code-type: rgba(108, 113, 196, 0.95);
-            --code-num: rgba(133, 153, 0, 0.95);
-            --code-op: rgba(88, 110, 117, 0.9);
-            --tooltip-bg: rgba(253, 246, 227, 0.95);
-            --tooltip-text: #586e75;
-            --tooltip-border: rgba(147, 161, 161, 0.5);
-        }
-        .top-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            padding: clamp(0.5rem, 2vh, 1rem) 2rem;
-            background-color: var(--top-bar-bg);
-            position: relative;
-        }
-        .top-actions .btn {
-            color: var(--btn-text);
-            text-decoration: none;
-            border: 1px solid var(--btn-border);
-            padding: 0.5rem 1.25rem;
-            border-radius: 4px;
-            font-weight: 600;
-            background: transparent;
-            cursor: pointer;
-            font: inherit;
-        }
-        .theme-toggle {
-            position: absolute;
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            padding: 0;
-            border-radius: 999px;
-            border: 1px solid var(--btn-border);
-            background: var(--theme-toggle-bg);
-            cursor: pointer;
-        }
-        .theme-toggle:focus-visible {
-            outline: 2px solid var(--btn-text);
-            outline-offset: 2px;
-        }
-        .doc-shell {
-            display: grid;
-            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-            gap: clamp(1.5rem, 4vw, 3rem);
-            padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 6vw, 4.5rem) 3.5rem;
-        }
-        .doc-nav {
-            position: sticky;
-            top: 1.5rem;
-            align-self: start;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-left: -0.75rem;
-        }
-        .doc-nav__title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted-text);
-            margin-bottom: 1rem;
-        }
-        .doc-nav a {
-            display: block;
-            color: var(--hero-text);
-            text-decoration: none;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
-        .doc-nav a:hover {
-            color: var(--link-color);
-        }
-        .doc-nav a[aria-current="page"] {
-            color: var(--link-color);
-        }
-        .doc-content {
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            padding: clamp(1.75rem, 4vw, 3rem);
-            line-height: 1.65;
-        }
-        .doc-main {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
-            gap: clamp(1rem, 3vw, 1.75rem);
-            align-items: start;
-        }
-        .doc-header p {
-            color: var(--muted-text);
-            margin-top: 0;
-        }
-        .doc-header h1 {
-            font-size: clamp(2.5rem, 5vw, 3.6rem);
-            margin: 0.4rem 0 1rem;
-        }
-        .doc-lead {
-            font-size: clamp(1.1rem, 2.2vw, 1.4rem);
-        }
-        section {
-            margin-top: clamp(2rem, 5vw, 3rem);
-            scroll-margin-top: 1.5rem;
-        }
-        section h2 {
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            margin-bottom: 0.75rem;
-        }
-        .lesson-chat__intro {
-            margin: 0 0 1.2rem;
-            color: var(--muted-text);
-        }
-        .keyword-panel {
-            background: var(--chat-left-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 12px;
-            padding: 0.9rem 1rem;
-        }
-        .doc-keywords {
-            align-self: start;
-            position: sticky;
-            top: 1.5rem;
-        }
-        .keyword-panel__title {
-            margin: 0 0 0.55rem;
-            font-size: 0.74rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--muted-text);
-        }
-        .keyword-panel__list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.38rem;
-        }
-        .keyword-panel__item {
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.88rem;
-        }
-        .keyword-panel__item--empty {
-            color: var(--muted-text);
-            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-            font-size: 0.88rem;
-        }
-        .keyword-panel__link {
-            color: inherit;
-            text-decoration: none;
-        }
-        .keyword-panel__link:hover {
-            text-decoration: underline;
-        }
-        .keyword-panel__link:focus-visible {
-            outline: 1px solid var(--btn-border);
-            outline-offset: 2px;
-            border-radius: 3px;
-        }
-        .keyword-panel__item code {
-            font: inherit;
-            color: inherit;
-            background: transparent;
-            border: 0;
-            padding: 0;
-        }
-        .chat-thread {
-            display: flex;
-            flex-direction: column;
-            gap: 0.9rem;
-            width: 100%;
-            max-width: min(72ch, 100%);
-            margin-inline: auto;
-        }
-        .chat-row {
-            display: flex;
-            width: 100%;
-        }
-        .chat-row--left {
-            padding-right: clamp(0.8rem, 3.2vw, 2rem);
-        }
-        .chat-row--right {
-            padding-left: clamp(0.8rem, 3.2vw, 2rem);
-        }
-        .chat-bubble {
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
-            border: 1px solid;
-            border-radius: 10px;
-            padding: clamp(0.9rem, 2.4vw, 1.15rem) clamp(1rem, 2.6vw, 1.3rem);
-            min-height: 6.4rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .chat-bubble__index {
-            position: absolute;
-            top: 0.42rem;
-            right: 0.62rem;
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--chat-speaker);
-            pointer-events: none;
-        }
-        .chat-bubble--left {
-            background: var(--chat-left-bg);
-            border-color: var(--chat-left-border);
-        }
-        .chat-bubble--right {
-            background: var(--chat-right-bg);
-            border-color: var(--chat-right-border);
-        }
-        .chat-bubble--left::before,
-        .chat-bubble--left::after,
-        .chat-bubble--right::before,
-        .chat-bubble--right::after {
-            content: "";
-            position: absolute;
-            top: 1rem;
-            width: 0;
-            height: 0;
-            border-top: 7px solid transparent;
-            border-bottom: 7px solid transparent;
-        }
-        .chat-bubble--left::before {
-            left: -15px;
-            border-right: 8px solid var(--chat-left-border);
-        }
-        .chat-bubble--left::after {
-            left: -13px;
-            border-right: 8px solid var(--chat-left-bg);
-        }
-        .chat-bubble--right::before {
-            right: -15px;
-            border-left: 8px solid var(--chat-right-border);
-        }
-        .chat-bubble--right::after {
-            right: -13px;
-            border-left: 8px solid var(--chat-right-bg);
-        }
-        .chat-bubble__speaker {
-            margin: 0 0 0.35rem;
-            font-size: 0.72rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-weight: 600;
-            color: var(--chat-speaker);
-        }
-        .chat-bubble__text {
-            margin: 0;
-        }
-        .chat-bubble__text + .chat-bubble__text {
-            margin-top: 0.55rem;
-        }
-        .chat-bubble__link {
-            color: var(--link-color);
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-        .chat-bubble__link:focus-visible {
-            outline: 1px solid var(--btn-border);
-            outline-offset: 2px;
-            border-radius: 2px;
-        }
-        .chat-bubble__text code {
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.9em;
-            white-space: nowrap;
-            word-break: normal;
-            overflow-wrap: normal;
-            background: var(--inline-code-bg);
-            border: 1px solid var(--inline-code-border);
-            border-radius: 4px;
-            padding: 0.1rem 0.35rem;
-        }
-        .chat-bubble .doc-code {
-            margin: 0.7rem 0 0;
-            border-radius: 8px;
-        }
-        .chat-bubble__fenced-code {
-            margin: 0.7rem 0 0;
-            border-radius: 8px;
-        }
-        .chat-bubble__fenced-code code {
-            font: inherit;
-            color: inherit;
-        }
-        .chat-bubble__fenced-code + .chat-bubble__text {
-            margin-top: 0.7rem;
-        }
-        .doc-code {
-            background: var(--code-bg);
-            border: 1px solid var(--code-border);
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
-            overflow-x: auto;
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--code-base);
-            white-space: pre;
-        }
-        .doc-code .kw {
-            color: var(--code-kw);
-        }
-        .doc-code .fn {
-            color: var(--code-fn);
-        }
-        .doc-code .type {
-            color: var(--code-type);
-        }
-        .doc-code .num {
-            color: var(--code-num);
-        }
-        .doc-code .op {
-            color: var(--code-op);
-        }
-        .code-type-tooltip {
-            position: fixed;
-            left: 0;
-            top: 0;
-            transform: translate(-50%, -130%);
-            background: var(--tooltip-bg);
-            color: var(--tooltip-text);
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.9rem;
-            padding: 0.25rem 0.5rem;
-            border: 1px solid var(--tooltip-border);
-            border-radius: 4px;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 3;
-            transition: opacity 120ms ease;
-        }
-        @media (max-width: 900px) {
-            .doc-shell {
-                grid-template-columns: 1fr;
-            }
-            .doc-nav {
-                position: static;
-                margin-left: 0;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.75rem 1rem;
-            }
-            .doc-nav a {
-                margin-bottom: 0;
-            }
-            .doc-main {
-                grid-template-columns: 1fr;
-            }
-            .doc-keywords {
-                position: static;
-            }
-        }
-        @media (max-width: 640px) {
-            .chat-row--left,
-            .chat-row--right {
-                padding-left: 0;
-                padding-right: 0;
-            }
-            .chat-bubble {
-                width: 100%;
-                min-height: 5.4rem;
-            }
-        }
-    </style>
+    <title>PyPie - Tutorial: The Transformer</title>
+    <meta name="description" content="LeNet works like a detective who is specialized in pictures. It collects clues using corr2d layers, and then makes decisions using linear layers. Now we...">
+    <link rel="canonical" href="https://pypie.dev/learn/transformer/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PyPie">
+    <meta property="og:title" content="PyPie - Tutorial: The Transformer">
+    <meta property="og:description" content="LeNet works like a detective who is specialized in pictures. It collects clues using corr2d layers, and then makes decisions using linear layers. Now we...">
+    <meta property="og:url" content="https://pypie.dev/learn/transformer/">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <script>
+        (() => {
+            try {
+                const theme = localStorage.getItem("pypie.theme");
+                if (theme === "dark" || theme === "light") {
+                    document.documentElement.dataset.theme = theme;
+                } else if (theme === "theme-dark") {
+                    document.documentElement.dataset.theme = "dark";
+                } else if (theme === "theme-solaris") {
+                    document.documentElement.dataset.theme = "light";
+                }
+            } catch {}
+        })();
+    </script>
+    <link rel="stylesheet" href="../../assets/site.css">
 </head>
-<body class="theme-solaris" data-learn-page="transformer">
-    <div data-top-actions></div>
+<body class="doc-page" data-doc-section="learn" data-doc-page="transformer">
+    <div data-top-actions><header class="site-header"><div class="site-header__inner"><a class="brand" href="../../index.html"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/><path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg><span class="brand__name">PyPie</span></a><nav class="site-nav" aria-label="Site"><a href="../overview/index.html" aria-current="page">Tutorial</a><a href="../../manual/guide/index.html">Manual</a><a href="../../installation/index.html">Installation</a><a href="../../updates/5_25_2026/index.html">Updates</a></nav><button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg><svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.6 14.6A8.7 8.7 0 0 1 9.4 3.4 8.9 8.9 0 1 0 20.6 14.6Z"/></svg></button></div></header></div>
     <div class="doc-shell">
-        <aside class="doc-nav" data-learn-nav></aside>
+        <aside class="doc-nav" aria-label="Tutorial navigation">
+            <div class="doc-nav__title">Tutorial</div><a href="../overview/index.html">0. Prelude</a><a href="../types/index.html">1. Types, Shapes &amp; Tensors</a><a href="../tensor_add/index.html">2. One Function, Many Ranks</a><a href="../forward_line/index.html">3. A Forward Line</a><a href="../model_line/index.html">4. The Complete Line</a><a href="../corr/index.html">5. Finding Patterns</a><a href="../cnn/index.html">6. CNN</a><a href="index.html" aria-current="page">7. The Transformer</a>
+        </aside>
         <div class="doc-main">
             <article class="doc-content" data-code-surface>
-                <header class="doc-header">
-                    <p class="doc-eyebrow" data-learn-eyebrow></p>
-                    <h1 data-learn-title></h1>
-                    <p class="doc-lead" data-learn-lead></p>
-                </header>
+                <header class="doc-header"><p class="doc-eyebrow">Tutorial</p><h1>The Transformer</h1></header><section class="lesson-chat"><div class="chat-thread"><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-1" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">1</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">LeNet works like a detective who is specialized in pictures. It collects clues using corr2d layers, and then makes decisions using linear layers.<br>Now we build another detective, this time specialized in text.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-2" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">2</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">What's the name of our new detective?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-3" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">3</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Let's call it the LittleTransformer.<br>It follows a similar process: collecting clues first and making decisions later.<br>Its new clue-collecting technique is called <strong>attention</strong>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-4" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">4</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Attention sounds like the model is looking around before making up its mind.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-5" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">5</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Suppose we are reading the sentence<br><code>the animal didn't cross the street because it was too tired</code>.<br>When we read <code>it</code>, we want to know which earlier word it refers to.<br>Attention computes a score for every earlier word. A high score means: this one looks relevant. A low score means: probably ignore it.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-6" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">6</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Let's define a function to compute scores!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-7" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">7</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">To compare tokens, we first turn each one into a vector of numbers called an <strong>embedding</strong>.<br>We write one embedding as <code>Tensor[float][[d]]</code>.<br><code>d</code> is the length of that vector: a larger <code>d</code> gives each token more room to carry information.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-8" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">8</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">You just said <code>token</code>.<br>Is a token the same thing as a word?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-9" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">9</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">A token is one unit that the model reads.<br>Sometimes one token is a whole word. Some other times it is part of a word or a piece of punctuation.<br>Different tokens may learn similar embeddings, if these tokens share similar roles.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-10" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">10</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Then, attention is a function that takes in embeddings and generates scores?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-11" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">11</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Yes.<br>Each embedding prepares three views of itself: query, key, and value.<br>Query expresses what this position is looking for.<br>Key expresses what this position offers.<br>Value carries the information that can be passed along.<br>Attention compares queries with keys, then uses the scores to mix the values.</p><pre class="doc-code chat-code-transformer-10" aria-label="`SelfAttentionParams` and `attention` definitions"><span class="kw">class</span> <span class="type">AttentionParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>]:
+    <span class="code-var" data-type="Tensor[float][[l, n]]">q</span>: <span class="type">LinearParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>]
+    <span class="code-var" data-type="float">k</span>: <span class="type">LinearParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>]
+    <span class="code-var" data-type="float">v</span>: <span class="type">LinearParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>]
 
-                <section class="lesson-chat" data-learn-section>
-                    <h2 data-learn-section-title></h2>
-                    <p class="lesson-chat__intro" data-learn-section-body></p>
-                    <div class="chat-thread" data-learn-dialog></div>
-                </section>
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">attention</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="float">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">AttentionParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>]]:
+    <span class="code-var" data-type="Tensor[float][[l, n]]">q</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, n]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, n, d]">q</span>)
+    <span class="code-var" data-type="Tensor[float][[l, n]]">k</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, n]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, n, d]">k</span>)
+    <span class="code-var" data-type="Tensor[float][[l, n]]">v</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, n]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, n, d]">v</span>)
+    <span class="code-var" data-type="Tensor[float][[l, l]]">weights</span> <span class="op">=</span> (<span class="code-var" data-type="Tensor[float][[l, n]]">q</span> <span class="op">@</span> <span class="code-var" data-type="Tensor[float][[l, n]]">k</span>.<span data-type="Tensor[float][[n, l]]">permute</span>(<span class="num">1</span>, <span class="num">0</span>)) <span class="op">/</span> <span class="code-var" data-type="int">n</span>.<span data-type="float">sqrt</span>()
+    ...
+    <span class="code-var" data-type="Tensor[float][[l, l]]">weights</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, l]]">softmax</span>(<span class="code-var" data-type="Tensor[float][[l, l]]">weights</span>)
+    <span class="kw">return</span> <span class="code-var" data-type="Tensor[float][[l, l]]">weights</span> <span class="op">@</span> <span class="code-var" data-type="Tensor[float][[l, n]]">v</span></pre><p class="chat-bubble__text"><code>k.permute(1, 0)</code> swaps the two dimensions of <code>k</code>.<br>Then <code>q @ k.permute(1, 0)</code> computes one dot product for each query-key pair, giving the raw attention scores.<br>We keep the weights stable by dividing it with the square root of <code>n</code>.<br><code>softmax</code> turns these scores into non-negative weights that add up to <code>1.0</code>, so we can use them to mix the values.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-12" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">12</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Hmm... <code>d</code> is like the input channels of LeNet and <code>n</code> is like the output channels?<br>Why is <code>attention</code> still missing a line?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-13" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">13</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Channels are a useful analogy, and we will return to it soon.<br>For our transformer, each position should focus on earlier words.*<br>So we add <code>causal_mask</code> to guide attention toward the left side of the sequence.</p><pre class="doc-code chat-code-transformer-12" aria-label="`causal_mask` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">causal_mask</span>[<span class="code-var" data-type="int">l</span>](<span class="code-var" data-type="float">scores</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">l</span>]]) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">l</span>]]:
+    <span class="code-var" data-type="float">blocked</span> <span class="op">=</span> <span class="op">-</span><span class="num">1e9</span>
+    <span class="kw">return</span> [
+        [
+            <span class="code-var" data-type="float">scores</span>[<span class="code-var" data-type="int">row</span>][<span class="code-var" data-type="int">col</span>] <span class="kw">if</span> <span class="code-var" data-type="int">col</span> <span class="op">&lt;=</span> <span class="code-var" data-type="int">row</span> <span class="kw">else</span> <span class="code-var" data-type="float">blocked</span>
+            <span class="kw">for</span> <span class="code-var" data-type="int">col</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int][[l]]">iota</span>(<span class="code-var" data-type="int">l</span>)
+        ]
+        <span class="kw">for</span> <span class="code-var" data-type="int">row</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int][[l]]">iota</span>(<span class="code-var" data-type="int">l</span>)
+    ]</pre><p class="chat-bubble__text"><code>causal_mask</code> keeps the past and replaces the future with small numbers.<br>Then <code>softmax</code> gives almost zero weight to those future positions.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-14" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">14</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Then the complete <code>attention</code> should look like this.</p><pre class="doc-code chat-code-transformer-13" aria-label="complete `attention`"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">attention</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="float">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">AttentionParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>]]:
+    <span class="code-var" data-type="Tensor[float][[l, n]]">q</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, n]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, n, d]">q</span>)
+    <span class="code-var" data-type="Tensor[float][[l, n]]">k</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, n]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, n, d]">k</span>)
+    <span class="code-var" data-type="Tensor[float][[l, n]]">v</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, n]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, n, d]">v</span>)
+    <span class="code-var" data-type="Tensor[float][[l, l]]">weights</span> <span class="op">=</span> (<span class="code-var" data-type="Tensor[float][[l, n]]">q</span> <span class="op">@</span> <span class="code-var" data-type="Tensor[float][[l, n]]">k</span>.<span data-type="Tensor[float][[n, l]]">permute</span>(<span class="num">1</span>, <span class="num">0</span>)) <span class="op">/</span> <span class="code-var" data-type="int">n</span>.<span data-type="float">sqrt</span>()
+    <span class="code-var" data-type="Tensor[float][[l, l]]">weights</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, l]]">causal_mask</span>(<span class="code-var" data-type="Tensor[float][[l, l]]">weights</span>)
+    <span class="code-var" data-type="Tensor[float][[l, l]]">weights</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, l]]">softmax</span>(<span class="code-var" data-type="Tensor[float][[l, l]]">weights</span>)
+    <span class="kw">return</span> <span class="code-var" data-type="float">weights</span> <span class="op">@</span> <span class="code-var" data-type="float">v</span></pre></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-15" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">15</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Now we revisit the analogy of channels.<br>There are different attentions, just like different patterns in pictures. Some tracks the grammatical structure, some focuses on subject-verb agreement, and some pays attention to nearby conexts.<br>A model is more effective if we seperate these attentions in different tensors, just like LeNet's output channels learn different patterns.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-16" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">16</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">I see! Can we simply add an extra dimension for <code>q</code>, <code>k</code>, and <code>v</code>?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-17" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">17</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Exactly. This extra dimension is <code>h</code>, for multi-heads attention.<br>For each head, we store one set of query, key, and value weights, then merge all head outputs back together.</p><pre class="doc-code chat-code-transformer-16" aria-label="`MultiHeadsAttentionParams` and `multi_heads_attention` definitions"><span class="kw">class</span> <span class="type">MultiHeadsAttentionParams</span>[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">n</span>]:
+    <span class="code-var" data-type="float">qw</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">n</span>]]
+    <span class="code-var" data-type="float">kw</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">n</span>]]
+    <span class="code-var" data-type="float">vw</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">n</span>]]
+    <span class="code-var" data-type="float">proj</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">h</span> <span class="op">*</span> <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>]]
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">multi_heads_attention</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>](
+    <span class="code-var" data-type="float">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">MultiHeadsAttentionParams</span>[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">n</span>]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]]:
+    <span class="code-var" data-type="float">q</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">@</span> <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[h, d, n]]">qw</span>
+    <span class="code-var" data-type="Tensor[float][[h, l, n]]">k</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">@</span> <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[h, d, n]]">kw</span>
+    <span class="code-var" data-type="Tensor[float][[h, l, n]]">v</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">@</span> <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[h, d, n]]">vw</span>
+    <span class="code-var" data-type="Tensor[float][[h, l, l]]">weights</span> <span class="op">=</span> (<span class="code-var" data-type="Tensor[float][[h, l, n]]">q</span> <span class="op">@</span> <span class="code-var" data-type="Tensor[float][[h, l, n]]">k</span>.<span data-type="Tensor[float][[h, n, l]]">permute</span>(<span class="num">0</span>, <span class="num">2</span>, <span class="num">1</span>)) <span class="op">/</span> <span class="code-var" data-type="int">n</span>.<span data-type="float">sqrt</span>()
+    <span class="code-var" data-type="Tensor[float][[h, l, l]]">weights</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[h, l, l]]">softmax</span>(<span class="fn" data-type="Tensor[float][[h, l, l]]">causal_mask</span>(<span class="code-var" data-type="Tensor[float][[h, l, l]]">weights</span>))
+    <span class="code-var" data-type="Tensor[float][[h, l, n]]">weights</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[h, l, l]]">weights</span> <span class="op">@</span> <span class="code-var" data-type="Tensor[float][[h, l, n]]">v</span>
+    <span class="code-var" data-type="Tensor[float][[l, h * n]]">merged</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[h, l, n]]">weights</span>.<span data-type="Tensor[float][[l, h, n]]">permute</span>(<span class="num">1</span>, <span class="num">0</span>, <span class="num">2</span>).<span data-type="Tensor[float][[l, h * n]]">reshape</span>([<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">h</span> <span class="op">*</span> <span class="code-var" data-type="int">n</span>])
+    <span class="kw">return</span> <span class="code-var" data-type="Tensor[float][[l, h * n]]">merged</span> <span class="op">@</span> <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[(h * n), d]]">proj</span></pre></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-18" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">18</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Now we have the clue-collector, how about the decision-maker?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-19" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">19</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">The decision-maker is called <code>feed_forward</code>. It consists of two linear layers.</p><pre class="doc-code chat-code-transformer-18" aria-label="`FeedForwardParams` and `feed_forward` definitions"><span class="kw">class</span> <span class="type">FeedForwardParams</span>[<span class="code-var" data-type="int">d</span>]:
+    <span class="code-var" data-type="float">linear1</span>: <span class="type">LinearParams</span>[<span class="type">float</span>, <span class="num">4</span> <span class="op">*</span> <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">d</span>]
+    <span class="code-var" data-type="float">linear2</span>: <span class="type">LinearParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">d</span>, <span class="num">4</span> <span class="op">*</span> <span class="code-var" data-type="int">d</span>]
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">feed_forward</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>](
+    <span class="code-var" data-type="float">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">FeedForwardParams</span>[<span class="code-var" data-type="int">d</span>]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]]:
+    <span class="code-var" data-type="Tensor[float][[l, 4 * d]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, 4 * d]]">larger</span>(<span class="fn" data-type="Tensor[float][[l, 4 * d]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, 4 * d, d]">linear1</span>), <span class="num">0</span>)
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[float][[l, d]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, 4 * d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, d, 4 * d]">linear2</span>)</pre><p class="chat-bubble__text">The first layer expands the parameters, gives more space to untangle complex data. Then the second layer compresses the learned information to the original size.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-20" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">20</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Why expanding by <code>4</code>? Is it another alchemy number?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-21" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">21</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Yes, <code>4</code> works well in practice.<br>Now we combine the clue-collector and the decision-maker into one <code>block</code>.</p><pre class="doc-code chat-code-transformer-20" aria-label="`BlockParams` and `block` definitions, abbreviated"><span class="kw">class</span> <span class="type">BlockParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">h</span>]:
+    <span class="code-var" data-type="float">multi_heads</span>: <span class="type">MultiHeadsAttentionParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">h</span>]
+    <span class="code-var" data-type="float">feed_forward</span>: <span class="type">FeedForwardParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">d</span>]
+    ...
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">block</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="float">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">BlockParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">h</span>]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]]:
+    ...
+    <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">+</span> <span class="fn" data-type="Tensor[float][[l, d]]">multi_heads_attention</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="MultiHeadsAttentionParams[float, n, d, h]">multi_heads</span>)
+    ...
+    <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">+</span> <span class="fn" data-type="Tensor[float][[l, d]]">feed_forward</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="FeedForwardParams[float, d]">feed_forward</span>)
+    <span class="kw">return</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span></pre></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-22" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">22</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">The <code>block</code> adds the attention back to <code>x</code>. So it keeps refining what it has learned.<br>I see <code>block</code> is not complete--what else do we need?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-23" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">23</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">We also want <code>x</code> to stay well scaled, since practical models often stack many blocks in sequence.</p><pre class="doc-code chat-code-transformer-22" aria-label="`LayerNormParams` and `layer_norm` definitions"><span class="kw">class</span> <span class="type">LayerNormParams</span>[<span class="code-var" data-type="int">d</span>]:
+    <span class="code-var" data-type="float">weight</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">d</span>]]
+    <span class="code-var" data-type="float">bias</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">d</span>]]
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">layer_norm</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>](
+    <span class="code-var" data-type="float">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">LayerNormParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">d</span>]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]]:
+    <span class="code-var" data-type="float">eps</span> <span class="op">=</span> <span class="num">1e-5</span>
+    <span class="code-var" data-type="Tensor[float][[l, 1]]">means</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span>.<span data-type="Tensor[float][[l]]">avg</span>(<span class="num">1</span>).<span data-type="Tensor[float][[l, 1]]">reshape</span>([<span class="code-var" data-type="int">l</span>, <span class="num">1</span>])
+    <span class="code-var" data-type="Tensor[float][[l, 1]]">variances</span> <span class="op">=</span> ((<span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">-</span> <span class="code-var" data-type="Tensor[float][[l, 1]]">means</span>) <span class="op">**</span> <span class="num">2</span>).<span data-type="Tensor[float][[l]]">avg</span>(<span class="num">1</span>).<span data-type="Tensor[float][[l, 1]]">reshape</span>([<span class="code-var" data-type="int">l</span>, <span class="num">1</span>])
+    <span class="kw">return</span> ((<span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">-</span> <span class="code-var" data-type="Tensor[float][[l, 1]]">means</span>) <span class="op">/</span> (<span class="code-var" data-type="Tensor[float][[l, 1]]">variances</span> <span class="op">+</span> <span class="code-var" data-type="float">eps</span>).<span data-type="Tensor[float][[l, 1]]">sqrt</span>()) <span class="op">*</span> <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[d]]">weight</span> <span class="op">+</span> <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[d]]">bias</span></pre><p class="chat-bubble__text"><code>layer_norm</code> stabilizes <code>x</code>. Let's insert it before collecting clues or making decisions.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-24" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">24</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Here is the complete version with layer norms filled in.</p><pre class="doc-code chat-code-transformer-23" aria-label="complete `BlockParams` and `block`"><span class="kw">class</span> <span class="type">BlockParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">h</span>]:
+    <span class="code-var" data-type="float">multi_heads</span>: <span class="type">MultiHeadsAttentionParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">h</span>]
+    <span class="code-var" data-type="float">feed_forward</span>: <span class="type">FeedForwardParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">d</span>]
+    <span class="code-var" data-type="float">layer_norm1</span>: <span class="type">LayerNormParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">d</span>]
+    <span class="code-var" data-type="float">layer_norm2</span>: <span class="type">LayerNormParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">d</span>]
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">block</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="float">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">BlockParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>, <span class="code-var" data-type="int">h</span>]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">d</span>]]:
+    <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, d]]">layer_norm</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LayerNormParams[float, d]">layer_norm1</span>)
+    <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">+</span> <span class="fn" data-type="Tensor[float][[l, d]]">multi_heads_attention</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="MultiHeadsAttentionParams[float, n, d, h]">multi_heads</span>)
+    <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, d]]">layer_norm</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LayerNormParams[float, d]">layer_norm2</span>)
+    <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span> <span class="op">+</span> <span class="fn" data-type="Tensor[float][[l, d]]">feed_forward</span>(<span class="code-var" data-type="Tensor[float][[l, d]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="FeedForwardParams[float, d]">feed_forward</span>)
+    <span class="kw">return</span> <span class="code-var" data-type="Tensor[float][[l, d]]">x</span></pre></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-25" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">25</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Good. Now we can draft <code>predict</code>.<br>Our LittleTransformer speaks 65 distinct tokens, and each embedding has length 32.<br>The input is a sequence of token IDs.<br>The output is a table of scores, one row per position and one column per token in the vocabulary.</p><pre class="doc-code chat-code-transformer-24" aria-label="`LittleTransformer` with `predict`"><span class="code-var" data-type="float">vocab_size</span> <span class="op">=</span> <span class="num">65</span>
+<span class="code-var" data-type="float">dim</span> <span class="op">=</span> <span class="num">32</span>
+
+<span class="kw">class</span> <span class="type">ModelParams</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>]:
+    ...
+    <span class="code-var" data-type="float">block1</span>: <span class="type">BlockParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="float">dim</span>, <span class="code-var" data-type="int">h</span>]
+    <span class="code-var" data-type="float">block2</span>: <span class="type">BlockParams</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="float">dim</span>, <span class="code-var" data-type="int">h</span>]
+    <span class="code-var" data-type="float">layer_norm</span>: <span class="type">LayerNormParams</span>[<span class="code-var" data-type="float">dim</span>]
+    <span class="code-var" data-type="float">linear</span>: <span class="type">LinearParams</span>[<span class="code-var" data-type="float">vocab_size</span>, <span class="code-var" data-type="float">dim</span>]
+
+<span class="kw">class</span> <span class="type">LittleTransformer</span>(<span class="type">Model</span>):
+    <span class="kw">def</span> <span class="fn">predict</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>](
+        <span class="code-var" data-type="float">indices</span>: <span class="type">Tensor</span>[<span class="type">int</span>][[<span class="code-var" data-type="int">l</span>]],
+        <span class="code-var" data-type="float">p</span>: <span class="type">ModelParams</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>]
+    ) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="float">vocab_size</span>]]:
+        ...
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">block</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="BlockParams[float, n, dim, h]">block1</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">block</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="BlockParams[float, n, dim, h]">block2</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">layer_norm</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LayerNormParams[float, dim]">layer_norm</span>)
+        <span class="code-var" data-type="Tensor[float][[l, vocab_size]]">logits</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, vocab_size]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, vocab_size, dim]">linear</span>)
+        <span class="kw">return</span> <span class="code-var" data-type="float">logits</span>
+    ...</pre></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-26" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">26</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">There is a little gap: the inputs are tokens, but <code>block</code> needs their embeddings.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-27" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">27</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Exactly. The next step is to turn token IDs into embeddings with <code>emb</code>.<br>Each entry in <code>indices</code> points to one row of the embedding table.<br><code>emb</code> gathers the embeddings stored in the corresponding indices.</p><pre class="doc-code chat-code-transformer-26" aria-label="`emb` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">emb</span>[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">v</span>, <span class="code-var" data-type="int">d</span>](
+    <span class="code-var" data-type="float">indices</span>: <span class="type">Tensor</span>[<span class="type">int</span>][[<span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="float">embedding</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">v</span>, <span class="code-var" data-type="int">d</span>]]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">d</span>]]:
+    <span class="kw">return</span> [
+        <span class="code-var" data-type="Tensor[float][[v, d]]">embedding</span>[<span class="code-var" data-type="int">idx</span>]
+        <span class="kw">for</span> <span class="code-var" data-type="int">idx</span> <span class="kw">in</span> <span class="code-var" data-type="Tensor[int][[n]]">indices</span>
+    ]</pre><p class="chat-bubble__text">Next we give two embeddings to <code>predict</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-28" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">28</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Which two?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-29" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">29</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">One for meanings and one for positions. These two embeddings are complementary. Here we simply add them together.</p><pre class="doc-code chat-code-transformer-28" aria-label="`LittleTransformer` with complete `predict`"><span class="kw">class</span> <span class="type">ModelParams</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>]:
+    <span class="code-var" data-type="float">token_emb</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="float">vocab_size</span>, <span class="code-var" data-type="float">dim</span>]]
+    <span class="code-var" data-type="float">position_emb</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="float">dim</span>]]
+    <span class="code-var" data-type="float">block1</span>: <span class="type">BlockParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="float">dim</span>, <span class="code-var" data-type="int">h</span>]
+    <span class="code-var" data-type="float">block2</span>: <span class="type">BlockParams</span>[<span class="type">float</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="float">dim</span>, <span class="code-var" data-type="int">h</span>]
+    <span class="code-var" data-type="float">layer_norm</span>: <span class="type">LayerNormParams</span>[<span class="type">float</span>, <span class="code-var" data-type="float">dim</span>]
+    <span class="code-var" data-type="float">linear</span>: <span class="type">LinearParams</span>[<span class="type">float</span>, <span class="code-var" data-type="float">vocab_size</span>, <span class="code-var" data-type="float">dim</span>]
+
+<span class="kw">class</span> <span class="type">LittleTransformer</span>(<span class="type">Model</span>):
+    <span class="kw">def</span> <span class="fn">predict</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>](
+        <span class="code-var" data-type="float">indices</span>: <span class="type">Tensor</span>[<span class="type">int</span>][[<span class="code-var" data-type="int">l</span>]],
+        <span class="code-var" data-type="float">p</span>: <span class="type">ModelParams</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>]
+    ) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="float">vocab_size</span>]]:
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">token_emb</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">emb</span>(<span class="code-var" data-type="Tensor[int][[l]]">indices</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[vocab_size, dim]]">token_emb</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">position_emb</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">emb</span>(<span class="fn" data-type="Tensor[int][[l]]">iota</span>(<span class="code-var" data-type="int">l</span>), <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[l, dim]]">position_emb</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, dim]]">token_emb</span> <span class="op">+</span> <span class="code-var" data-type="Tensor[float][[l, dim]]">position_emb</span>
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">block</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="BlockParams[float, n, dim, h]">block1</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">block</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="BlockParams[float, n, dim, h]">block2</span>)
+        <span class="code-var" data-type="float">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">layer_norm</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LayerNormParams[float, dim]">layer_norm</span>)
+        <span class="code-var" data-type="Tensor[float][[l, vocab_size]]">logits</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, vocab_size]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, vocab_size, dim]">linear</span>)
+        <span class="kw">return</span> <span class="code-var" data-type="Tensor[float][[l, vocab_size]]">logits</span>
+    ...</pre><p class="chat-bubble__text">Now <code>predict</code> is complete. Let's define <code>loss</code>. What's the type of <code>ys_pred</code>?</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-30" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">30</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text"><code>loss</code> takes in a batch of predictions. So <code>ys_pred</code> should be some <code>Tensor[float][[b, l, vocab_size]]</code>.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-31" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">31</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Right, here's our definition of <code>loss</code>. For each input, <code>ys_pred</code> contains the scores for all tokens, while <code>ys</code> has the index of the correct one. Then <code>cross_entropy</code> tells how wrong the predictions are.</p><pre class="doc-code chat-code-transformer-30" aria-label="`LittleTransformer.loss`"><span class="kw">class</span> <span class="type">LittleTransformer</span>(<span class="type">Model</span>):
+    ...
+    <span class="kw">def</span> <span class="fn">loss</span>[<span class="code-var" data-type="int">b</span>, <span class="code-var" data-type="int">l</span>](
+        <span class="code-var" data-type="float">ys_pred</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">b</span>, <span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="float">vocab_size</span>]],
+        <span class="code-var" data-type="float">ys</span>: <span class="type">Tensor</span>[<span class="type">int</span>][[<span class="code-var" data-type="int">b</span>, <span class="code-var" data-type="int">l</span>]]
+    ) <span class="op">-&gt;</span> <span class="type">float</span>:
+        <span class="code-var" data-type="Tensor[float][[b * l, vocab_size]]">ys_pred</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[b, l, vocab_size]]">ys_pred</span>.<span data-type="Tensor[float][[b * l, vocab_size]]">reshape</span>([<span class="code-var" data-type="int">b</span> <span class="op">*</span> <span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="float">vocab_size</span>])
+        <span class="code-var" data-type="Tensor[int][[b * l]]">ys</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[int][[b, l]]">ys</span>.<span data-type="Tensor[int][[b * l]]">reshape</span>([<span class="code-var" data-type="int">b</span> <span class="op">*</span> <span class="code-var" data-type="int">l</span>])
+        <span class="kw">return</span> <span class="fn" data-type="float">cross_entropy</span>(<span class="code-var" data-type="Tensor[float][[b * l, vocab_size]]">ys_pred</span>, <span class="code-var" data-type="Tensor[int][[b * l]]">ys</span>)
+    ...</pre></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-transformer-32" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">32</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">We have <code>predict</code> and <code>loss</code>. How about <code>update</code>?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-transformer-33" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">33</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">We use our old RMS <code>update</code> to stabilize gradients. Now our LittleTransformer is complete!</p><pre class="doc-code chat-code-transformer-32" aria-label="full `LittleTransformer`"><span class="kw">class</span> <span class="type">LittleTransformer</span>(<span class="type">Model</span>):
+    <span class="kw">def</span> <span class="fn">predict</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>](
+        <span class="code-var" data-type="float">indices</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>]],
+        <span class="code-var" data-type="float">p</span>: <span class="type">ModelParams</span>[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">h</span>]
+    ) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="float">vocab_size</span>]]:
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">token_emb</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">emb</span>(<span class="code-var" data-type="Tensor[int][[l]]">indices</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[vocab_size, dim]]">token_emb</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">position_emb</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">emb</span>(<span class="fn" data-type="Tensor[int][[l]]">iota</span>(<span class="code-var" data-type="int">l</span>), <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="Tensor[float][[l, dim]]">position_emb</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[l, dim]]">token_emb</span> <span class="op">+</span> <span class="code-var" data-type="Tensor[float][[l, dim]]">position_emb</span>
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">block</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="BlockParams[float, n, dim, h]">block1</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">block</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="BlockParams[float, n, dim, h]">block2</span>)
+        <span class="code-var" data-type="Tensor[float][[l, dim]]">x</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, dim]]">layer_norm</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LayerNormParams[float, dim]">layer_norm</span>)
+        <span class="code-var" data-type="Tensor[float][[l, vocab_size]]">logits</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[l, vocab_size]]">linear</span>(<span class="code-var" data-type="Tensor[float][[l, dim]]">x</span>, <span class="code-var" data-type="float">p</span>.<span class="code-var" data-type="LinearParams[float, vocab_size, dim]">linear</span>)
+        <span class="kw">return</span> <span class="code-var" data-type="Tensor[float][[l, vocab_size]]">logits</span>
+
+    <span class="kw">def</span> <span class="fn">loss</span>[<span class="code-var" data-type="int">b</span>, <span class="code-var" data-type="int">l</span>](
+        <span class="code-var" data-type="float">ys_pred</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">b</span>, <span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="float">vocab_size</span>]],
+        <span class="code-var" data-type="float">ys</span>: <span class="type">Tensor</span>[<span class="type">int</span>][[<span class="code-var" data-type="int">b</span>, <span class="code-var" data-type="int">l</span>]]
+    ) <span class="op">-&gt;</span> <span class="type">float</span>:
+        <span class="code-var" data-type="Tensor[float][[b * l, vocab_size]]">ys_pred</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[float][[b, l, vocab_size]]">ys_pred</span>.<span data-type="Tensor[float][[b * l, vocab_size]]">reshape</span>([<span class="code-var" data-type="int">b</span> <span class="op">*</span> <span class="code-var" data-type="int">l</span>, <span class="code-var" data-type="float">vocab_size</span>])
+        <span class="code-var" data-type="Tensor[int][[b * l]]">ys</span> <span class="op">=</span> <span class="code-var" data-type="Tensor[int][[b, l]]">ys</span>.<span data-type="Tensor[int][[b * l]]">reshape</span>([<span class="code-var" data-type="int">b</span> <span class="op">*</span> <span class="code-var" data-type="int">l</span>])
+        <span class="kw">return</span> <span class="fn" data-type="float">cross_entropy</span>(<span class="code-var" data-type="Tensor[float][[b * l, vocab_size]]">ys_pred</span>, <span class="code-var" data-type="Tensor[int][[b * l]]">ys</span>)
+
+    <span class="kw">def</span> <span class="fn">update</span>(
+        <span class="code-var" data-type="float">self</span>: ,
+        <span class="code-var" data-type="float">P</span>: <span class="type">Tuple</span>[<span class="type">float</span>, <span class="type">float</span>, <span class="type">float</span>],
+        <span class="code-var" data-type="float">g</span>: <span class="type">float</span>
+    ) <span class="op">-&gt;</span> <span class="type">Tuple</span>[<span class="type">float</span>, <span class="type">float</span>, <span class="type">float</span>]:
+        <span class="code-var" data-type="float">r</span> <span class="op">=</span> <span class="fn" data-type="float">smooth</span>(<span class="code-var" data-type="float">beta</span>, <span class="code-var" data-type="Tuple[float, float, float]">P</span>[<span class="num">2</span>], <span class="code-var" data-type="float">g</span> <span class="op">**</span> <span class="num">2</span>)
+        <span class="code-var" data-type="float">alpha1</span> <span class="op">=</span> <span class="num">0.01</span> <span class="op">/</span> (<span class="fn" data-type="float">sqrt</span>(<span class="code-var" data-type="float">r</span>) <span class="op">+</span> <span class="code-var" data-type="float">epsilon</span>)
+        <span class="code-var" data-type="float">v</span> <span class="op">=</span> <span class="fn" data-type="float">smooth</span>(<span class="code-var" data-type="float">mu</span>, <span class="code-var" data-type="Tuple[float, float, float]">P</span>[<span class="num">1</span>], <span class="code-var" data-type="float">g</span>)
+        <span class="kw">return</span> (<span class="code-var" data-type="Tuple[float, float, float]">P</span>[<span class="num">0</span>] <span class="op">-</span> (<span class="code-var" data-type="float">alpha1</span> <span class="op">*</span> <span class="code-var" data-type="float">v</span>), <span class="code-var" data-type="float">v</span>, <span class="code-var" data-type="float">r</span>)
+
+    <span class="kw">def</span> <span class="fn">inflate</span>(<span class="code-var" data-type="float">self</span>: , <span class="code-var" data-type="float">p</span>: <span class="type">float</span>) <span class="op">-&gt;</span> <span class="type">Tuple</span>[<span class="type">float</span>, <span class="type">float</span>, <span class="type">float</span>]:
+        <span class="kw">return</span> (<span class="code-var" data-type="float">p</span>, <span class="num">0</span>, <span class="num">0</span>)
+
+    <span class="kw">def</span> <span class="fn">deflate</span>(<span class="code-var" data-type="float">self</span>: , <span class="code-var" data-type="float">P</span>: <span class="type">Tuple</span>[<span class="type">float</span>, <span class="type">float</span>, <span class="type">float</span>]) <span class="op">-&gt;</span> <span class="type">float</span>:
+        <span class="kw">return</span> <span class="code-var" data-type="Tuple[float, float, float]">P</span>[<span class="num">0</span>]</pre></article></div><p class="lesson-chat__intro">* Of course, there are other transformers that are designed to peek into the future.</p><p class="lesson-chat__intro">The code of this chapter is available at <a class="chat-bubble__link" href="https://github.com/pypie-lang/pypie-examples/blob/main/models/transformer.py">PyPie's Github repository</a>.</p></div></section>
+                <nav class="doc-pager" aria-label="Adjacent pages"><a class="doc-pager__link doc-pager__link--prev" href="../cnn/index.html" rel="prev"><span class="doc-pager__label">Previous</span><span class="doc-pager__title">6. CNN</span></a></nav>
             </article>
-            <aside class="keyword-panel doc-keywords" aria-label="Chapter keywords">
-                <h3 class="keyword-panel__title">Keywords</h3>
-                <ul class="keyword-panel__list" data-learn-keywords></ul>
+            <aside class="keyword-panel doc-keywords" aria-label="Page keywords">
+                <h2 class="keyword-panel__title">Keywords</h2>
+                <ul class="keyword-panel__list">
+                    <li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-transformer-3"><code>attention</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-transformer-7"><code>embedding</code></a></li>
+                </ul>
             </aside>
         </div>
     </div>
+    <footer class="site-footer"><div class="site-footer__inner"><a class="brand" href="../../index.html"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/><path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg><span class="brand__name">PyPie</span></a><nav class="site-footer__nav" aria-label="Footer"><a href="../overview/index.html">Tutorial</a><a href="../../manual/guide/index.html">Manual</a><a href="../../installation/index.html">Installation</a><a href="../../updates/5_25_2026/index.html">Updates</a></nav><p class="site-footer__note">Typed tensor programming for Python.</p></div></footer>
     <div class="code-type-tooltip" aria-hidden="true"></div>
+    <script src="../../site-manifest.js"></script>
     <script src="../../top-actions.js"></script>
     <script src="../../code-types.js"></script>
-    <script src="../learn-shared.js"></script>
-    <script src="main.js"></script>
 </body>
 </html>

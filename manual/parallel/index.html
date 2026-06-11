@@ -3,380 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyPie - Manual</title>
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap");
-
-        body {
-            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-            margin: 0;
-            background-color: var(--hero-bg);
-            color: var(--hero-text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        :root {
-            --hero-bg: #343a40;
-            --hero-text: #ffffff;
-            --top-bar-bg: #212529;
-            --btn-text: #f8f9fa;
-            --btn-border: #f8f9fa;
-            --theme-toggle-bg: #fdf6e3;
-            --panel-bg: rgba(255, 255, 255, 0.06);
-            --panel-border: rgba(255, 255, 255, 0.14);
-            --muted-text: rgba(248, 249, 250, 0.72);
-            --link-color: #9ddcff;
-            --section-bg: rgba(255, 255, 255, 0.04);
-            --inline-code-bg: rgba(0, 0, 0, 0.32);
-            --inline-code-border: rgba(255, 255, 255, 0.18);
-            --code-bg: rgba(0, 0, 0, 0.35);
-            --code-border: rgba(255, 255, 255, 0.2);
-            --code-base: rgba(255, 255, 255, 0.88);
-            --code-kw: rgba(255, 219, 92, 0.9);
-            --code-fn: rgba(138, 235, 255, 0.9);
-            --code-type: rgba(255, 167, 227, 0.9);
-            --code-num: rgba(190, 255, 151, 0.9);
-            --code-op: rgba(255, 255, 255, 0.85);
-            --tooltip-bg: rgba(12, 12, 12, 0.9);
-            --tooltip-text: #f8f9fa;
-            --tooltip-border: rgba(255, 255, 255, 0.2);
-        }
-        body.theme-solaris {
-            --hero-bg: #eee8d5;
-            --hero-text: #073642;
-            --top-bar-bg: #e7ddc7;
-            --btn-text: #586e75;
-            --btn-border: #93a1a1;
-            --theme-toggle-bg: #343a40;
-            --panel-bg: rgba(253, 246, 227, 0.75);
-            --panel-border: rgba(147, 161, 161, 0.5);
-            --muted-text: rgba(88, 110, 117, 0.78);
-            --link-color: #268bd2;
-            --section-bg: rgba(253, 246, 227, 0.55);
-            --inline-code-bg: rgba(7, 54, 66, 0.08);
-            --inline-code-border: rgba(147, 161, 161, 0.45);
-            --code-bg: rgba(253, 246, 227, 0.9);
-            --code-border: rgba(147, 161, 161, 0.5);
-            --code-base: rgba(88, 110, 117, 0.95);
-            --code-kw: rgba(181, 137, 0, 0.95);
-            --code-fn: rgba(42, 161, 152, 0.95);
-            --code-type: rgba(108, 113, 196, 0.95);
-            --code-num: rgba(133, 153, 0, 0.95);
-            --code-op: rgba(88, 110, 117, 0.9);
-            --tooltip-bg: rgba(253, 246, 227, 0.95);
-            --tooltip-text: #586e75;
-            --tooltip-border: rgba(147, 161, 161, 0.5);
-        }
-        .top-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            padding: clamp(0.5rem, 2vh, 1rem) 2rem;
-            background-color: var(--top-bar-bg);
-            position: relative;
-        }
-        .top-actions .btn {
-            color: var(--btn-text);
-            text-decoration: none;
-            border: 1px solid var(--btn-border);
-            padding: 0.5rem 1.25rem;
-            border-radius: 4px;
-            font-weight: 600;
-            background: transparent;
-            cursor: pointer;
-            font: inherit;
-        }
-        .theme-toggle {
-            position: absolute;
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            padding: 0;
-            border-radius: 999px;
-            border: 1px solid var(--btn-border);
-            background: var(--theme-toggle-bg);
-            cursor: pointer;
-        }
-        .theme-toggle:focus-visible {
-            outline: 2px solid var(--btn-text);
-            outline-offset: 2px;
-        }
-        .doc-shell {
-            display: grid;
-            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-            gap: clamp(1.5rem, 4vw, 3rem);
-            padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 6vw, 4.5rem) 3.5rem;
-        }
-        .doc-nav {
-            position: sticky;
-            top: 1.5rem;
-            align-self: start;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-left: -0.75rem;
-        }
-        .doc-nav__title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted-text);
-            margin-bottom: 1rem;
-        }
-        .doc-nav a {
-            display: block;
-            color: var(--hero-text);
-            text-decoration: none;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
-        .doc-nav a:hover {
-            color: var(--link-color);
-        }
-        .doc-nav a[aria-current="page"] {
-            color: var(--link-color);
-        }
-        .doc-main {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
-            gap: clamp(1rem, 3vw, 1.75rem);
-            align-items: start;
-        }
-        .doc-content {
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            padding: clamp(1.75rem, 4vw, 3rem);
-            line-height: 1.65;
-        }
-        .doc-eyebrow {
-            margin: 0;
-            color: var(--muted-text);
-            font-size: 0.82rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-        .doc-lead {
-            font-size: clamp(1.02rem, 2vw, 1.28rem);
-            margin: 0;
-            white-space: pre-line;
-        }
-        .manual-intro {
-            margin-top: 1.5rem;
-        }
-        .manual-intro:empty {
-            display: none;
-        }
-        .manual-sections {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(1.75rem, 4vw, 2.4rem);
-            margin-top: clamp(2rem, 5vw, 3rem);
-        }
-        .manual-section {
-            scroll-margin-top: 1.5rem;
-            border-top: 1px solid var(--panel-border);
-            padding-top: clamp(1.35rem, 3vw, 1.8rem);
-        }
-        .manual-section:first-child {
-            border-top: 0;
-            padding-top: 0;
-        }
-        .manual-section__eyebrow {
-            margin: 0 0 0.35rem;
-            font-size: 0.74rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--muted-text);
-        }
-        .manual-section h2 {
-            font-size: clamp(0.95rem, 1.6vw, 1.1rem);
-            margin: 0 0 0.75rem;
-        }
-        .manual-prose {
-            margin: 0;
-        }
-        .manual-prose + .manual-prose {
-            margin-top: 0.8rem;
-        }
-        .manual-link {
-            color: var(--link-color);
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-        .manual-link:focus-visible {
-            outline: 1px solid var(--btn-border);
-            outline-offset: 2px;
-            border-radius: 2px;
-        }
-        .doc-lead code,
-        .manual-prose code {
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.9em;
-            white-space: nowrap;
-            word-break: normal;
-            overflow-wrap: normal;
-            background: var(--inline-code-bg);
-            border: 1px solid var(--inline-code-border);
-            border-radius: 4px;
-            padding: 0.1rem 0.35rem;
-        }
-        .manual-section .doc-code,
-        .manual-fenced-code {
-            margin-top: 1rem;
-        }
-        .manual-fenced-code code {
-            font: inherit;
-            color: inherit;
-        }
-        .keyword-panel {
-            background: var(--section-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 12px;
-            padding: 0.9rem 1rem;
-        }
-        .doc-keywords {
-            align-self: start;
-            position: sticky;
-            top: 1.5rem;
-        }
-        .keyword-panel__title {
-            margin: 0 0 0.55rem;
-            font-size: 0.74rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--muted-text);
-        }
-        .keyword-panel__list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.38rem;
-        }
-        .keyword-panel__item {
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.88rem;
-        }
-        .keyword-panel__item--empty {
-            color: var(--muted-text);
-            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-            font-size: 0.88rem;
-        }
-        .keyword-panel__link {
-            color: inherit;
-            text-decoration: none;
-        }
-        .keyword-panel__link:hover {
-            text-decoration: underline;
-        }
-        .keyword-panel__link:focus-visible {
-            outline: 1px solid var(--btn-border);
-            outline-offset: 2px;
-            border-radius: 3px;
-        }
-        .keyword-panel__item code {
-            font: inherit;
-            color: inherit;
-            background: transparent;
-            border: 0;
-            padding: 0;
-        }
-        .doc-code {
-            background: var(--code-bg);
-            border: 1px solid var(--code-border);
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
-            overflow-x: auto;
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--code-base);
-            white-space: pre;
-        }
-        .doc-code .kw {
-            color: var(--code-kw);
-        }
-        .doc-code .fn {
-            color: var(--code-fn);
-        }
-        .doc-code .type {
-            color: var(--code-type);
-        }
-        .doc-code .num {
-            color: var(--code-num);
-        }
-        .doc-code .op {
-            color: var(--code-op);
-        }
-        .code-type-tooltip {
-            position: fixed;
-            left: 0;
-            top: 0;
-            transform: translate(-50%, -130%);
-            background: var(--tooltip-bg);
-            color: var(--tooltip-text);
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.9rem;
-            padding: 0.25rem 0.5rem;
-            border: 1px solid var(--tooltip-border);
-            border-radius: 4px;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 3;
-            transition: opacity 120ms ease;
-        }
-        @media (max-width: 900px) {
-            .doc-shell {
-                grid-template-columns: 1fr;
-            }
-            .doc-nav {
-                position: static;
-                margin-left: 0;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.75rem 1rem;
-            }
-            .doc-nav a {
-                margin-bottom: 0;
-            }
-            .doc-main {
-                grid-template-columns: 1fr;
-            }
-            .doc-keywords {
-                position: static;
-            }
-        }
-    </style>
+    <title>PyPie - Manual: Parallelism</title>
+    <meta name="description" content="PyPie parallelizes two kinds of ops: mappers and reducers.">
+    <link rel="canonical" href="https://pypie.dev/manual/parallel/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PyPie">
+    <meta property="og:title" content="PyPie - Manual: Parallelism">
+    <meta property="og:description" content="PyPie parallelizes two kinds of ops: mappers and reducers.">
+    <meta property="og:url" content="https://pypie.dev/manual/parallel/">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <script>
+        (() => {
+            try {
+                const theme = localStorage.getItem("pypie.theme");
+                if (theme === "dark" || theme === "light") {
+                    document.documentElement.dataset.theme = theme;
+                } else if (theme === "theme-dark") {
+                    document.documentElement.dataset.theme = "dark";
+                } else if (theme === "theme-solaris") {
+                    document.documentElement.dataset.theme = "light";
+                }
+            } catch {}
+        })();
+    </script>
+    <link rel="stylesheet" href="../../assets/site.css">
 </head>
-<body class="theme-solaris" data-manual-page="parallel">
-    <div data-top-actions></div>
+<body class="doc-page" data-doc-section="manual" data-doc-page="parallel">
+    <div data-top-actions><header class="site-header"><div class="site-header__inner"><a class="brand" href="../../index.html"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/><path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg><span class="brand__name">PyPie</span></a><nav class="site-nav" aria-label="Site"><a href="../../learn/overview/index.html">Tutorial</a><a href="../guide/index.html" aria-current="page">Manual</a><a href="../../installation/index.html">Installation</a><a href="../../updates/5_25_2026/index.html">Updates</a></nav><button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg><svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.6 14.6A8.7 8.7 0 0 1 9.4 3.4 8.9 8.9 0 1 0 20.6 14.6Z"/></svg></button></div></header></div>
     <div class="doc-shell">
-        <aside class="doc-nav" data-manual-nav></aside>
+        <aside class="doc-nav" aria-label="Manual navigation">
+            <div class="doc-nav__title">Manual</div><a href="../guide/index.html">0. The PyPie Guide</a><a href="../tensors_0/index.html">1. Tensor Basics</a><a href="../ops/index.html">2. Ops &amp; Types</a><a href="index.html" aria-current="page">3. Parallelism</a><a href="../built_ins/index.html">4. Built-in Ops</a><a href="../models/index.html">5. Models</a>
+        </aside>
         <div class="doc-main">
             <article class="doc-content" data-code-surface>
-                <header class="doc-header">
-                    <p class="doc-eyebrow" data-manual-eyebrow></p>
-                    <p class="doc-lead" data-manual-lead></p>
-                </header>
-                <div class="manual-intro" data-manual-intro></div>
-                <div class="manual-sections" data-manual-sections></div>
+                <header class="doc-header"><p class="doc-eyebrow">Manual</p><h1>Parallelism</h1><p class="doc-lead">PyPie parallelizes two kinds of ops: mappers and reducers.</p></header><div class="manual-intro"></div><div class="manual-sections"><section id="parallel-mappers-tensor-comprehension" class="manual-section"><h2>Mappers &amp; Tensor Comprehension</h2><p class="manual-prose">When executing an <code>op</code>, PyPie parallelizes <code>[f(x) for x in tensor_x]</code>,<br>or, in the case of multiple tensors, <code>[f(x, y, ...) for (x, y) in zip(tensor_x, tensor_y, ...)]</code>.<br>Tensor comprehension is the most common form of <strong>mapper</strong>s: they map the operator <code>f</code> in parallel to each element in the tensors.</p><p class="manual-prose">Below, the <code>map_get</code> definition shows the zipped form: each <code>(item, idx)</code> pair selects one element from the aligned row in <code>emb</code>. During runtime, <code>item[idx]</code> is mapped in parallel to the outermost dimension of <code>emb</code> and <code>indices</code>.</p><pre class="doc-code manual-code-parallel-0-1" aria-label="Batched get" style="padding-left: 4ch;"><span class="kw">from</span> pypie <span class="kw">import</span> <span class="type">Tensor</span>, <span class="fn">op</span>
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">map_get</span>[<span class="type">T</span>, <span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">m</span>](<span class="code-var" data-type="float">emb</span>: <span class="type">Tensor</span>[<span class="type">T</span>][[<span class="code-var" data-type="int">n</span>, <span class="code-var" data-type="int">m</span>]], <span class="code-var" data-type="int">indices</span>: <span class="type">Tensor</span>[<span class="type">int</span>][[<span class="code-var" data-type="int">n</span>]]) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">T</span>][[<span class="code-var" data-type="int">n</span>]]:
+    <span class="kw">return</span> [<span class="code-var" data-type="float">item</span>[<span class="code-var" data-type="int">idx</span>] <span class="kw">for</span> (<span class="code-var" data-type="float">item</span>, <span class="code-var" data-type="int">idx</span>) <span class="kw">in</span> zip(<span class="code-var" data-type="float">emb</span>, <span class="code-var" data-type="int">indices</span>)]</pre></section><section id="parallel-reducers" class="manual-section"><h2>Reducers</h2><p class="manual-prose">A <strong>reducer</strong> removes some dimensions of a Tensor. E.g.</p><pre class="doc-code manual-fenced-code" data-code-ignore="true" aria-label="Code snippet"><code>print(Tensor([1, 2, 3]).sum(0))
+6</code></pre><p class="manual-prose">sum(0) removes the first dimension, by adding the elements of the first dimension.<br>PyPie parallelizes the reduction of each dimension, which takes O(log n).</p></section><section id="parallel-rank-polymorphism" class="manual-section"><h2>Rank Polymorphism</h2><p class="manual-prose">An <code>op</code> may apply to tensors that exceed its expected ranks.<br>In the above example, <code>map_get</code> expects a rank-2 tensor for <code>emb</code> and a rank-1 tensor for <code>indices</code>. And it may take tensors of larger ranks, like the following.</p><pre class="doc-code manual-fenced-code" data-code-ignore="true" aria-label="Code snippet"><code>batch_emb = Tensor([[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]])
+indices = Tensor([0, 1])
+print(map_get(batch_emb, indices))
+Tensor([[1.0, 5.0], [1.0, 5.0]])</code></pre><p class="manual-prose">Here, PyPie automatically creates a mapper that runs in parallel, effectively like the following.</p><pre class="doc-code manual-fenced-code" data-code-ignore="true" aria-label="Code snippet"><code>[map_getter(x, indices) for x in batch_emb]</code></pre></section></div>
+                <nav class="doc-pager" aria-label="Adjacent pages"><a class="doc-pager__link doc-pager__link--prev" href="../ops/index.html" rel="prev"><span class="doc-pager__label">Previous</span><span class="doc-pager__title">2. Ops &amp; Types</span></a><a class="doc-pager__link doc-pager__link--next" href="../built_ins/index.html" rel="next"><span class="doc-pager__label">Next</span><span class="doc-pager__title">4. Built-in Ops</span></a></nav>
             </article>
-            <aside class="keyword-panel doc-keywords" aria-label="Manual keywords">
-                <h3 class="keyword-panel__title">Keywords</h3>
-                <ul class="keyword-panel__list" data-manual-keywords></ul>
+            <aside class="keyword-panel doc-keywords" aria-label="Page keywords">
+                <h2 class="keyword-panel__title">Keywords</h2>
+                <ul class="keyword-panel__list">
+                    <li class="keyword-panel__item"><a class="keyword-panel__link" href="#parallel-mappers-tensor-comprehension"><code>mapper</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#parallel-reducers"><code>reducer</code></a></li>
+                </ul>
             </aside>
         </div>
     </div>
+    <footer class="site-footer"><div class="site-footer__inner"><a class="brand" href="../../index.html"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/><path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg><span class="brand__name">PyPie</span></a><nav class="site-footer__nav" aria-label="Footer"><a href="../../learn/overview/index.html">Tutorial</a><a href="../guide/index.html">Manual</a><a href="../../installation/index.html">Installation</a><a href="../../updates/5_25_2026/index.html">Updates</a></nav><p class="site-footer__note">Typed tensor programming for Python.</p></div></footer>
     <div class="code-type-tooltip" aria-hidden="true"></div>
+    <script src="../../site-manifest.js"></script>
     <script src="../../top-actions.js"></script>
     <script src="../../code-types.js"></script>
-    <script src="../manual-shared.js"></script>
-    <script src="main.js"></script>
 </body>
 </html>

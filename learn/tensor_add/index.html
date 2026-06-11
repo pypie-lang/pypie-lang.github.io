@@ -3,473 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyPie - Tutorial</title>
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap");
-
-        body {
-            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-            margin: 0;
-            background-color: var(--hero-bg);
-            color: var(--hero-text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        :root {
-            --hero-bg: #343a40;
-            --hero-text: #ffffff;
-            --top-bar-bg: #212529;
-            --btn-text: #f8f9fa;
-            --btn-border: #f8f9fa;
-            --theme-toggle-bg: #fdf6e3;
-            --panel-bg: rgba(255, 255, 255, 0.06);
-            --panel-border: rgba(255, 255, 255, 0.14);
-            --muted-text: rgba(248, 249, 250, 0.72);
-            --link-color: #9ddcff;
-            --chat-left-bg: rgba(255, 255, 255, 0.05);
-            --chat-left-border: rgba(255, 255, 255, 0.22);
-            --chat-right-bg: rgba(157, 220, 255, 0.15);
-            --chat-right-border: rgba(157, 220, 255, 0.48);
-            --chat-speaker: rgba(248, 249, 250, 0.68);
-            --inline-code-bg: rgba(0, 0, 0, 0.32);
-            --inline-code-border: rgba(255, 255, 255, 0.18);
-            --code-bg: rgba(0, 0, 0, 0.35);
-            --code-border: rgba(255, 255, 255, 0.2);
-            --code-base: rgba(255, 255, 255, 0.88);
-            --code-kw: rgba(255, 219, 92, 0.9);
-            --code-fn: rgba(138, 235, 255, 0.9);
-            --code-type: rgba(255, 167, 227, 0.9);
-            --code-num: rgba(190, 255, 151, 0.9);
-            --code-op: rgba(255, 255, 255, 0.85);
-            --tooltip-bg: rgba(12, 12, 12, 0.9);
-            --tooltip-text: #f8f9fa;
-            --tooltip-border: rgba(255, 255, 255, 0.2);
-        }
-        body.theme-solaris {
-            --hero-bg: #eee8d5;
-            --hero-text: #073642;
-            --top-bar-bg: #e7ddc7;
-            --btn-text: #586e75;
-            --btn-border: #93a1a1;
-            --theme-toggle-bg: #343a40;
-            --panel-bg: rgba(253, 246, 227, 0.75);
-            --panel-border: rgba(147, 161, 161, 0.5);
-            --muted-text: rgba(88, 110, 117, 0.78);
-            --link-color: #268bd2;
-            --chat-left-bg: rgba(253, 246, 227, 0.88);
-            --chat-left-border: rgba(147, 161, 161, 0.5);
-            --chat-right-bg: rgba(38, 139, 210, 0.14);
-            --chat-right-border: rgba(38, 139, 210, 0.44);
-            --chat-speaker: rgba(88, 110, 117, 0.72);
-            --inline-code-bg: rgba(7, 54, 66, 0.08);
-            --inline-code-border: rgba(147, 161, 161, 0.45);
-            --code-bg: rgba(253, 246, 227, 0.9);
-            --code-border: rgba(147, 161, 161, 0.5);
-            --code-base: rgba(88, 110, 117, 0.95);
-            --code-kw: rgba(181, 137, 0, 0.95);
-            --code-fn: rgba(42, 161, 152, 0.95);
-            --code-type: rgba(108, 113, 196, 0.95);
-            --code-num: rgba(133, 153, 0, 0.95);
-            --code-op: rgba(88, 110, 117, 0.9);
-            --tooltip-bg: rgba(253, 246, 227, 0.95);
-            --tooltip-text: #586e75;
-            --tooltip-border: rgba(147, 161, 161, 0.5);
-        }
-        .top-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            padding: clamp(0.5rem, 2vh, 1rem) 2rem;
-            background-color: var(--top-bar-bg);
-            position: relative;
-        }
-        .top-actions .btn {
-            color: var(--btn-text);
-            text-decoration: none;
-            border: 1px solid var(--btn-border);
-            padding: 0.5rem 1.25rem;
-            border-radius: 4px;
-            font-weight: 600;
-            background: transparent;
-            cursor: pointer;
-            font: inherit;
-        }
-        .theme-toggle {
-            position: absolute;
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            padding: 0;
-            border-radius: 999px;
-            border: 1px solid var(--btn-border);
-            background: var(--theme-toggle-bg);
-            cursor: pointer;
-        }
-        .theme-toggle:focus-visible {
-            outline: 2px solid var(--btn-text);
-            outline-offset: 2px;
-        }
-        .doc-shell {
-            display: grid;
-            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-            gap: clamp(1.5rem, 4vw, 3rem);
-            padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 6vw, 4.5rem) 3.5rem;
-        }
-        .doc-nav {
-            position: sticky;
-            top: 1.5rem;
-            align-self: start;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-left: -0.75rem;
-        }
-        .doc-nav__title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted-text);
-            margin-bottom: 1rem;
-        }
-        .doc-nav a {
-            display: block;
-            color: var(--hero-text);
-            text-decoration: none;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
-        .doc-nav a:hover {
-            color: var(--link-color);
-        }
-        .doc-nav a[aria-current="page"] {
-            color: var(--link-color);
-        }
-        .doc-content {
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            padding: clamp(1.75rem, 4vw, 3rem);
-            line-height: 1.65;
-        }
-        .doc-main {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
-            gap: clamp(1rem, 3vw, 1.75rem);
-            align-items: start;
-        }
-        .doc-header p {
-            color: var(--muted-text);
-            margin-top: 0;
-        }
-        .doc-header h1 {
-            font-size: clamp(2.5rem, 5vw, 3.6rem);
-            margin: 0.4rem 0 1rem;
-        }
-        .doc-lead {
-            font-size: clamp(1.1rem, 2.2vw, 1.4rem);
-        }
-        section {
-            margin-top: clamp(2rem, 5vw, 3rem);
-            scroll-margin-top: 1.5rem;
-        }
-        section h2 {
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            margin-bottom: 0.75rem;
-        }
-        .lesson-chat__intro {
-            margin: 0 0 1.2rem;
-            color: var(--muted-text);
-        }
-        .keyword-panel {
-            background: var(--chat-left-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 12px;
-            padding: 0.9rem 1rem;
-        }
-        .doc-keywords {
-            align-self: start;
-            position: sticky;
-            top: 1.5rem;
-        }
-        .keyword-panel__title {
-            margin: 0 0 0.55rem;
-            font-size: 0.74rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--muted-text);
-        }
-        .keyword-panel__list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.38rem;
-        }
-        .keyword-panel__item {
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.88rem;
-        }
-        .keyword-panel__item--empty {
-            color: var(--muted-text);
-            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-            font-size: 0.88rem;
-        }
-        .keyword-panel__link {
-            color: inherit;
-            text-decoration: none;
-        }
-        .keyword-panel__link:hover {
-            text-decoration: underline;
-        }
-        .keyword-panel__link:focus-visible {
-            outline: 1px solid var(--btn-border);
-            outline-offset: 2px;
-            border-radius: 3px;
-        }
-        .keyword-panel__item code {
-            font: inherit;
-            color: inherit;
-            background: transparent;
-            border: 0;
-            padding: 0;
-        }
-        .chat-thread {
-            display: flex;
-            flex-direction: column;
-            gap: 0.9rem;
-            width: 100%;
-            max-width: min(72ch, 100%);
-            margin-inline: auto;
-        }
-        .chat-row {
-            display: flex;
-            width: 100%;
-        }
-        .chat-row--left {
-            padding-right: clamp(0.8rem, 3.2vw, 2rem);
-        }
-        .chat-row--right {
-            padding-left: clamp(0.8rem, 3.2vw, 2rem);
-        }
-        .chat-bubble {
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
-            border: 1px solid;
-            border-radius: 10px;
-            padding: clamp(0.9rem, 2.4vw, 1.15rem) clamp(1rem, 2.6vw, 1.3rem);
-            min-height: 6.4rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .chat-bubble__index {
-            position: absolute;
-            top: 0.42rem;
-            right: 0.62rem;
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--chat-speaker);
-            pointer-events: none;
-        }
-        .chat-bubble--left {
-            background: var(--chat-left-bg);
-            border-color: var(--chat-left-border);
-        }
-        .chat-bubble--right {
-            background: var(--chat-right-bg);
-            border-color: var(--chat-right-border);
-        }
-        .chat-bubble--left::before,
-        .chat-bubble--left::after,
-        .chat-bubble--right::before,
-        .chat-bubble--right::after {
-            content: "";
-            position: absolute;
-            top: 1rem;
-            width: 0;
-            height: 0;
-            border-top: 7px solid transparent;
-            border-bottom: 7px solid transparent;
-        }
-        .chat-bubble--left::before {
-            left: -15px;
-            border-right: 8px solid var(--chat-left-border);
-        }
-        .chat-bubble--left::after {
-            left: -13px;
-            border-right: 8px solid var(--chat-left-bg);
-        }
-        .chat-bubble--right::before {
-            right: -15px;
-            border-left: 8px solid var(--chat-right-border);
-        }
-        .chat-bubble--right::after {
-            right: -13px;
-            border-left: 8px solid var(--chat-right-bg);
-        }
-        .chat-bubble__speaker {
-            margin: 0 0 0.35rem;
-            font-size: 0.72rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-weight: 600;
-            color: var(--chat-speaker);
-        }
-        .chat-bubble__text {
-            margin: 0;
-        }
-        .chat-bubble__text + .chat-bubble__text {
-            margin-top: 0.55rem;
-        }
-        .chat-bubble__link {
-            color: var(--link-color);
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-        .chat-bubble__link:focus-visible {
-            outline: 1px solid var(--btn-border);
-            outline-offset: 2px;
-            border-radius: 2px;
-        }
-        .chat-bubble__text code {
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.9em;
-            white-space: nowrap;
-            word-break: normal;
-            overflow-wrap: normal;
-            background: var(--inline-code-bg);
-            border: 1px solid var(--inline-code-border);
-            border-radius: 4px;
-            padding: 0.1rem 0.35rem;
-        }
-        .chat-bubble .doc-code {
-            margin: 0.7rem 0 0;
-            border-radius: 8px;
-        }
-        .chat-bubble__fenced-code {
-            margin: 0.7rem 0 0;
-            border-radius: 8px;
-        }
-        .chat-bubble__fenced-code code {
-            font: inherit;
-            color: inherit;
-        }
-        .chat-bubble__fenced-code + .chat-bubble__text {
-            margin-top: 0.7rem;
-        }
-        .doc-code {
-            background: var(--code-bg);
-            border: 1px solid var(--code-border);
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
-            overflow-x: auto;
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--code-base);
-            white-space: pre;
-        }
-        .doc-code .kw {
-            color: var(--code-kw);
-        }
-        .doc-code .fn {
-            color: var(--code-fn);
-        }
-        .doc-code .type {
-            color: var(--code-type);
-        }
-        .doc-code .num {
-            color: var(--code-num);
-        }
-        .doc-code .op {
-            color: var(--code-op);
-        }
-        .code-type-tooltip {
-            position: fixed;
-            left: 0;
-            top: 0;
-            transform: translate(-50%, -130%);
-            background: var(--tooltip-bg);
-            color: var(--tooltip-text);
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.9rem;
-            padding: 0.25rem 0.5rem;
-            border: 1px solid var(--tooltip-border);
-            border-radius: 4px;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 3;
-            transition: opacity 120ms ease;
-        }
-        @media (max-width: 900px) {
-            .doc-shell {
-                grid-template-columns: 1fr;
-            }
-            .doc-nav {
-                position: static;
-                margin-left: 0;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.75rem 1rem;
-            }
-            .doc-nav a {
-                margin-bottom: 0;
-            }
-            .doc-main {
-                grid-template-columns: 1fr;
-            }
-            .doc-keywords {
-                position: static;
-            }
-        }
-        @media (max-width: 640px) {
-            .chat-row--left,
-            .chat-row--right {
-                padding-left: 0;
-                padding-right: 0;
-            }
-            .chat-bubble {
-                width: 100%;
-                min-height: 5.4rem;
-            }
-        }
-    </style>
+    <title>PyPie - Tutorial: One Function, Many Ranks</title>
+    <meta name="description" content="Let&#39;s run programs with Tensors. Quick warm-up: what is 1 + 1?">
+    <link rel="canonical" href="https://pypie.dev/learn/tensor_add/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PyPie">
+    <meta property="og:title" content="PyPie - Tutorial: One Function, Many Ranks">
+    <meta property="og:description" content="Let&#39;s run programs with Tensors. Quick warm-up: what is 1 + 1?">
+    <meta property="og:url" content="https://pypie.dev/learn/tensor_add/">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <script>
+        (() => {
+            try {
+                const theme = localStorage.getItem("pypie.theme");
+                if (theme === "dark" || theme === "light") {
+                    document.documentElement.dataset.theme = theme;
+                } else if (theme === "theme-dark") {
+                    document.documentElement.dataset.theme = "dark";
+                } else if (theme === "theme-solaris") {
+                    document.documentElement.dataset.theme = "light";
+                }
+            } catch {}
+        })();
+    </script>
+    <link rel="stylesheet" href="../../assets/site.css">
 </head>
-<body class="theme-solaris" data-learn-page="tensor_add">
-    <div data-top-actions></div>
+<body class="doc-page" data-doc-section="learn" data-doc-page="tensor_add">
+    <div data-top-actions><header class="site-header"><div class="site-header__inner"><a class="brand" href="../../index.html"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/><path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg><span class="brand__name">PyPie</span></a><nav class="site-nav" aria-label="Site"><a href="../overview/index.html" aria-current="page">Tutorial</a><a href="../../manual/guide/index.html">Manual</a><a href="../../installation/index.html">Installation</a><a href="../../updates/5_25_2026/index.html">Updates</a></nav><button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg><svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.6 14.6A8.7 8.7 0 0 1 9.4 3.4 8.9 8.9 0 1 0 20.6 14.6Z"/></svg></button></div></header></div>
     <div class="doc-shell">
-        <aside class="doc-nav" data-learn-nav></aside>
+        <aside class="doc-nav" aria-label="Tutorial navigation">
+            <div class="doc-nav__title">Tutorial</div><a href="../overview/index.html">0. Prelude</a><a href="../types/index.html">1. Types, Shapes &amp; Tensors</a><a href="index.html" aria-current="page">2. One Function, Many Ranks</a><a href="../forward_line/index.html">3. A Forward Line</a><a href="../model_line/index.html">4. The Complete Line</a><a href="../corr/index.html">5. Finding Patterns</a><a href="../cnn/index.html">6. CNN</a><a href="../transformer/index.html">7. The Transformer</a>
+        </aside>
         <div class="doc-main">
             <article class="doc-content" data-code-surface>
-                <header class="doc-header">
-                    <p class="doc-eyebrow" data-learn-eyebrow></p>
-                    <h1 data-learn-title></h1>
-                    <p class="doc-lead" data-learn-lead></p>
-                </header>
-
-                <section class="lesson-chat" data-learn-section>
-                    <h2 data-learn-section-title></h2>
-                    <p class="lesson-chat__intro" data-learn-section-body></p>
-                    <div class="chat-thread" data-learn-dialog></div>
-                </section>
+                <header class="doc-header"><p class="doc-eyebrow">Tutorial</p><h1>One Function, Many Ranks</h1></header><section class="lesson-chat"><div class="chat-thread"><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-1" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">1</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Let's run programs with <code>Tensor</code>s.<br>Quick warm-up: what is <code>1 + 1</code>?</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-2" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">2</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text"><code>2</code>. But are those even <code>Tensor</code>s?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-3" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">3</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Yes, <code>1</code> has type <code>Tensor[int][[]]</code>.<br>Try this next: <code>Tensor([1]) + Tensor([1])</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-4" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">4</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Hmm... if we break them into smaller tensors, then at the matching position, we have <code>1 + 1</code> again--a problem we've already solved.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-5" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">5</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Great instinct. Indeed, we add the matching positions.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-6" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">6</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Then it is <code>Tensor([2])</code>, right?<br>Likewise, <code>Tensor([1, 2, 3]) + Tensor([5, 7, 9])</code> gives <code>Tensor([6, 9, 12])</code>.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-7" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">7</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">What about <code>Tensor([[1, 2, 3], [3, 2, 1]]) + Tensor([5, 7, 9])</code>?</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-8" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">8</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Wait, their types are different: <code>Tensor[int][[2, 3]]</code> and <code>Tensor[int][[3]]</code>.<br>Can we add <code>Tensor</code>s with different types?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-9" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">9</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">For this one, yes. A <code>Tensor[int][[2, 3]]</code> contains two <code>Tensor[int][[3]]</code>s.<br>So we run <code>+</code> twice. Each still adds matching positions.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-10" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">10</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Right.<br>First: <code>Tensor([1, 2, 3]) + Tensor([5, 7, 9])</code>.<br>Second: <code>Tensor([3, 2, 1]) + Tensor([5, 7, 9])</code>.<br>Then we combine the results as <code>Tensor([[6, 9, 12], [8, 9, 10]])</code>?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-11" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">11</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">What is the result type?</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-12" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">12</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">The result is <code>Tensor[int][[2, 3]]</code>, the same as the larger input shape.<br>It's a nice trick to split the larger <code>Tensor</code>!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-13" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">13</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">The trick is called rank polymorphism.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-14" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">14</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">An intimidating name!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-15" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">15</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">It's actually warmer and fuzzier than it looks. Here, <strong>rank</strong> is just the length of the shape.<br><code>Tensor[int][[3]]</code> has rank <code>1</code>, and <code>Tensor[int][[2, 3]]</code> has rank <code>2</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-16" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">16</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Then <code>42</code> has type <code>Tensor[int][[]]</code>, so rank <code>0</code>?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-17" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">17</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Yes.<br>When we design a function, we define its expected types for inputs and result.<br>Rank polymorphism lets us apply that function to higher-rank inputs when they are compatible, and it wraps the result type accordingly.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-18" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">18</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">So one function works across different input ranks.<br>Is <code>+</code> a <strong>function</strong>?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-19" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">19</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text"><code>+</code> is a function. Just like<br><code>5</code> has type <code>Tensor[int][[]]</code>,<br><code>+</code> has type <code>(x: Tensor[int][[]], y: Tensor[int][[]]) -&gt; Tensor[int][[]]</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-20" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">20</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">This function type suggests three things:<br><code>+</code> expects two inputs, <code>x</code> and <code>y</code>.<br><code>x</code> is <code>Tensor[int][[]]</code>, and so is <code>y</code>.<br>The result is also a <code>Tensor[int][[]]</code>.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-21" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">21</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Now imagine applying <code>+</code> with <code>1</code> as <code>x</code> and <code>1</code> as <code>y</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-22" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">22</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text"><code>1</code> is <code>Tensor[int][[]]</code>, so both inputs match exactly.<br>Therefore <code>1 + 1</code> has result type <code>Tensor[int][[]]</code>, which is the type of <code>2</code>.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-23" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">23</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Next: <code>Tensor([[1, 2, 3], [3, 2, 1]]) + Tensor([5, 7, 9])</code>. In the earlier exercise, we virtually ran the program and found <code>Tensor[int][[2, 3]]</code> by looking at the result value.<br>Now we derive the result type, without running the program.<br>Let's start by validating the inputs.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-24" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">24</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Here, <code>x</code> has type <code>Tensor[int][[2, 3]]</code> and <code>y</code> has type <code>Tensor[int][[3]]</code>.<br>Neither exactly matches the expected <code>Tensor[int][[]]</code>.<br>But they must be compatible, since we added them just now!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-25" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">25</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">We need a rule for the compatibility between <code>List[int]</code>s.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-26" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">26</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Let's see it!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-27" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">27</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Two <code>List[int]</code>s are <strong>compatible</strong>, if we line them up from the right and find a <strong>suffix</strong> in the longer one that matches the shorter.* The remaining part in the longer list is called the <strong>prefix</strong>.<br>Find the suffix and prefix for <code>x</code> and <code>y</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-28" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">28</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">For <code>x</code>, compare <code>[2, 3]</code> with <code>[]</code>: suffix <code>[]</code>, prefix <code>[2, 3]</code>.<br>For <code>y</code>, compare <code>[3]</code> with <code>[]</code>: suffix <code>[]</code>, prefix <code>[3]</code>.<br>That means: each given input is compatible with its expected type!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-29" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">29</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Great. Next, validate compatibility between the two prefixes.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-30" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">30</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Does compatibility also work on prefixes?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-31" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">31</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Yes. Compatibility applies to <code>List[int]</code>s. Prefixes are <code>List[int]</code>s too.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-32" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">32</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">So we compare <code>[2, 3]</code> with <code>[3]</code>.<br>The suffix is <code>[3]</code> and the prefix is <code>[2]</code>.<br>That means the prefixes from the inputs are also compatible.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-33" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">33</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Good progress! So far:<br>for each input, the given type is compatible with the expected type;<br>the two prefixes from the inputs are compatible with one another.<br>So <code>Tensor[int][[2, 3]]</code> and <code>Tensor[int][[3]]</code> are valid inputs for <code>x</code> and <code>y</code> in <code>+</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-34" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">34</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Nice. What's our next step?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-35" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">35</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Now we wrap the result type. Under rank polymorphism, we repeatedly apply <code>+</code> to generate many <code>Tensor[int][[]]</code>s.<br>The number of repetitions depends on the longer prefix.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-36" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">36</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Got it. The longer prefix is <code>[2, 3]</code>, so we wrap <code>Tensor[int][[]]</code> with <code>[2, 3]</code>. That makes <code>Tensor[Tensor[int][[]]][[2, 3]]</code>, which simplifies to <code>Tensor[int][[2, 3]]</code>.<br>Exactly the same as running the program!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-37" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">37</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Great work!<br>Try a few failing examples too: cases where a given type is incompatible with an expected type, or where the prefixes are incompatible.<br>It helps to internalize this trick.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-38" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">38</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Will do.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-39" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">39</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Let's recap <strong>rank polymorphism</strong>:<br>for each input, validate compatibility between the given and expected types, find the prefixes;<br>validate compatibility between those prefixes;<br>wrap the result type with the longer prefix.<br>This process applies to all functions.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-40" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">40</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Are there other functions besides <code>+</code>?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-tensor_add-41" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">41</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Yes, you can define as many as you need. We'll cover that in the next chapter.<br>Time for a break!</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-tensor_add-42" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">42</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Okay, ciao!</p></article></div><p class="lesson-chat__intro">* We match the <code>int</code>s in two <code>List[int]</code>s in matching positions, from the right end. Two <code>int</code>s  match, if they are identical, or if either of them is <code>1</code>.</p></div></section>
+                <nav class="doc-pager" aria-label="Adjacent pages"><a class="doc-pager__link doc-pager__link--prev" href="../types/index.html" rel="prev"><span class="doc-pager__label">Previous</span><span class="doc-pager__title">1. Types, Shapes &amp; Tensors</span></a><a class="doc-pager__link doc-pager__link--next" href="../forward_line/index.html" rel="next"><span class="doc-pager__label">Next</span><span class="doc-pager__title">3. A Forward Line</span></a></nav>
             </article>
-            <aside class="keyword-panel doc-keywords" aria-label="Chapter keywords">
-                <h3 class="keyword-panel__title">Keywords</h3>
-                <ul class="keyword-panel__list" data-learn-keywords></ul>
+            <aside class="keyword-panel doc-keywords" aria-label="Page keywords">
+                <h2 class="keyword-panel__title">Keywords</h2>
+                <ul class="keyword-panel__list">
+                    <li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-tensor_add-27"><code>compatible</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-tensor_add-18"><code>function</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-tensor_add-27"><code>prefix</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-tensor_add-15"><code>rank</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-tensor_add-39"><code>rank polymorphism</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-tensor_add-27"><code>suffix</code></a></li>
+                </ul>
             </aside>
         </div>
     </div>
+    <footer class="site-footer"><div class="site-footer__inner"><a class="brand" href="../../index.html"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/><path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg><span class="brand__name">PyPie</span></a><nav class="site-footer__nav" aria-label="Footer"><a href="../overview/index.html">Tutorial</a><a href="../../manual/guide/index.html">Manual</a><a href="../../installation/index.html">Installation</a><a href="../../updates/5_25_2026/index.html">Updates</a></nav><p class="site-footer__note">Typed tensor programming for Python.</p></div></footer>
     <div class="code-type-tooltip" aria-hidden="true"></div>
+    <script src="../../site-manifest.js"></script>
     <script src="../../top-actions.js"></script>
     <script src="../../code-types.js"></script>
-    <script src="../learn-shared.js"></script>
-    <script src="main.js"></script>
 </body>
 </html>

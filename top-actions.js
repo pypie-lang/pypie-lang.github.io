@@ -1,22 +1,23 @@
 (() => {
     const THEME_STORAGE_KEY = "pypie.theme";
-    const THEME_QUERY_PARAM = "theme";
-    const THEME_CHANGE_EVENT = "pypie:theme-change";
-    const DEFAULT_THEME = "theme-solaris";
-    const isThemeName = (value) => value === "theme-dark" || value === "theme-solaris";
-    const readThemeFromQuery = () => {
-        try {
-            const theme = new URL(window.location.href).searchParams.get(THEME_QUERY_PARAM);
-            return isThemeName(theme) ? theme : null;
+    const root = document.documentElement;
+    const siteWindow = window;
+    const isThemeName = (value) => value === "light" || value === "dark";
+    const normalizeStoredTheme = (value) => {
+        if (isThemeName(value)) {
+            return value;
         }
-        catch {
-            return null;
+        if (value === "theme-dark") {
+            return "dark";
         }
+        if (value === "theme-solaris") {
+            return "light";
+        }
+        return null;
     };
     const readStoredTheme = () => {
         try {
-            const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-            return isThemeName(stored) ? stored : null;
+            return normalizeStoredTheme(window.localStorage.getItem(THEME_STORAGE_KEY));
         }
         catch {
             return null;
@@ -27,8 +28,13 @@
             window.localStorage.setItem(THEME_STORAGE_KEY, theme);
         }
         catch {
-            // Ignore storage failures (private mode, quotas, etc.).
+            // Ignore storage failures.
         }
+    };
+    const systemTheme = () => window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    const activeTheme = () => {
+        const explicitTheme = normalizeStoredTheme(root.dataset.theme);
+        return explicitTheme || readStoredTheme() || systemTheme();
     };
     const getRootUrl = () => {
         const currentScript = document.currentScript;
@@ -39,88 +45,65 @@
     };
     const rootUrl = getRootUrl();
     const withRoot = (href) => new URL(href, rootUrl).href;
-    const withThemeParam = (href, theme) => {
-        const themedUrl = new URL(href, rootUrl);
-        themedUrl.searchParams.set(THEME_QUERY_PARAM, theme);
-        return themedUrl.href;
-    };
-    const syncLocationTheme = (theme) => {
-        try {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set(THEME_QUERY_PARAM, theme);
-            window.history.replaceState(window.history.state, "", `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+    const escapeHtml = (value) => String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    const BRAND_MARK_SVG = '<svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true">' +
+        '<path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/>' +
+        '<path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg>';
+    const THEME_TOGGLE_ICONS = '<svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">' +
+        '<circle cx="12" cy="12" r="4.4"/>' +
+        '<path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg>' +
+        '<svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+        '<path d="M20.6 14.6A8.7 8.7 0 0 1 9.4 3.4 8.9 8.9 0 1 0 20.6 14.6Z"/></svg>';
+    const renderTopActions = (container) => {
+        const existingToggle = container.querySelector(".theme-toggle");
+        if (existingToggle) {
+            return existingToggle;
         }
-        catch {
-            // Ignore URL synchronization failures.
-        }
-    };
-    const links = [
-        { href: withRoot("learn/overview/index.html"), label: "Tutorial" },
-        { href: withRoot("manual/guide/index.html"), label: "Manual" },
-        { href: withRoot("installation/index.html"), label: "Installation" },
-        { href: withRoot("updates/5_25_2026/index.html"), label: "Updates" },
-    ];
-    const homeLink = withRoot("index.html");
-    const syncTopActionLinks = (theme) => {
-        const topActionLinks = document.querySelectorAll('[data-top-actions] a[data-theme-link="true"]');
-        topActionLinks.forEach((link) => {
-            const baseHref = link.dataset.baseHref;
-            if (!baseHref) {
-                return;
-            }
-            link.href = withThemeParam(baseHref, theme);
-        });
-    };
-    const renderTopActions = (theme) => {
-        const container = document.querySelector("[data-top-actions]");
-        if (!container) {
-            return null;
-        }
-        const linksMarkup = links
-            .map((link) => `<a class="btn" data-theme-link="true" data-base-href="${link.href}" href="${withThemeParam(link.href, theme)}">${link.label}</a>`)
+        const manifest = siteWindow.PYPIE_SITE || {};
+        const nav = Array.isArray(manifest.nav) ? manifest.nav : [];
+        const homeHref = withRoot(manifest.home || "index.html");
+        const linksMarkup = nav
+            .map((link) => `<a href="${escapeHtml(withRoot(link.href))}">${escapeHtml(link.label)}</a>`)
             .join("");
-        container.innerHTML = `
-        <div class="top-actions">
-            <a class="home-link"
-               style="position:absolute;left:2rem;top:50%;transform:translateY(-50%);text-decoration:none;font-size:1.25rem;line-height:1;color:var(--btn-text);"
-               data-theme-link="true"
-               data-base-href="${homeLink}"
-               href="${withThemeParam(homeLink, theme)}" aria-label="Home" title="Home">&#8962;</a>
-            ${linksMarkup}
-            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="To the light side!" title="To the light side!"></button>
-        </div>
-    `.trim();
-        return container.querySelector("#theme-toggle");
+        container.innerHTML =
+            `<header class="site-header"><div class="site-header__inner">` +
+                `<a class="brand" href="${escapeHtml(homeHref)}">${BRAND_MARK_SVG}<span class="brand__name">${escapeHtml(manifest.title || "PyPie")}</span></a>` +
+                `<nav class="site-nav" aria-label="Site">${linksMarkup}</nav>` +
+                `<button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme">${THEME_TOGGLE_ICONS}</button>` +
+                `</div></header>`;
+        return container.querySelector(".theme-toggle");
     };
-    const notifyThemeChange = (theme) => {
-        window.dispatchEvent(new CustomEvent(THEME_CHANGE_EVENT, {
-            detail: { theme },
-        }));
+    const setTheme = (theme) => {
+        root.dataset.theme = theme;
+        writeStoredTheme(theme);
     };
-    const initialTheme = readThemeFromQuery() || readStoredTheme() || DEFAULT_THEME;
-    const themeToggle = renderTopActions(initialTheme);
-    const root = document.body;
-    if (!root) {
+    const syncToggleLabel = (toggle, theme) => {
+        const nextTheme = theme === "dark" ? "light" : "dark";
+        const label = `Switch to ${nextTheme} theme`;
+        toggle.setAttribute("aria-label", label);
+        toggle.setAttribute("title", label);
+    };
+    const container = document.querySelector("[data-top-actions]");
+    if (!container) {
         return;
     }
-    const setTheme = (name) => {
-        root.classList.remove("theme-dark", "theme-solaris");
-        root.classList.add(name);
-        writeStoredTheme(name);
-        syncLocationTheme(name);
-        syncTopActionLinks(name);
-        notifyThemeChange(name);
-        if (themeToggle) {
-            const label = name === "theme-solaris" ? "To the dark side!" : "To the light side!";
-            themeToggle.setAttribute("aria-label", label);
-            themeToggle.setAttribute("title", label);
-        }
-    };
-    if (themeToggle) {
-        themeToggle.addEventListener("click", () => {
-            const isSolaris = root.classList.contains("theme-solaris");
-            setTheme(isSolaris ? "theme-dark" : "theme-solaris");
-        });
+    const themeToggle = renderTopActions(container);
+    const explicitInitialTheme = normalizeStoredTheme(root.dataset.theme) || readStoredTheme();
+    if (explicitInitialTheme) {
+        setTheme(explicitInitialTheme);
     }
-    setTheme(initialTheme);
+    const initialTheme = activeTheme();
+    if (!themeToggle) {
+        return;
+    }
+    syncToggleLabel(themeToggle, initialTheme);
+    themeToggle.addEventListener("click", () => {
+        const nextTheme = activeTheme() === "dark" ? "light" : "dark";
+        setTheme(nextTheme);
+        syncToggleLabel(themeToggle, nextTheme);
+    });
 })();

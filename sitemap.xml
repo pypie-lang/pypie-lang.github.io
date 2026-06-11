@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url><loc>https://pypie.dev/</loc></url>
+    <url><loc>https://pypie.dev/learn/overview/</loc></url>
+    <url><loc>https://pypie.dev/learn/types/</loc></url>
+    <url><loc>https://pypie.dev/learn/tensor_add/</loc></url>
+    <url><loc>https://pypie.dev/learn/forward_line/</loc></url>
+    <url><loc>https://pypie.dev/learn/model_line/</loc></url>
+    <url><loc>https://pypie.dev/learn/corr/</loc></url>
+    <url><loc>https://pypie.dev/learn/cnn/</loc></url>
+    <url><loc>https://pypie.dev/learn/transformer/</loc></url>
+    <url><loc>https://pypie.dev/manual/guide/</loc></url>
+    <url><loc>https://pypie.dev/manual/tensors_0/</loc></url>
+    <url><loc>https://pypie.dev/manual/ops/</loc></url>
+    <url><loc>https://pypie.dev/manual/parallel/</loc></url>
+    <url><loc>https://pypie.dev/manual/built_ins/</loc></url>
+    <url><loc>https://pypie.dev/manual/models/</loc></url>
+    <url><loc>https://pypie.dev/installation/</loc></url>
+    <url><loc>https://pypie.dev/updates/5_25_2026/</loc></url>
+</urlset>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>__DOC_TITLE__</title>
+    <meta name="description" content="__DOC_DESCRIPTION__">
+    <link rel="canonical" href="__CANONICAL_URL__">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PyPie">
+    <meta property="og:title" content="__DOC_TITLE__">
+    <meta property="og:description" content="__DOC_DESCRIPTION__">
+    <meta property="og:url" content="__CANONICAL_URL__">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/svg+xml" href="__ASSET_ROOT__assets/favicon.svg">
+    <script>
+        (() => {
+            try {
+                const theme = localStorage.getItem("pypie.theme");
+                if (theme === "dark" || theme === "light") {
+                    document.documentElement.dataset.theme = theme;
+                } else if (theme === "theme-dark") {
+                    document.documentElement.dataset.theme = "dark";
+                } else if (theme === "theme-solaris") {
+                    document.documentElement.dataset.theme = "light";
+                }
+            } catch {}
+        })();
+    </script>
+    <link rel="stylesheet" href="__ASSET_ROOT__assets/site.css">
+</head>
+<body class="doc-page" data-doc-section="__DOC_SECTION__" data-doc-page="__DOC_PAGE__">
+    <div data-top-actions>__TOP_ACTIONS__</div>
+    <div class="doc-shell">
+        <aside class="doc-nav" aria-label="__SECTION_TITLE__ navigation">
+            __DOC_NAV__
+        </aside>
+        <div class="doc-main">
+            <article class="doc-content" data-code-surface>
+                __DOC_ARTICLE__
+                __DOC_PAGER__
+            </article>
+            <aside class="keyword-panel doc-keywords" aria-label="Page keywords"__KEYWORDS_HIDDEN__>
+                <h2 class="keyword-panel__title">Keywords</h2>
+                <ul class="keyword-panel__list">
+                    __KEYWORDS__
+                </ul>
+            </aside>
+        </div>
+    </div>
+    __SITE_FOOTER__
+    <div class="code-type-tooltip" aria-hidden="true"></div>
+    <script src="__ASSET_ROOT__site-manifest.js"></script>
+    <script src="__ASSET_ROOT__top-actions.js"></script>
+    <script src="__ASSET_ROOT__code-types.js"></script>
+</body>
+</html>

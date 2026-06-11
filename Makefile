@@ -8,9 +8,6 @@ PLAYGROUND_TS := playground/main.ts playground/pyodide-worker.ts
 TS_SOURCES := \
 	code-types.ts \
 	top-actions.ts \
-	learn/learn-shared.ts \
-	manual/manual-shared.ts \
-	updates/manual-shared.ts \
 	$(LEARN_MAIN_TS) \
 	$(MANUAL_MAIN_TS) \
 	$(INSTALLATION_MAIN_TS) \
@@ -20,25 +17,18 @@ TS_SOURCES := \
 GENERATED_JS := \
 	code-types.js \
 	top-actions.js \
-	learn/learn-shared.js \
-	manual/manual-shared.js \
-	updates/manual-shared.js \
 	$(LEARN_MAIN_TS:.ts=.js) \
 	$(MANUAL_MAIN_TS:.ts=.js) \
 	$(INSTALLATION_MAIN_TS:.ts=.js) \
 	$(UPDATES_MAIN_TS:.ts=.js) \
 	$(DEVELOPER_NOTES_MAIN_TS:.ts=.js)
 
-CLEAN_FILES := $(GENERATED_JS) *.tsbuildinfo
+CLEAN_FILES := $(GENERATED_JS) site-manifest.js sitemap.xml robots.txt *.tsbuildinfo
 
-LEARN_TEMPLATE := learn/chapter-template.html
-LEARN_TEMPLATE_GENERATOR := learn/generate-chapter-indexes.js
-MANUAL_TEMPLATE := manual/chapter-template.html
-MANUAL_TEMPLATE_GENERATOR := manual/generate-chapter-indexes.js
-INSTALLATION_TEMPLATE := manual/chapter-template.html
-INSTALLATION_TEMPLATE_GENERATOR := installation/generate-index.js
-UPDATES_TEMPLATE := updates/chapter-template.html
-UPDATES_TEMPLATE_GENERATOR := updates/generate-chapter-indexes.js
+SITE_CONFIG := site.config.js
+SITE_TEMPLATE := templates/doc-page.html
+SITE_GENERATOR := scripts/generate-site.js
+SITE_CSS := assets/site.css
 
 TSC_BIN := node_modules/.bin/tsc
 TSC := $(TSC_BIN)
@@ -47,9 +37,9 @@ ESBUILD_BIN := node_modules/.bin/esbuild
 ESBUILD := $(ESBUILD_BIN)
 ESBUILD_FLAGS := --bundle --format=iife --target=es2020 --outdir=playground/dist --entry-names=[name] --chunk-names=chunks/[name] --asset-names=assets/[name]
 
-.PHONY: build compile-ts build-playground generate-learn-html generate-manual-html generate-installation-html generate-updates-html generate-developer-notes-html deps clean
+.PHONY: build compile-ts build-playground generate-site-html deps clean
 
-build: generate-learn-html generate-manual-html generate-installation-html generate-updates-html generate-developer-notes-html compile-ts build-playground
+build: compile-ts generate-site-html build-playground
 
 compile-ts: $(TSC_BIN)
 	$(TSC) $(TSC_FLAGS) $(TS_SOURCES)
@@ -57,17 +47,8 @@ compile-ts: $(TSC_BIN)
 build-playground: $(ESBUILD_BIN) $(PLAYGROUND_TS)
 	$(ESBUILD) $(PLAYGROUND_TS) $(ESBUILD_FLAGS)
 
-generate-learn-html: $(LEARN_TEMPLATE_GENERATOR) $(LEARN_TEMPLATE)
-	node $(LEARN_TEMPLATE_GENERATOR)
-
-generate-manual-html: $(MANUAL_TEMPLATE_GENERATOR) $(MANUAL_TEMPLATE)
-	node $(MANUAL_TEMPLATE_GENERATOR)
-
-generate-installation-html: $(INSTALLATION_TEMPLATE_GENERATOR) $(INSTALLATION_TEMPLATE)
-	node $(INSTALLATION_TEMPLATE_GENERATOR)
-
-generate-updates-html: $(UPDATES_TEMPLATE_GENERATOR) $(UPDATES_TEMPLATE)
-	node $(UPDATES_TEMPLATE_GENERATOR)
+generate-site-html: compile-ts $(SITE_GENERATOR) $(SITE_TEMPLATE) $(SITE_CONFIG) $(SITE_CSS)
+	node $(SITE_GENERATOR)
 
 deps: $(TSC_BIN) $(ESBUILD_BIN)
 

@@ -3,473 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyPie - Tutorial</title>
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap");
-
-        body {
-            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-            margin: 0;
-            background-color: var(--hero-bg);
-            color: var(--hero-text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        :root {
-            --hero-bg: #343a40;
-            --hero-text: #ffffff;
-            --top-bar-bg: #212529;
-            --btn-text: #f8f9fa;
-            --btn-border: #f8f9fa;
-            --theme-toggle-bg: #fdf6e3;
-            --panel-bg: rgba(255, 255, 255, 0.06);
-            --panel-border: rgba(255, 255, 255, 0.14);
-            --muted-text: rgba(248, 249, 250, 0.72);
-            --link-color: #9ddcff;
-            --chat-left-bg: rgba(255, 255, 255, 0.05);
-            --chat-left-border: rgba(255, 255, 255, 0.22);
-            --chat-right-bg: rgba(157, 220, 255, 0.15);
-            --chat-right-border: rgba(157, 220, 255, 0.48);
-            --chat-speaker: rgba(248, 249, 250, 0.68);
-            --inline-code-bg: rgba(0, 0, 0, 0.32);
-            --inline-code-border: rgba(255, 255, 255, 0.18);
-            --code-bg: rgba(0, 0, 0, 0.35);
-            --code-border: rgba(255, 255, 255, 0.2);
-            --code-base: rgba(255, 255, 255, 0.88);
-            --code-kw: rgba(255, 219, 92, 0.9);
-            --code-fn: rgba(138, 235, 255, 0.9);
-            --code-type: rgba(255, 167, 227, 0.9);
-            --code-num: rgba(190, 255, 151, 0.9);
-            --code-op: rgba(255, 255, 255, 0.85);
-            --tooltip-bg: rgba(12, 12, 12, 0.9);
-            --tooltip-text: #f8f9fa;
-            --tooltip-border: rgba(255, 255, 255, 0.2);
-        }
-        body.theme-solaris {
-            --hero-bg: #eee8d5;
-            --hero-text: #073642;
-            --top-bar-bg: #e7ddc7;
-            --btn-text: #586e75;
-            --btn-border: #93a1a1;
-            --theme-toggle-bg: #343a40;
-            --panel-bg: rgba(253, 246, 227, 0.75);
-            --panel-border: rgba(147, 161, 161, 0.5);
-            --muted-text: rgba(88, 110, 117, 0.78);
-            --link-color: #268bd2;
-            --chat-left-bg: rgba(253, 246, 227, 0.88);
-            --chat-left-border: rgba(147, 161, 161, 0.5);
-            --chat-right-bg: rgba(38, 139, 210, 0.14);
-            --chat-right-border: rgba(38, 139, 210, 0.44);
-            --chat-speaker: rgba(88, 110, 117, 0.72);
-            --inline-code-bg: rgba(7, 54, 66, 0.08);
-            --inline-code-border: rgba(147, 161, 161, 0.45);
-            --code-bg: rgba(253, 246, 227, 0.9);
-            --code-border: rgba(147, 161, 161, 0.5);
-            --code-base: rgba(88, 110, 117, 0.95);
-            --code-kw: rgba(181, 137, 0, 0.95);
-            --code-fn: rgba(42, 161, 152, 0.95);
-            --code-type: rgba(108, 113, 196, 0.95);
-            --code-num: rgba(133, 153, 0, 0.95);
-            --code-op: rgba(88, 110, 117, 0.9);
-            --tooltip-bg: rgba(253, 246, 227, 0.95);
-            --tooltip-text: #586e75;
-            --tooltip-border: rgba(147, 161, 161, 0.5);
-        }
-        .top-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            padding: clamp(0.5rem, 2vh, 1rem) 2rem;
-            background-color: var(--top-bar-bg);
-            position: relative;
-        }
-        .top-actions .btn {
-            color: var(--btn-text);
-            text-decoration: none;
-            border: 1px solid var(--btn-border);
-            padding: 0.5rem 1.25rem;
-            border-radius: 4px;
-            font-weight: 600;
-            background: transparent;
-            cursor: pointer;
-            font: inherit;
-        }
-        .theme-toggle {
-            position: absolute;
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            padding: 0;
-            border-radius: 999px;
-            border: 1px solid var(--btn-border);
-            background: var(--theme-toggle-bg);
-            cursor: pointer;
-        }
-        .theme-toggle:focus-visible {
-            outline: 2px solid var(--btn-text);
-            outline-offset: 2px;
-        }
-        .doc-shell {
-            display: grid;
-            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-            gap: clamp(1.5rem, 4vw, 3rem);
-            padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 6vw, 4.5rem) 3.5rem;
-        }
-        .doc-nav {
-            position: sticky;
-            top: 1.5rem;
-            align-self: start;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-left: -0.75rem;
-        }
-        .doc-nav__title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted-text);
-            margin-bottom: 1rem;
-        }
-        .doc-nav a {
-            display: block;
-            color: var(--hero-text);
-            text-decoration: none;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
-        .doc-nav a:hover {
-            color: var(--link-color);
-        }
-        .doc-nav a[aria-current="page"] {
-            color: var(--link-color);
-        }
-        .doc-content {
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            padding: clamp(1.75rem, 4vw, 3rem);
-            line-height: 1.65;
-        }
-        .doc-main {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
-            gap: clamp(1rem, 3vw, 1.75rem);
-            align-items: start;
-        }
-        .doc-header p {
-            color: var(--muted-text);
-            margin-top: 0;
-        }
-        .doc-header h1 {
-            font-size: clamp(2.5rem, 5vw, 3.6rem);
-            margin: 0.4rem 0 1rem;
-        }
-        .doc-lead {
-            font-size: clamp(1.1rem, 2.2vw, 1.4rem);
-        }
-        section {
-            margin-top: clamp(2rem, 5vw, 3rem);
-            scroll-margin-top: 1.5rem;
-        }
-        section h2 {
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            margin-bottom: 0.75rem;
-        }
-        .lesson-chat__intro {
-            margin: 0 0 1.2rem;
-            color: var(--muted-text);
-        }
-        .keyword-panel {
-            background: var(--chat-left-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 12px;
-            padding: 0.9rem 1rem;
-        }
-        .doc-keywords {
-            align-self: start;
-            position: sticky;
-            top: 1.5rem;
-        }
-        .keyword-panel__title {
-            margin: 0 0 0.55rem;
-            font-size: 0.74rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--muted-text);
-        }
-        .keyword-panel__list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.38rem;
-        }
-        .keyword-panel__item {
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.88rem;
-        }
-        .keyword-panel__item--empty {
-            color: var(--muted-text);
-            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-            font-size: 0.88rem;
-        }
-        .keyword-panel__link {
-            color: inherit;
-            text-decoration: none;
-        }
-        .keyword-panel__link:hover {
-            text-decoration: underline;
-        }
-        .keyword-panel__link:focus-visible {
-            outline: 1px solid var(--btn-border);
-            outline-offset: 2px;
-            border-radius: 3px;
-        }
-        .keyword-panel__item code {
-            font: inherit;
-            color: inherit;
-            background: transparent;
-            border: 0;
-            padding: 0;
-        }
-        .chat-thread {
-            display: flex;
-            flex-direction: column;
-            gap: 0.9rem;
-            width: 100%;
-            max-width: min(72ch, 100%);
-            margin-inline: auto;
-        }
-        .chat-row {
-            display: flex;
-            width: 100%;
-        }
-        .chat-row--left {
-            padding-right: clamp(0.8rem, 3.2vw, 2rem);
-        }
-        .chat-row--right {
-            padding-left: clamp(0.8rem, 3.2vw, 2rem);
-        }
-        .chat-bubble {
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
-            border: 1px solid;
-            border-radius: 10px;
-            padding: clamp(0.9rem, 2.4vw, 1.15rem) clamp(1rem, 2.6vw, 1.3rem);
-            min-height: 6.4rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .chat-bubble__index {
-            position: absolute;
-            top: 0.42rem;
-            right: 0.62rem;
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--chat-speaker);
-            pointer-events: none;
-        }
-        .chat-bubble--left {
-            background: var(--chat-left-bg);
-            border-color: var(--chat-left-border);
-        }
-        .chat-bubble--right {
-            background: var(--chat-right-bg);
-            border-color: var(--chat-right-border);
-        }
-        .chat-bubble--left::before,
-        .chat-bubble--left::after,
-        .chat-bubble--right::before,
-        .chat-bubble--right::after {
-            content: "";
-            position: absolute;
-            top: 1rem;
-            width: 0;
-            height: 0;
-            border-top: 7px solid transparent;
-            border-bottom: 7px solid transparent;
-        }
-        .chat-bubble--left::before {
-            left: -15px;
-            border-right: 8px solid var(--chat-left-border);
-        }
-        .chat-bubble--left::after {
-            left: -13px;
-            border-right: 8px solid var(--chat-left-bg);
-        }
-        .chat-bubble--right::before {
-            right: -15px;
-            border-left: 8px solid var(--chat-right-border);
-        }
-        .chat-bubble--right::after {
-            right: -13px;
-            border-left: 8px solid var(--chat-right-bg);
-        }
-        .chat-bubble__speaker {
-            margin: 0 0 0.35rem;
-            font-size: 0.72rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-weight: 600;
-            color: var(--chat-speaker);
-        }
-        .chat-bubble__text {
-            margin: 0;
-        }
-        .chat-bubble__text + .chat-bubble__text {
-            margin-top: 0.55rem;
-        }
-        .chat-bubble__link {
-            color: var(--link-color);
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-        .chat-bubble__link:focus-visible {
-            outline: 1px solid var(--btn-border);
-            outline-offset: 2px;
-            border-radius: 2px;
-        }
-        .chat-bubble__text code {
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.9em;
-            white-space: nowrap;
-            word-break: normal;
-            overflow-wrap: normal;
-            background: var(--inline-code-bg);
-            border: 1px solid var(--inline-code-border);
-            border-radius: 4px;
-            padding: 0.1rem 0.35rem;
-        }
-        .chat-bubble .doc-code {
-            margin: 0.7rem 0 0;
-            border-radius: 8px;
-        }
-        .chat-bubble__fenced-code {
-            margin: 0.7rem 0 0;
-            border-radius: 8px;
-        }
-        .chat-bubble__fenced-code code {
-            font: inherit;
-            color: inherit;
-        }
-        .chat-bubble__fenced-code + .chat-bubble__text {
-            margin-top: 0.7rem;
-        }
-        .doc-code {
-            background: var(--code-bg);
-            border: 1px solid var(--code-border);
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
-            overflow-x: auto;
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--code-base);
-            white-space: pre;
-        }
-        .doc-code .kw {
-            color: var(--code-kw);
-        }
-        .doc-code .fn {
-            color: var(--code-fn);
-        }
-        .doc-code .type {
-            color: var(--code-type);
-        }
-        .doc-code .num {
-            color: var(--code-num);
-        }
-        .doc-code .op {
-            color: var(--code-op);
-        }
-        .code-type-tooltip {
-            position: fixed;
-            left: 0;
-            top: 0;
-            transform: translate(-50%, -130%);
-            background: var(--tooltip-bg);
-            color: var(--tooltip-text);
-            font-family: "IBM Plex Mono", "Courier New", monospace;
-            font-size: 0.9rem;
-            padding: 0.25rem 0.5rem;
-            border: 1px solid var(--tooltip-border);
-            border-radius: 4px;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 3;
-            transition: opacity 120ms ease;
-        }
-        @media (max-width: 900px) {
-            .doc-shell {
-                grid-template-columns: 1fr;
-            }
-            .doc-nav {
-                position: static;
-                margin-left: 0;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.75rem 1rem;
-            }
-            .doc-nav a {
-                margin-bottom: 0;
-            }
-            .doc-main {
-                grid-template-columns: 1fr;
-            }
-            .doc-keywords {
-                position: static;
-            }
-        }
-        @media (max-width: 640px) {
-            .chat-row--left,
-            .chat-row--right {
-                padding-left: 0;
-                padding-right: 0;
-            }
-            .chat-bubble {
-                width: 100%;
-                min-height: 5.4rem;
-            }
-        }
-    </style>
+    <title>PyPie - Tutorial: Finding Patterns</title>
+    <meta name="description" content="Our next model handles images. We will use it on the Fashion-MNIST dataset. The dataset contains 70,000 images, each showing one item: a T-shirt, a dres...">
+    <link rel="canonical" href="https://pypie.dev/learn/corr/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PyPie">
+    <meta property="og:title" content="PyPie - Tutorial: Finding Patterns">
+    <meta property="og:description" content="Our next model handles images. We will use it on the Fashion-MNIST dataset. The dataset contains 70,000 images, each showing one item: a T-shirt, a dres...">
+    <meta property="og:url" content="https://pypie.dev/learn/corr/">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <script>
+        (() => {
+            try {
+                const theme = localStorage.getItem("pypie.theme");
+                if (theme === "dark" || theme === "light") {
+                    document.documentElement.dataset.theme = theme;
+                } else if (theme === "theme-dark") {
+                    document.documentElement.dataset.theme = "dark";
+                } else if (theme === "theme-solaris") {
+                    document.documentElement.dataset.theme = "light";
+                }
+            } catch {}
+        })();
+    </script>
+    <link rel="stylesheet" href="../../assets/site.css">
 </head>
-<body class="theme-solaris" data-learn-page="corr">
-    <div data-top-actions></div>
+<body class="doc-page" data-doc-section="learn" data-doc-page="corr">
+    <div data-top-actions><header class="site-header"><div class="site-header__inner"><a class="brand" href="../../index.html"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/><path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg><span class="brand__name">PyPie</span></a><nav class="site-nav" aria-label="Site"><a href="../overview/index.html" aria-current="page">Tutorial</a><a href="../../manual/guide/index.html">Manual</a><a href="../../installation/index.html">Installation</a><a href="../../updates/5_25_2026/index.html">Updates</a></nav><button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg><svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.6 14.6A8.7 8.7 0 0 1 9.4 3.4 8.9 8.9 0 1 0 20.6 14.6Z"/></svg></button></div></header></div>
     <div class="doc-shell">
-        <aside class="doc-nav" data-learn-nav></aside>
+        <aside class="doc-nav" aria-label="Tutorial navigation">
+            <div class="doc-nav__title">Tutorial</div><a href="../overview/index.html">0. Prelude</a><a href="../types/index.html">1. Types, Shapes &amp; Tensors</a><a href="../tensor_add/index.html">2. One Function, Many Ranks</a><a href="../forward_line/index.html">3. A Forward Line</a><a href="../model_line/index.html">4. The Complete Line</a><a href="index.html" aria-current="page">5. Finding Patterns</a><a href="../cnn/index.html">6. CNN</a><a href="../transformer/index.html">7. The Transformer</a>
+        </aside>
         <div class="doc-main">
             <article class="doc-content" data-code-surface>
-                <header class="doc-header">
-                    <p class="doc-eyebrow" data-learn-eyebrow></p>
-                    <h1 data-learn-title></h1>
-                    <p class="doc-lead" data-learn-lead></p>
-                </header>
+                <header class="doc-header"><p class="doc-eyebrow">Tutorial</p><h1>Finding Patterns</h1></header><section class="lesson-chat"><div class="chat-thread"><div class="chat-row chat-row--left"><article id="chat-bubble-corr-1" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">1</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Our next model handles images. We will use it on the Fashion-MNIST dataset. The dataset contains 70,000 images, each showing one item: a T-shirt, a dress, a coat, etc.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-2" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">2</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">So our model predicts the item in each image?<br>Let's get started!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-3" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">3</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">We begin with a baby step, detecting signals in rank-1 tensors.<br>Here's a signal:<br><code>Tensor([0, 1.0, 0, 0, 0])</code>.<br>Let's check if it contains the pattern<br><code>Tensor([0, 1.0, 0])</code>.<br>We align the pattern with the left end of the signal, and slide the pattern all the way to the right. For each segment in the signal, we compute a score of how well it matches the pattern.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-4" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">4</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Let's define a function to compute this score!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-5" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">5</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">The score is the dot product between the pattern and the segment, which must have the same shape.</p><pre class="doc-code chat-code-corr-4" aria-label="`dot` definition"><span class="kw">from</span> pypie <span class="kw">import</span> <span class="fn">op</span>, <span class="type">Tensor</span>
 
-                <section class="lesson-chat" data-learn-section>
-                    <h2 data-learn-section-title></h2>
-                    <p class="lesson-chat__intro" data-learn-section-body></p>
-                    <div class="chat-thread" data-learn-dialog></div>
-                </section>
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">dot</span>[<span class="code-var" data-type="int">n</span>](<span class="code-var" data-type="float">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">n</span>]], <span class="code-var" data-type="float">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">n</span>]]) <span class="op">-&gt;</span> <span class="type">float</span>:
+    <span class="kw">return</span> (<span class="code-var" data-type="Tensor[float][[n]]">p</span> <span class="op">*</span> <span class="code-var" data-type="Tensor[float][[n]]">s</span>).<span data-type="float">sum</span>(<span class="num">0</span>)</pre></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-6" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">6</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">In our case, <code>n</code> is <code>3</code>, the length of the pattern. For the first segment of the signal, we have <code>dot(Tensor([0, 1.0, 0]), Tensor([0, 1.0, 0]))</code>, which is <code>1.0</code>.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-7" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">7</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Next, we slide the pattern and compute <code>dot</code> on every segment. This function is called <code>corr1d</code>, short for rank-1 <strong>correlation</strong>.</p><pre class="doc-code chat-code-corr-6" aria-label="`corr1d` definition"><span class="kw">from</span> pypie <span class="kw">import</span> <span class="fn">iota</span>
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr1d</span>[<span class="code-var" data-type="int">w</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="float">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">n</span>]]
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">w</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="num">1</span>]]:
+    <span class="kw">return</span> [
+        <span class="fn" data-type="float">dot</span>(<span class="code-var" data-type="Tensor[float][[w]]">s</span>[<span class="code-var" data-type="int">idx</span> : <span class="code-var" data-type="int">idx</span> <span class="op">+</span> <span class="code-var" data-type="int">n</span>], <span class="code-var" data-type="Tensor[float][[n]]">p</span>)
+        <span class="kw">for</span> <span class="code-var" data-type="int">idx</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int][[w - n + 1]]">iota</span>(<span class="code-var" data-type="int">w</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="num">1</span>)
+    ]
+</pre><p class="chat-bubble__text">It's a long function. Let's start with its type.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-8" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">8</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">The signal <code>s</code> and the pattern <code>p</code> are rank-1 tensors, but they may have different shapes. The result is also rank-1, with <code>w - n + 1</code> elements, since there are <code>w - n + 1</code> segments.<br>Does <code>corr1d</code> return a tensor?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-9" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">9</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">It does. <code>[... for ... in ...]</code> is a <strong>tensor comprehension</strong>.<br>Here's how <code>corr1d</code> slides across the signal:<br><code>iota</code> gives us a <code>Tensor[int][[w - n + 1]]</code>: from <code>0</code> to <code>w - n</code>. We use these <code>int</code>s as the starting indices of the segments;<br>for each index, we take <code>n</code> elements from the signal to compute the dot product.<br>Let's run our example.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-10" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">10</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Of course.</p><pre class="doc-code chat-code-corr-9" aria-label="`corr.py` lines 22-24"><span class="code-var" data-type="Tensor[float][[3]]">pattern</span> <span class="op">=</span> <span class="type" data-type="Tensor[float][[3]]">Tensor</span>([<span class="num">0</span>, <span class="num">1.0</span>, <span class="num">0</span>])
+<span class="code-var" data-type="Tensor[float][[5]]">signal</span> <span class="op">=</span> <span class="type" data-type="Tensor[float][[5]]">Tensor</span>([<span class="num">0</span>, <span class="num">1.0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>])
+<span data-type="None">print</span>(<span class="fn" data-type="Tensor[float][[3]]">corr1d</span>(<span class="code-var" data-type="Tensor[float][[5]]">signal</span>, <span class="code-var" data-type="Tensor[float][[3]]">pattern</span>))</pre><p class="chat-bubble__text">It prints <code>Tensor([1.0, 0, 0])</code>--three <code>dot</code>s for three segments.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-11" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">11</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Now let's improve the coverage.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-12" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">12</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Coverage of what?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-13" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">13</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">The coverage of the elements at the beginning and end of the signal.<br>Our <code>corr1d</code> underutilizes the first and last elements of the signal--each is used only once, while the middle element is used three times.<br>To use elements more evenly, we can pad the signal before computing <code>corr1d</code>.<br><code>pad1d</code> builds zero tensors with <code>replicate</code>, then uses <code>concat</code> to put one on each side of <code>xs</code>.</p><pre class="doc-code chat-code-corr-12" aria-label="`pad1d` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">pad1d</span>[<span class="type">T</span>, <span class="code-var" data-type="int">w</span>](
+    <span class="code-var" data-type="Tensor[T][[w]]">xs</span>: <span class="type">Tensor</span>[<span class="type">T</span>][[<span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="int">padding</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">T</span>][[<span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int">padding</span> <span class="op">+</span> <span class="code-var" data-type="int">w</span>]]:
+    <span class="code-var" data-type="Tensor[T][[padding]]">side_padding</span> <span class="op">=</span> <span class="fn" data-type="Tensor[T][[padding]]">replicate</span>(<span class="code-var" data-type="int">padding</span>, <span class="num">0</span>)
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[T][[2 * padding + w]]">concat</span>(<span class="fn" data-type="Tensor[T][[padding + w]]">concat</span>(<span class="code-var" data-type="Tensor[T][[padding]]">side_padding</span>, <span class="code-var" data-type="Tensor[T][[w]]">xs</span>), <span class="code-var" data-type="Tensor[T][[padding]]">side_padding</span>)</pre><p class="chat-bubble__text"><code>pad1d</code> returns <code>2 * padding + w</code> elements.<br>Extend <code>corr1d</code> with <strong>padding</strong>. How many elements does it return?</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-14" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">14</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">It returns <code>2 * padding</code> additional elements compared to vanilla <code>corr1d</code>.</p><pre class="doc-code chat-code-corr-13" aria-label="`corr1d_padded` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr1d_padded</span>[<span class="code-var" data-type="int">w</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="float">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="int">padding</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int">padding</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="num">1</span>]]:
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[float][[w + 2 * padding - n + 1]]">corr1d</span>(<span class="fn" data-type="Tensor[float][[w + 2 * padding]]">pad1d</span>(<span class="code-var" data-type="Tensor[float][[w]]">s</span>, <span class="code-var" data-type="float">padding</span>), <span class="code-var" data-type="Tensor[float][[n]]">p</span>)</pre><p class="chat-bubble__text">Running <code>corr1d_padded(signal, pattern, 1)</code> gives<br><code>Tensor([0, 1.0, 0, 0, 0])</code>;<br>and <code>corr1d_padded(signal, pattern, 2)</code> gives<br><code>Tensor([0, 0, 1.0, 0, 0, 0, 0])</code>.<br>The first and last elements are now used more frequently!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-15" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">15</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Next, let's make <code>corr1d</code> more flexible.<br>In our example, <code>corr1d</code> advances one element at a time.<br>In some cases, we might want to advance by two or three elements at a time.<br>To do that, we need a new function to generate indices.</p><pre class="doc-code chat-code-corr-14" aria-label="`seq` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">seq</span>(
+    <span class="code-var" data-type="int">start</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int">end</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int">stride</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">int</span>][[(<span class="code-var" data-type="int">end</span> <span class="op">-</span> <span class="code-var" data-type="int">start</span>) <span class="op">/</span> <span class="code-var" data-type="int">stride</span>]]:
+    <span class="code-var" data-type="int">size</span> <span class="op">=</span> (<span class="code-var" data-type="int">end</span> <span class="op">-</span> <span class="code-var" data-type="int">start</span>) <span class="op">/</span> <span class="code-var" data-type="int">stride</span>
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[int][[size]]">iota</span>(<span class="code-var" data-type="int">size</span>) <span class="op">*</span> <span class="code-var" data-type="int">stride</span> <span class="op">+</span> <span class="code-var" data-type="int">start</span></pre><p class="chat-bubble__text">For example, <code>seq(0, 10, 2)</code> gives <code>Tensor([0, 2, 4, 6, 8])</code>.<br>Create a new version of <code>corr1d</code> to use indices with flexible <strong>strides</strong>. How many elements does it return?</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-16" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">16</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text"><code>corr1d_stride</code> should return <code>(w - n + stride) / stride</code> elements.</p><pre class="doc-code chat-code-corr-15" aria-label="`corr1d_stride` and `corr1d_padded_stride` definitions"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr1d_stride</span>[<span class="code-var" data-type="int">w</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="float">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="int">stride</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[(<span class="code-var" data-type="int">w</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int">stride</span>) <span class="op">/</span> <span class="code-var" data-type="int">stride</span>]]:
+    <span class="kw">return</span> [
+        <span class="fn" data-type="float">dot</span>(<span class="code-var" data-type="Tensor[float][[w]]">s</span>[<span class="code-var" data-type="int">idx</span> : <span class="code-var" data-type="int">idx</span> <span class="op">+</span> <span class="code-var" data-type="int">n</span>], <span class="code-var" data-type="Tensor[float][[n]]">p</span>)
+        <span class="kw">for</span> <span class="code-var" data-type="int">idx</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int][[((w - n + stride) / stride)]]">seq</span>(<span class="num">0</span>, <span class="code-var" data-type="int">w</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int">stride</span>, <span class="code-var" data-type="int">stride</span>)
+    ]
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr1d_padded_stride</span>[<span class="code-var" data-type="int">w</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="float">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="float">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="int">padding</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int">stride</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[(<span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int">padding</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int">stride</span>) <span class="op">/</span> <span class="code-var" data-type="int">stride</span>]]:
+    <span class="code-var" data-type="Tensor[float][[w + 2 * padding]]">padded</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[w + 2 * padding]]">pad1d</span>(<span class="code-var" data-type="Tensor[float][[w]]">s</span>, <span class="code-var" data-type="int">padding</span>)
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[float][[((w + 2 * padding - n + stride) / stride)]]">corr1d_stride</span>(<span class="code-var" data-type="Tensor[float][[w + 2 * padding]]">padded</span>, <span class="code-var" data-type="Tensor[float][[n]]">p</span>, <span class="code-var" data-type="int">stride</span>)</pre></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-17" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">17</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Excellent! We are ready to detect patterns in images.<br>Here's the template for <code>corr2d</code>, which handles padding, strides, and the sliding windows.</p><pre class="doc-code chat-code-corr-16" aria-label="`corr2d` definition (incomplete)"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr2d</span>[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>, <span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="Tensor[float][[h, w]]">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="Tensor[float][[m, n]]">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="int64">stride0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">stride1</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding1</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][
+    [
+        (<span class="code-var" data-type="int">h</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride0</span>,
+        (<span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride1</span>
+    ]
+]:
+    <span class="code-var" data-type="Tensor[float][[(padding0 + h) + padding0, w + (2 * padding1)]]">padded</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[(padding0 + h) + padding0, w + (2 * padding1)]]">pad2d</span>(<span class="code-var" data-type="Tensor[float][[h, w]]">s</span>, <span class="code-var" data-type="int64">padding0</span>, <span class="code-var" data-type="int64">padding1</span>)
+    <span class="kw">return</span> [
+        [
+            ...
+            <span class="kw">for</span> <span class="code-var" data-type="int64">i</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int64][[(((w + (2 * padding1)) - n) + stride1) / stride1]]">seq</span>(<span class="num">0</span>, <span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>, <span class="code-var" data-type="int64">stride1</span>)
+        ]
+        <span class="kw">for</span> <span class="code-var" data-type="int64">j</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int64][[(((h + (2 * padding0)) - m) + stride0) / stride0]]">seq</span>(<span class="num">0</span>, <span class="code-var" data-type="int">h</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>, <span class="code-var" data-type="int64">stride0</span>)
+    ]</pre><p class="chat-bubble__text"><code>j</code> is the index along <code>h</code>, sliding from top to bottom. <code>i</code> is the index along <code>w</code>, sliding from left to right.<br>We need functions for padding and dot products for rank-2 tensors. Define <code>pad2d</code> first by reusing <code>pad1d</code> on each row, then concatenating zero rows above and below.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-18" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">18</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">How about this? It pads every row left and right, then adds the top and bottom rows with <code>replicate</code> and <code>concat</code>.</p><pre class="doc-code chat-code-corr-17" aria-label="`pad2d` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">pad2d</span>[<span class="type">T</span>, <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>](
+    <span class="code-var" data-type="Tensor[T][[h, w]]">xs</span>: <span class="type">Tensor</span>[<span class="type">T</span>][[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="int">padding0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int">padding1</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">T</span>][[<span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int">padding0</span> <span class="op">+</span> <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int">padding1</span>]]:
+    <span class="code-var" data-type="Tensor[T][[h, w + 2 * padding1]]">padded_rows</span> <span class="op">=</span> [
+        <span class="fn" data-type="Tensor[T][[w + 2 * padding1]]">pad1d</span>(<span class="code-var" data-type="Tensor[T][[w]]">row</span>, <span class="code-var" data-type="int">padding1</span>)
+        <span class="kw">for</span> <span class="code-var" data-type="Tensor[T][[w]]">row</span> <span class="kw">in</span> <span class="code-var" data-type="Tensor[T][[h, w]]">xs</span>
+    ]
+    <span class="code-var" data-type="Tensor[T][[w + 2 * padding1]]">zero_row</span> <span class="op">=</span> <span class="fn" data-type="Tensor[T][[w + 2 * padding1]]">replicate</span>(<span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int">padding1</span>, <span class="num">0</span>)
+    <span class="code-var" data-type="Tensor[T][[padding0, w + 2 * padding1]]">top_bottom</span> <span class="op">=</span> <span class="fn" data-type="Tensor[T][[padding0, w + 2 * padding1]]">replicate</span>(<span class="code-var" data-type="int">padding0</span>, <span class="code-var" data-type="Tensor[T][[w + 2 * padding1]]">zero_row</span>)
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[T][[2 * padding0 + h, w + 2 * padding1]]">concat</span>(<span class="fn" data-type="Tensor[T][[padding0 + h, w + 2 * padding1]]">concat</span>(<span class="code-var" data-type="Tensor[T][[padding0, w + 2 * padding1]]">top_bottom</span>, <span class="code-var" data-type="Tensor[T][[h, w + 2 * padding1]]">padded_rows</span>), <span class="code-var" data-type="Tensor[T][[padding0, w + 2 * padding1]]">top_bottom</span>)</pre><p class="chat-bubble__text"><code>padding0</code> controls height padding; <code>padding1</code> controls width padding.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-19" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">19</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Very well.<br>Here's the next helper: <code>dot2d</code>.</p><pre class="doc-code chat-code-corr-18" aria-label="incomplete `dot2d`"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">dot2d</span>[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](<span class="code-var" data-type="Tensor[float][[m, n]]">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]], <span class="code-var" data-type="Tensor[float][[m, n]]">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]]) <span class="op">-&gt;</span> <span class="type">float</span>:
+    ...</pre><p class="chat-bubble__text"><code>dot2d</code> takes two tensors with the same shape, so <code>corr2d</code> can pass the current slice of <code>s</code> directly.<br>Complete <code>dot2d</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-20" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">20</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Like this?</p><pre class="doc-code chat-code-corr-19" aria-label="`dot2d` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">dot2d</span>[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](<span class="code-var" data-type="Tensor[float][[m, n]]">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]], <span class="code-var" data-type="Tensor[float][[m, n]]">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]]) <span class="op">-&gt;</span> <span class="type">float</span>:
+    <span class="kw">return</span> (<span class="code-var" data-type="Tensor[float][[m, n]]">s</span> <span class="op">*</span> <span class="code-var" data-type="Tensor[float][[m, n]]">p</span>).<span data-type="float">sum</span>(<span class="num">0</span>, <span class="num">1</span>)</pre><p class="chat-bubble__text">We multiply the two tensors element-wise, then collapse both dimensions with <code>sum(0, 1)</code>.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-21" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">21</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Exactly. Now we can finish <code>corr2d</code>, and make <code>corr2d_with_bias</code> the small bias wrapper.</p><pre class="doc-code chat-code-corr-20" aria-label="`corr2d` and `corr2d_with_bias` definitions"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr2d</span>[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>, <span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="Tensor[float][[h, w]]">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="Tensor[float][[m, n]]">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="int64">stride0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">stride1</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding1</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][
+    [
+        (<span class="code-var" data-type="int">h</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride0</span>,
+        (<span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride1</span>
+    ]
+]:
+    <span class="code-var" data-type="Tensor[float][[(padding0 + h) + padding0, w + (2 * padding1)]]">padded</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[(padding0 + h) + padding0, w + (2 * padding1)]]">pad2d</span>(<span class="code-var" data-type="Tensor[float][[h, w]]">s</span>, <span class="code-var" data-type="int64">padding0</span>, <span class="code-var" data-type="int64">padding1</span>)
+    <span class="kw">return</span> [
+        [
+            <span class="fn" data-type="float">dot2d</span>(<span class="code-var" data-type="Tensor[float][[(padding0 + h) + padding0, w + (2 * padding1)]]">padded</span>[<span class="code-var" data-type="int64">j</span> : <span class="code-var" data-type="int64">j</span> <span class="op">+</span> <span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int64">i</span> : <span class="code-var" data-type="int64">i</span> <span class="op">+</span> <span class="code-var" data-type="int">n</span>], <span class="code-var" data-type="Tensor[float][[m, n]]">p</span>)
+            <span class="kw">for</span> <span class="code-var" data-type="int64">i</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int64][[(((w + (2 * padding1)) - n) + stride1) / stride1]]">seq</span>(<span class="num">0</span>, <span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>, <span class="code-var" data-type="int64">stride1</span>)
+        ]
+        <span class="kw">for</span> <span class="code-var" data-type="int64">j</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int64][[(((h + (2 * padding0)) - m) + stride0) / stride0]]">seq</span>(<span class="num">0</span>, <span class="code-var" data-type="int">h</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>, <span class="code-var" data-type="int64">stride0</span>)
+    ]
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr2d_with_bias</span>[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>, <span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="Tensor[float][[h, w]]">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="Tensor[float][[m, n]]">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="float">bias</span>: <span class="type">float</span>,
+    <span class="code-var" data-type="int64">stride0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">stride1</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding1</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][
+    [
+        (<span class="code-var" data-type="int">h</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride0</span>,
+        (<span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride1</span>
+    ]
+]:
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[float][[(((h + (2 * padding0)) - m) + stride0) / stride0, (((w + (2 * padding1)) - n) + stride1) / stride1]]">corr2d</span>(<span class="code-var" data-type="Tensor[float][[h, w]]">s</span>, <span class="code-var" data-type="Tensor[float][[m, n]]">p</span>, <span class="code-var" data-type="int64">stride0</span>, <span class="code-var" data-type="int64">stride1</span>, <span class="code-var" data-type="int64">padding0</span>, <span class="code-var" data-type="int64">padding1</span>) <span class="op">+</span> <span class="code-var" data-type="float">bias</span></pre></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-22" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">22</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Great! Is it ready to detect patterns in images?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-23" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">23</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">It needs two more pieces:<br>input channels and output channels.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-24" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">24</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">What are the channels for?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-25" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">25</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Sometimes our inputs have a rank higher than 2. For example, RGB images are <code>Tensor[float][[3, h, w]]</code>, where each <code>Tensor[float][[h, w]]</code> stores the intensity of red, green, or blue.<br>Sometimes our outputs need a combination of patterns: rising edges, falling edges, and maybe curves.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-26" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">26</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Interesting. Could we see the functions?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-27" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">27</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text"><code>corr2d_multi_in</code> expects rank-3 tensors for <code>s</code> and <code>p</code>--one pattern for each input channel.</p><pre class="doc-code chat-code-corr-26" aria-label="`corr2d_multi_in` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr2d_multi_in</span>[<span class="code-var" data-type="int">c</span>, <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>, <span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="Tensor[float][[c, h, w]]">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">c</span>, <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>]],
+    <span class="code-var" data-type="Tensor[float][[c, m, n]]">p</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">c</span>, <span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="float">bias</span>: <span class="type">float</span>,
+    <span class="code-var" data-type="int64">stride0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">stride1</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding1</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][
+    [
+        (<span class="code-var" data-type="int">h</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride0</span>,
+        (<span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride1</span>
+    ]
+]:
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[float][[c, (((h + (2 * padding0)) - m) + stride0) / stride0, (((w + (2 * padding1)) - n) + stride1) / stride1]]">corr2d</span>(<span class="code-var" data-type="Tensor[float][[c, h, w]]">s</span>, <span class="code-var" data-type="Tensor[float][[c, m, n]]">p</span>, <span class="code-var" data-type="int64">stride0</span>, <span class="code-var" data-type="int64">stride1</span>, <span class="code-var" data-type="int64">padding0</span>, <span class="code-var" data-type="int64">padding1</span>).<span data-type="Tensor[float][[(((h + (2 * padding0)) - m) + stride0) / stride0, (((w + (2 * padding1)) - n) + stride1) / stride1]]">sum</span>(<span class="num">0</span>) <span class="op">+</span> <span class="code-var" data-type="float">bias</span></pre><p class="chat-bubble__text">In the returned value, what's the type of calling <code>corr2d</code>?</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-28" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">28</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Calling <code>corr2d</code> on rank-3 tensors generates a rank-3 tensor.</p><pre class="doc-code chat-code-corr-27" aria-label="`corr2d` return type"><span class="type">Tensor</span>[<span class="type">float</span>][
+    [
+        <span class="code-var" data-type="int">c</span>,
+        (<span class="code-var" data-type="int">h</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride0</span>,
+        (<span class="code-var" data-type="int">w</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride1</span>
+    ]
+]</pre><p class="chat-bubble__text">But the returned value should be rank-2--does <code>sum(0)</code> remove <code>c</code>?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-29" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">29</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Yes. We can specify dimensions for <code>sum</code>. Here, <code>sum</code> collapses the first dimension, <code>c</code>, producing the expected rank-2 tensor.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-30" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">30</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">That is very handy!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-31" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">31</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Next, for multiple output channels, we pass the output-channel weights and biases separately.</p><pre class="doc-code chat-code-corr-30" aria-label="`corr2d_multi_in_out` definition"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">corr2d_multi_in_out</span>[<span class="code-var" data-type="int">o</span>, <span class="code-var" data-type="int">i</span>, <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">width</span>, <span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="Tensor[float][[i, h, width]]">s</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">i</span>, <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">width</span>]],
+    <span class="code-var" data-type="Tensor[float][[o, i, m, n]]">w</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">o</span>, <span class="code-var" data-type="int">i</span>, <span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="Tensor[float][[o]]">b</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">o</span>]],
+    <span class="code-var" data-type="int64">stride0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">stride1</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding1</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][
+    [
+        <span class="code-var" data-type="int">o</span>,
+        (<span class="code-var" data-type="int">h</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride0</span>,
+        (<span class="code-var" data-type="int">width</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride1</span>
+    ]
+]:
+    <span class="kw">return</span> <span class="fn" data-type="Tensor[float][[o, (((h + (2 * padding0)) - m) + stride0) / stride0, (((width + (2 * padding1)) - n) + stride1) / stride1]]">corr2d_multi_in</span>(<span class="code-var" data-type="Tensor[float][[i, h, width]]">s</span>, <span class="code-var" data-type="Tensor[float][[o, i, m, n]]">w</span>, <span class="code-var" data-type="Tensor[float][[o]]">b</span>, <span class="code-var" data-type="int64">stride0</span>, <span class="code-var" data-type="int64">stride1</span>, <span class="code-var" data-type="int64">padding0</span>, <span class="code-var" data-type="int64">padding1</span>)</pre></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-32" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">32</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">I see. <code>w</code> stores <code>o</code> patterns, and <code>b</code> stores one bias for each output channel.<br>And we can directly reuse <code>corr2d_multi_in</code>.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-33" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">33</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text"><code>corr2d_multi_in_out</code> detects patterns at pixel-level granularity.<br>The same patterns, however, do not necessarily occur in the same position in all images. For example, although all T-shirt images should have a rising edge near the top-left area, one image might have the edge at <code>(0, 1)</code>, and another may have it at <code>(1, 2)</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-34" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">34</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">How do we reduce the impact of exact locations?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-35" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">35</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">We shrink the image with <strong>pooling</strong>.</p><pre class="doc-code chat-code-corr-34" aria-label="`mean2d` and `pool2d` definitions"><span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">mean2d</span>[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="Tensor[float][[m, n]]">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="int64">h</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">w</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">x_j</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">x_i</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">float</span>:
+    <span class="kw">return</span> [
+        [
+            <span class="code-var" data-type="Tensor[float][[m, n]]">x</span>[<span class="code-var" data-type="int64">j</span> <span class="op">+</span> <span class="code-var" data-type="int64">x_j</span>][<span class="code-var" data-type="int64">i</span> <span class="op">+</span> <span class="code-var" data-type="int64">x_i</span>]
+            <span class="kw">for</span> <span class="code-var" data-type="int64">i</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int64][[w]]">iota</span>(<span class="code-var" data-type="int64">w</span>)
+        ]
+        <span class="kw">for</span> <span class="code-var" data-type="int64">j</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int64][[h]]">iota</span>(<span class="code-var" data-type="int64">h</span>)
+    ].<span data-type="float">mean</span>()
+
+<span class="op">@</span><span class="fn">op</span>
+<span class="kw">def</span> <span class="fn">pool2d</span>[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>](
+    <span class="code-var" data-type="Tensor[float][[m, n]]">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="code-var" data-type="int">m</span>, <span class="code-var" data-type="int">n</span>]],
+    <span class="code-var" data-type="int64">h</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">w</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">stride0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">stride1</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding0</span>: <span class="type">int</span>,
+    <span class="code-var" data-type="int64">padding1</span>: <span class="type">int</span>
+) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][
+    [
+        (<span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int64">h</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride0</span>,
+        (<span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int64">w</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>) <span class="op">/</span> <span class="code-var" data-type="int64">stride1</span>
+    ]
+]:
+    <span class="code-var" data-type="Tensor[float][[(padding0 + m) + padding0, n + (2 * padding1)]]">padded</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[(padding0 + m) + padding0, n + (2 * padding1)]]">pad2d</span>(<span class="code-var" data-type="Tensor[float][[m, n]]">x</span>, <span class="code-var" data-type="int64">padding0</span>, <span class="code-var" data-type="int64">padding1</span>)
+    <span class="kw">return</span> [
+        [
+            <span class="fn" data-type="float">mean2d</span>(<span class="code-var" data-type="Tensor[float][[(padding0 + m) + padding0, n + (2 * padding1)]]">padded</span>, <span class="code-var" data-type="int64">h</span>, <span class="code-var" data-type="int64">w</span>, <span class="code-var" data-type="int64">j</span>, <span class="code-var" data-type="int64">i</span>)
+            <span class="kw">for</span> <span class="code-var" data-type="int64">i</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int64][[(((n + (2 * padding1)) - w) + stride1) / stride1]]">seq</span>(<span class="num">0</span>, <span class="code-var" data-type="int">n</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding1</span> <span class="op">-</span> <span class="code-var" data-type="int64">w</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride1</span>, <span class="code-var" data-type="int64">stride1</span>)
+        ]
+        <span class="kw">for</span> <span class="code-var" data-type="int64">j</span> <span class="kw">in</span> <span class="fn" data-type="Tensor[int64][[(((m + (2 * padding0)) - h) + stride0) / stride0]]">seq</span>(<span class="num">0</span>, <span class="code-var" data-type="int">m</span> <span class="op">+</span> <span class="num">2</span> <span class="op">*</span> <span class="code-var" data-type="int64">padding0</span> <span class="op">-</span> <span class="code-var" data-type="int64">h</span> <span class="op">+</span> <span class="code-var" data-type="int64">stride0</span>, <span class="code-var" data-type="int64">stride0</span>)
+    ]</pre><p class="chat-bubble__text">Here, we reduce each <code>h * w</code> block to one value by taking the average of all elements in the block.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-36" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">36</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">So the precise locations matter less!</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-37" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">37</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">We now have most of the ingredients for the famous LeNet.<br>It takes images of size <code>28 * 28</code>, with <code>1</code> input channel,<br>and generates likelihood scores for <code>10</code> items.</p><pre class="doc-code chat-code-corr-36" aria-label="`LeNet` definition"><span class="kw">from</span> pypie <span class="kw">import</span> <span class="fn">larger</span>
+
+<span class="kw">class</span> <span class="type">LeNet</span>(<span class="type">Model</span>):
+    <span class="kw">def</span> <span class="fn">predict</span>[<span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>](
+        <span class="code-var" data-type="Tensor[float][[1, 28, 28]]">x</span>: <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="num">1</span>, <span class="code-var" data-type="int">h</span>, <span class="code-var" data-type="int">w</span>]],
+        <span class="code-var" data-type="float">params</span>: <span class="type">Tuple</span>[
+            <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="num">6</span>, <span class="num">1</span>, <span class="num">5</span>, <span class="num">5</span>]],
+            <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="num">6</span>]],
+            <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="num">16</span>, <span class="num">6</span>, <span class="num">5</span>, <span class="num">5</span>]],
+            <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="num">16</span>]],
+            ...
+        ]
+    ) <span class="op">-&gt;</span> <span class="type">Tensor</span>[<span class="type">float</span>][[<span class="num">10</span>]]:
+        (<span class="code-var" data-type="Tensor[float][[6, 1, 5, 5]]">p1</span>, <span class="code-var" data-type="Tensor[float][[6]]">b1</span>, <span class="code-var" data-type="Tensor[float][[16, 6, 5, 5]]">p2</span>, <span class="code-var" data-type="Tensor[float][[16]]">b2</span>, ...) <span class="op">=</span> <span class="code-var" data-type="float">params</span>
+        <span class="code-var" data-type="Tensor[float][[6, 28, 28]]">layer1</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[6, 28, 28]]">larger</span>(<span class="fn" data-type="Tensor[float][[6, 28, 28]]">corr2d_multi_in_out</span>(<span class="code-var" data-type="Tensor[float][[1, 28, 28]]">x</span>, <span class="code-var" data-type="Tensor[float][[6, 1, 5, 5]]">p1</span>, <span class="code-var" data-type="Tensor[float][[6]]">b1</span>, <span class="num">1</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>), <span class="num">0</span>)
+        <span class="code-var" data-type="Tensor[float][[6, 14, 14]]">layer2</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[6, 14, 14]]">pool2d</span>(<span class="code-var" data-type="Tensor[float][[6, 28, 28]]">layer1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">0</span>, <span class="num">0</span>)
+        <span class="code-var" data-type="Tensor[float][[16, 10, 10]]">layer3</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[16, 10, 10]]">larger</span>(<span class="fn" data-type="Tensor[float][[16, 10, 10]]">corr2d_multi_in_out</span>(<span class="code-var" data-type="Tensor[float][[6, 14, 14]]">layer2</span>, <span class="code-var" data-type="Tensor[float][[16, 6, 5, 5]]">p2</span>, <span class="code-var" data-type="Tensor[float][[16]]">b2</span>, <span class="num">1</span>, <span class="num">1</span>, <span class="num">0</span>, <span class="num">0</span>), <span class="num">0</span>)
+        <span class="code-var" data-type="Tensor[float][[16, 5, 5]]">layer4</span> <span class="op">=</span> <span class="fn" data-type="Tensor[float][[16, 5, 5]]">pool2d</span>(<span class="code-var" data-type="Tensor[float][[16, 10, 10]]">layer3</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">0</span>, <span class="num">0</span>)
+        ...</pre><p class="chat-bubble__text"><code>p1</code> is the pattern tensor for the first round of correlation: it has <code>1</code> input channel to match <code>x</code>, and <code>6</code> output channels. <code>b1</code> has one bias per output channel.<br><code>p2</code> and <code>b2</code> do the same for the second round: <code>6</code> input channels and <code>16</code> output channels.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-38" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">38</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Does <code>larger(x, y)</code> pick the larger number between <code>x</code> and <code>y</code>? Why do we need these comparisons?</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-39" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">39</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text"><code>larger</code> is an <strong>activation function</strong>. Activation functions add non-linearity so each layer remains expressive. Otherwise, two consecutive linear layers would collapse into a single linear layer.<br>Here, we achieve non-linearity by simply replacing negative values with <code>0</code>.</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-40" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">40</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">Got it.<br><code>layer1</code> is a <code>Tensor[float][[6, 28, 28]]</code>,<br><code>layer2</code> is a <code>Tensor[float][[6, 14, 14]]</code>,<br><code>layer3</code> is a <code>Tensor[float][[16, 10, 10]]</code>,<br><code>layer4</code> is a <code>Tensor[float][[16, 5, 5]]</code>.<br>We don't have a <code>Tensor[float][[10]]</code> yet.</p></article></div><div class="chat-row chat-row--left"><article id="chat-bubble-corr-41" class="chat-bubble chat-bubble--left"><span class="chat-bubble__index">41</span><p class="chat-bubble__speaker">D</p><p class="chat-bubble__text">Right. Our model can only detect patterns--it does not reason about them yet.<br>We will complete LeNet in the next chapter, and run it on Fashion-MNIST!</p></article></div><div class="chat-row chat-row--right"><article id="chat-bubble-corr-42" class="chat-bubble chat-bubble--right"><span class="chat-bubble__index">42</span><p class="chat-bubble__speaker">W</p><p class="chat-bubble__text">This is getting exciting!</p></article></div></div></section>
+                <nav class="doc-pager" aria-label="Adjacent pages"><a class="doc-pager__link doc-pager__link--prev" href="../model_line/index.html" rel="prev"><span class="doc-pager__label">Previous</span><span class="doc-pager__title">4. The Complete Line</span></a><a class="doc-pager__link doc-pager__link--next" href="../cnn/index.html" rel="next"><span class="doc-pager__label">Next</span><span class="doc-pager__title">6. CNN</span></a></nav>
             </article>
-            <aside class="keyword-panel doc-keywords" aria-label="Chapter keywords">
-                <h3 class="keyword-panel__title">Keywords</h3>
-                <ul class="keyword-panel__list" data-learn-keywords></ul>
+            <aside class="keyword-panel doc-keywords" aria-label="Page keywords">
+                <h2 class="keyword-panel__title">Keywords</h2>
+                <ul class="keyword-panel__list">
+                    <li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-corr-39"><code>activation function</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-corr-7"><code>correlation</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-corr-13"><code>padding</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-corr-35"><code>pooling</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-corr-15"><code>strides</code></a></li><li class="keyword-panel__item"><a class="keyword-panel__link" href="#chat-bubble-corr-9"><code>tensor comprehension</code></a></li>
+                </ul>
             </aside>
         </div>
     </div>
+    <footer class="site-footer"><div class="site-footer__inner"><a class="brand" href="../../index.html"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 34 L54.5 21 A26 26 0 1 1 32 8 Z" fill="#2aa198"/><path d="M35 29 L35 3 A26 26 0 0 1 57.5 16 Z" fill="#b58900"/></svg><span class="brand__name">PyPie</span></a><nav class="site-footer__nav" aria-label="Footer"><a href="../overview/index.html">Tutorial</a><a href="../../manual/guide/index.html">Manual</a><a href="../../installation/index.html">Installation</a><a href="../../updates/5_25_2026/index.html">Updates</a></nav><p class="site-footer__note">Typed tensor programming for Python.</p></div></footer>
     <div class="code-type-tooltip" aria-hidden="true"></div>
+    <script src="../../site-manifest.js"></script>
     <script src="../../top-actions.js"></script>
     <script src="../../code-types.js"></script>
-    <script src="../learn-shared.js"></script>
-    <script src="main.js"></script>
 </body>
 </html>
