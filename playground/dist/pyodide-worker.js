@@ -198,7 +198,7 @@ await micropip.install(${JSON.stringify(wheelUrl.href)}, deps=False)
 `);
   } catch (error) {
     throw new Error(
-      `The PyPie wasm wheel failed to install from ${wheelUrl.href}: ${errorMessage2(error)}. Rebuild it with \`make playground-wheel\` in the website repository.`
+      `The PyPie wasm wheel failed to install from ${wheelUrl.href}: ${errorMessage2(error)}. Rebuild it with \`make test playground\` from the repository root.`
     );
   }
   return { status: "Ready", backend };
@@ -216,7 +216,7 @@ async function loadWheelManifest() {
     return { pyodideVersion: manifest.pyodideVersion, wheel: manifest.wheel };
   }
   throw new Error(
-    `The PyPie wheel manifest is missing or invalid at ${WHEEL_MANIFEST_URL}. Run \`make playground-wheel\` in the website repository to build the wasm wheel.`
+    `The PyPie wheel manifest is missing or invalid at ${WHEEL_MANIFEST_URL}. Run \`make test playground\` from the repository root to build the wasm wheel.`
   );
 }
 async function analyzeSource(source, version) {
