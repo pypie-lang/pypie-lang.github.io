@@ -11,6 +11,35 @@ make build
 The build compiles the TypeScript content files, renders documentation pages to
 static HTML (plus `sitemap.xml` and `robots.txt`), and bundles the playground.
 
+## Playground
+
+The in-browser playground runs the PyPie compiler as a Pyodide (wasm) wheel:
+
+- `playground/main.ts` is the editor UI (CodeMirror, diagnostics, hovers).
+- `playground/pyodide-worker.ts` is a thin web worker that loads Pyodide,
+  installs the wheel named by `playground/pypie-wheel.json`, and forwards
+  requests to the wheel's Python API (`pypie.analyze_source_json`,
+  `pypie.browser.run_source`). It must stay a *module* worker (and be built
+  with `--format=esm`): Pyodide 314+ ships only an ES-module core, which
+  Firefox can dynamically import only in module workers.
+- `playground/tfjs-runtime.ts` executes compiled TFJS programs; the wheel's
+  `pypie.browser.call_tfjs` calls back into it through the
+  `__pypieRunTfjsSync` global.
+- `playground/examples/*.py` are the sample programs in the picker.
+
+The wheel and its manifest are committed so GitHub Pages can serve them.
+Rebuild them whenever the compiler changes:
+
+```bash
+make playground-wheel   # builds in ../../pypie-compiler (override PYPIE_COMPILER_DIR)
+make build              # rebundles playground/dist
+make test-playground    # runs the wheel + examples under node, no browser needed
+```
+
+For browser-only issues (worker type, CDN loading, tf.js backends) serve the
+site and open `playground/browser-test.html`; it drives the real worker and
+prints PASS/FAIL per step.
+
 ## Architecture
 
 - `index.html` is the landing page: hero, the in-browser playground, and

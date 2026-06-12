@@ -33,6 +33,7 @@
     "@tensorflow/tfjs-backend-webgpu": "^4.22.0",
     "codemirror": "^6.0.2",
     "esbuild": "^0.27.1",
+    "pyodide": "^314.0.0",
     "typescript": "5.9.3"
   }
 }

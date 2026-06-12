@@ -7,5 +7,5 @@ node_modules/.bin/*
 !node_modules/typescript/
 !node_modules/typescript/**
 
-playground/pypie_lang-*.whl
-playground/pypie-wheel.json
+__pycache__
+playground/.smoke/

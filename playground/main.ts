@@ -85,7 +85,10 @@ class WorkerClient {
     private pending = new Map<number, { resolve: (value: unknown) => void; reject: (error: Error) => void }>();
 
     constructor(url: URL) {
-        this.worker = new Worker(url);
+        // Module worker: Pyodide 314+ ships an ES-module core that the worker
+        // pulls in with dynamic import, which Firefox only allows in module
+        // workers.
+        this.worker = new Worker(url, { type: "module" });
         this.worker.addEventListener("message", (event: MessageEvent<WorkerResponse>) => {
             const message = event.data;
             const pending = this.pending.get(message.id);
@@ -167,7 +170,7 @@ const SCRIPT_URL = (() => {
     return new URL("./dist/main.js", document.baseURI).href;
 })();
 
-const PLAYGROUND_BUILD_ID = "20260610-line-examples";
+const PLAYGROUND_BUILD_ID = "20260612-module-worker";
 const LOCAL_PLAYGROUND_URL = "http://localhost:8000/playground/";
 const DEFAULT_SAMPLE_KEY = "line";
 const PLAYGROUND_ROOT_URL = new URL("../", SCRIPT_URL).href;
@@ -176,6 +179,10 @@ const samples: Record<string, Sample> = {
     line: {
         label: "Line",
         path: "./examples/line.py",
+    },
+    line_rms: {
+        label: "LineRMS",
+        path: "./examples/line_rms.py",
     },
 };
 

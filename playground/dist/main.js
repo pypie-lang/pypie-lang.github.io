@@ -33422,7 +33422,7 @@
       __publicField(this, "worker");
       __publicField(this, "nextId", 1);
       __publicField(this, "pending", /* @__PURE__ */ new Map());
-      this.worker = new Worker(url);
+      this.worker = new Worker(url, { type: "module" });
       this.worker.addEventListener("message", (event) => {
         const message = event.data;
         const pending = this.pending.get(message.id);
@@ -33498,7 +33498,7 @@
     }
     return new URL("./dist/main.js", document.baseURI).href;
   })();
-  var PLAYGROUND_BUILD_ID = "20260610-line-examples";
+  var PLAYGROUND_BUILD_ID = "20260612-module-worker";
   var LOCAL_PLAYGROUND_URL = "http://localhost:8000/playground/";
   var DEFAULT_SAMPLE_KEY = "line";
   var PLAYGROUND_ROOT_URL = new URL("../", SCRIPT_URL).href;
@@ -33506,6 +33506,10 @@
     line: {
       label: "Line",
       path: "./examples/line.py"
+    },
+    line_rms: {
+      label: "LineRMS",
+      path: "./examples/line_rms.py"
     }
   };
   var pyWorker = null;

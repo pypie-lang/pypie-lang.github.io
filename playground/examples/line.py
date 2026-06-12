@@ -1,4 +1,5 @@
 from typing import Tuple
+
 from pypie import Model, Tensor, float32
 
 class Line(Model):
