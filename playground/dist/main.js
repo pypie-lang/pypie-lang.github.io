@@ -33417,6 +33417,7 @@
   }
 
   // playground/main.ts
+  var WORKER_REQUEST_TIMEOUT_MS = 18e4;
   var WorkerClient = class {
     constructor(url) {
       __publicField(this, "worker");
@@ -33430,24 +33431,45 @@
           return;
         }
         this.pending.delete(message.id);
+        window.clearTimeout(pending.timeoutId);
         if (message.ok === true) {
           pending.resolve(message.result);
         } else {
           pending.reject(new Error(message.error));
         }
       });
+      this.worker.addEventListener("error", (event) => {
+        this.rejectAll(new Error(`Worker error: ${event.message || "unknown error"}`));
+      });
+      this.worker.addEventListener("messageerror", () => {
+        this.rejectAll(new Error("Worker sent an unreadable response"));
+      });
     }
     request(type, payload = {}) {
       const id2 = this.nextId++;
-      this.worker.postMessage({ id: id2, type, payload });
       return new Promise((resolve, reject) => {
-        this.pending.set(id2, { resolve, reject });
+        const timeoutId = window.setTimeout(() => {
+          this.pending.delete(id2);
+          reject(new Error(`Worker request timed out: ${type}`));
+        }, WORKER_REQUEST_TIMEOUT_MS);
+        this.pending.set(id2, { resolve, reject, timeoutId });
+        try {
+          this.worker.postMessage({ id: id2, type, payload });
+        } catch (error) {
+          this.pending.delete(id2);
+          window.clearTimeout(timeoutId);
+          reject(error instanceof Error ? error : new Error(String(error)));
+        }
       });
     }
     terminate() {
       this.worker.terminate();
+      this.rejectAll(new Error("Worker stopped"));
+    }
+    rejectAll(error) {
       for (const pending of this.pending.values()) {
-        pending.reject(new Error("Worker stopped"));
+        window.clearTimeout(pending.timeoutId);
+        pending.reject(error);
       }
       this.pending.clear();
     }
@@ -33498,7 +33520,6 @@
     }
     return new URL("./dist/main.js", document.baseURI).href;
   })();
-  var PLAYGROUND_BUILD_ID = "20260612-module-worker";
   var LOCAL_PLAYGROUND_URL = "http://localhost:8000/playground/";
   var DEFAULT_SAMPLE_KEY = "line";
   var PLAYGROUND_ROOT_URL = new URL("../", SCRIPT_URL).href;
@@ -33572,7 +33593,11 @@
   }
   function createWorkerClient() {
     const url = new URL("pyodide-worker.js", SCRIPT_URL);
-    url.searchParams.set("v", PLAYGROUND_BUILD_ID);
+    url.searchParams.set("v", "88ddf32591eba0b7");
+    const pageParams = new URL(window.location.href).searchParams;
+    if (pageParams.get("pypieWheel") === "local") {
+      url.searchParams.set("pypieWheel", "local");
+    }
     return new WorkerClient(url);
   }
   function ensureWorkerClient() {

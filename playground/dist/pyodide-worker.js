@@ -133,10 +133,34 @@ function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
 }
 
+// playground/install-target.ts
+function wantsLocalWheel(workerUrl) {
+  return new URL(workerUrl).searchParams.get("pypieWheel") === "local";
+}
+function wheelManifestUrl(workerUrl) {
+  return new URL("../pypie-wheel.json", workerUrl).href;
+}
+function localWheelInstallUrl(workerUrl, manifest, pyodideVersion) {
+  if (!manifest.wheel) {
+    throw new Error("The local PyPie wheel manifest is missing a wheel filename.");
+  }
+  if (manifest.pyodideVersion && manifest.pyodideVersion !== pyodideVersion) {
+    throw new Error(
+      `The local PyPie wheel was built for Pyodide ${manifest.pyodideVersion}, but the worker is pinned to Pyodide ${pyodideVersion}.`
+    );
+  }
+  const wheelUrl = new URL(`../${manifest.wheel}`, workerUrl);
+  const cacheBuster = new URL(workerUrl).searchParams.get("v");
+  if (cacheBuster) {
+    wheelUrl.searchParams.set("v", cacheBuster);
+  }
+  return wheelUrl.href;
+}
+
 // playground/pyodide-worker.ts
 var WORKER_URL = self.location.href;
-var WORKER_CACHE_BUSTER = new URL(WORKER_URL).searchParams.get("v");
-var WHEEL_MANIFEST_URL = new URL("../pypie-wheel.json", WORKER_URL).href;
+var USE_LOCAL_WHEEL = wantsLocalWheel(WORKER_URL);
+var WHEEL_MANIFEST_URL = wheelManifestUrl(WORKER_URL);
 var initPromise2 = null;
 var pyodide = null;
 var stdoutBuffer = [];
@@ -171,8 +195,7 @@ function initRuntime() {
   return initPromise2;
 }
 async function loadRuntime() {
-  const manifest = await loadWheelManifest();
-  const pyodideIndexUrl = `https://cdn.jsdelivr.net/pyodide/v${manifest.pyodideVersion}/full/`;
+  const pyodideIndexUrl = `https://cdn.jsdelivr.net/pyodide/v${"314.0.0"}/full/`;
   const { loadPyodide } = await import(`${pyodideIndexUrl}pyodide.mjs`);
   pyodide = await loadPyodide({ indexURL: pyodideIndexUrl });
   pyodide.setStdout({
@@ -187,23 +210,37 @@ async function loadRuntime() {
   });
   const backend = await initTfjsRuntime();
   await pyodide.loadPackage(["micropip", "numpy"]);
-  const wheelUrl = new URL(`../${manifest.wheel}`, WORKER_URL);
-  if (WORKER_CACHE_BUSTER) {
-    wheelUrl.searchParams.set("v", WORKER_CACHE_BUSTER);
+  await installPypie();
+  return { status: "Ready", backend };
+}
+async function installPypie() {
+  if (!pyodide) {
+    throw new Error("Pyodide is not ready");
   }
+  const installTarget = USE_LOCAL_WHEEL ? await loadLocalWheelUrl() : "pypie-lang==0.0.7";
   try {
     await pyodide.runPythonAsync(`
 import micropip
-await micropip.install(${JSON.stringify(wheelUrl.href)}, deps=False)
+await micropip.install(${JSON.stringify(installTarget)})
 `);
   } catch (error) {
+    const source = USE_LOCAL_WHEEL ? `local wheel ${installTarget}` : "pypie-lang==0.0.7";
     throw new Error(
-      `The PyPie wasm wheel failed to install from ${wheelUrl.href}: ${errorMessage2(error)}. Rebuild it with \`make test playground\` from the repository root.`
+      `PyPie failed to install from ${source}: ${errorMessage2(error)}. ` + installHint()
     );
   }
-  return { status: "Ready", backend };
 }
-async function loadWheelManifest() {
+async function loadLocalWheelUrl() {
+  const manifest = await loadLocalWheelManifest();
+  try {
+    return localWheelInstallUrl(WORKER_URL, manifest, "314.0.0");
+  } catch (error) {
+    throw new Error(
+      `${errorMessage2(error)} Rebuild it with \`make test playground\` from the repository root.`
+    );
+  }
+}
+async function loadLocalWheelManifest() {
   let manifest = null;
   try {
     const response = await fetch(WHEEL_MANIFEST_URL, { cache: "no-store" });
@@ -212,12 +249,18 @@ async function loadWheelManifest() {
     }
   } catch {
   }
-  if (manifest?.pyodideVersion && manifest?.wheel) {
+  if (manifest?.wheel) {
     return { pyodideVersion: manifest.pyodideVersion, wheel: manifest.wheel };
   }
   throw new Error(
-    `The PyPie wheel manifest is missing or invalid at ${WHEEL_MANIFEST_URL}. Run \`make test playground\` from the repository root to build the wasm wheel.`
+    `The local PyPie wheel override was requested, but the wheel manifest is missing or invalid at ${WHEEL_MANIFEST_URL}. Run \`make test playground\` from the repository root to build the wasm wheel.`
   );
+}
+function installHint() {
+  if (USE_LOCAL_WHEEL) {
+    return "Rebuild the local wheel with `make test playground` from the repository root.";
+  }
+  return "Publish the matching Pyodide wheel to PyPI before deploying the website.";
 }
 async function analyzeSource(source, version) {
   if (!pyodide) {
